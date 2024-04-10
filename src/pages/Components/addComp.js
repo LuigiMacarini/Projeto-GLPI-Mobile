@@ -12,16 +12,27 @@ const TicketCrudComp = () => {
     loadTickets();
   }, [sortOrder]);
 
+  const criteriaFilter = {
+    "criteria": [
+      {
+        "field": 12,
+        "searchtype": 'equals',
+        "value": 'all'
+      }
+    ]
+  };
+
   const loadTickets = async () => {
     try {
-      const response = await fetch("http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/Computer/", {
-        method: "GET",
+      const response = await fetch("http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/search/Computer/", {
+        method: "POST", 
         headers: {
           'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-          'Session-Token': 'sb0ljhqqcmmfifugmc3v7h7ak7',
+          'Session-Token': 'lu6aepcprdq0cr52fl6gs69qb7',
+          'Content-Type': 'application/json'
         },
+        body: JSON.stringify(criteriaFilter) 
       });
-
       if (response.ok) {
         let data = await response.json();
         if (sortOrder === "alphabetical") {
@@ -35,7 +46,6 @@ const TicketCrudComp = () => {
       console.error("Error loading tickets:", error);
     }
   };
-
   const searchTicketById = () => {
     if (!searchId.trim()) {
       loadTickets();
@@ -50,6 +60,7 @@ const TicketCrudComp = () => {
     }
   };
 
+
   const toggleSortOrder = () => {
     const newOrder = sortOrder === "default" ? "alphabetical" : "default";
     setSortOrder(newOrder);
@@ -58,16 +69,17 @@ const TicketCrudComp = () => {
   const toggleItem = (id) => {
     setExpandedItem((prevItem) => (prevItem === id ? null : id));
   };
-
+console.log(criteriaFilter)
   return (
     <View style={styles.container}>
-      
+
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.filterButton} onPress={toggleSortOrder}>
           <Text style={styles.filterButtonText}>
             {sortOrder === "default" ? "Ordenar A-Z" : "Ordenar Padrão"}
           </Text>
         </TouchableOpacity>
+
 
         <View style={styles.searchContainer}>
           <TextInput
@@ -98,6 +110,8 @@ const TicketCrudComp = () => {
                 <Text>ID - {item.id}</Text>
                 <Text>Contato - {item.contact}</Text>
                 <Text>Data - {item.date_creation}</Text>
+                <Text>Data - {item.stringify(criteriaFilter)}</Text>
+
               </View>
             )}
           </View>
@@ -106,6 +120,7 @@ const TicketCrudComp = () => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

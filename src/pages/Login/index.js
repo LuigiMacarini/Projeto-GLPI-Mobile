@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, Alert } from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, Alert} from "react-native";
 import { useNavigation } from '@react-navigation/native'
 import * as Animatable from 'react-native-animatable'
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -12,10 +12,8 @@ const Login = () => {
     const navigation = useNavigation();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-
     useEffect(() => {
-        loadStoredCredentials();
-       
+    
         const unsubscribe = navigation.addListener('beforeRemove', () => {
           
             AsyncStorage.removeItem('Credenciais');

@@ -17,9 +17,10 @@ const TicketCrudPrinter = () => {
         method: "GET",
         headers: {
           'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-          'Session-Token': 'sb0ljhqqcmmfifugmc3v7h7ak7',
+          'Session-Token': 'lu6aepcprdq0cr52fl6gs69qb7',
         },
       });
+
 
       if (response.ok) {
         let data = await response.json();
@@ -28,10 +29,10 @@ const TicketCrudPrinter = () => {
         }
         setTickets(data);
       } else {
-        console.error("Failed to fetch tickets");
+        console.error("Falha ao alcançar a api");
       }
     } catch (error) {
-
+      console.error("Erro ao carregar:", error);
     }
   };
   const searchTicketById = () => {

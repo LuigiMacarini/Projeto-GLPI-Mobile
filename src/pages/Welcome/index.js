@@ -16,7 +16,7 @@ export default function Welcome() {
         </View>
         <Animatable.View delay={400} animation={"fadeInUp"}>
             <TouchableOpacity 
-            onPress ={ () => navigation.navigate('Login')} 
+            onPress ={ () => navigation.navigate('Serviços')} 
             style={estilos.button}><Text>Acessar Login</Text></TouchableOpacity>
         </Animatable.View>
     </>

@@ -32,7 +32,7 @@ const Computadores = () => {
                             <Text>Voltar</Text>
                     </TouchableOpacity>
                 </Animatable.View>
-            </ScrollView>
+                </ScrollView>
     );
 };
 

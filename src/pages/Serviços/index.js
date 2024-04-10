@@ -27,7 +27,7 @@ export default function Serviços() {
                     source={logo} style={estilos.image} />
             </Animatable.View>
 
-            <Animatable.View delay={400} animation={"fadeInUp"} style={estilos.header}>
+            <Animatable.View delay={400} animation={"fadeInUp"}>
 
                 <Text style={estilos.text1}>Serviços</Text>
 

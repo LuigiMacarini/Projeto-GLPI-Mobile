@@ -7,6 +7,7 @@ import Serviços from '../pages/Serviços'
 import Tickets from '../pages/Serviços/Tickets'
 import Impressoras from '../pages/Serviços/impress'
 import Computadores from '../pages/Serviços/computadores' 
+import Projetos from "../pages/Serviços/projetos";
 
 
 const Stack = createNativeStackNavigator();
@@ -48,6 +49,11 @@ export default function Routes() {
             <Stack.Screen
                 name="Impressoras"
                 component={Impressoras}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="Projetos"
+                component={Projetos}
                 options={{ headerShown: false }}
             />
 
