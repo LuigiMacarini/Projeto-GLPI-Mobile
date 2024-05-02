@@ -1,49 +1,46 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, ScrollView } from "react-native";
-import Modal from 'react-native-modal';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const TicketCrudComp = () => {
   const [tickets, setTickets] = useState([]);
   const [expandedItem, setExpandedItem] = useState(null);
   const [sortOrder, setSortOrder] = useState("default");
   const [searchId, setSearchId] = useState("");
+  const [sessionToken, setSessionToken] = useState(null);
 
   useEffect(() => {
     loadTickets();
   }, [sortOrder]);
 
-  const criteriaFilter = {
-    "criteria": [
-      {
-        "field": 12,
-        "searchtype": 'equals',
-        "value": 'all'
-      }
-    ]
-  };
 
   const loadTickets = async () => {
     try {
-      const response = await fetch("http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/search/Computer/", {
-        method: "POST", 
+
+      const storedSessionToken = await AsyncStorage.getItem('sessionToken');
+      setSessionToken(storedSessionToken);
+
+      const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
+      const TokenObjetc = JSON.parse(tokenPart)
+
+      const response = await fetch("http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/Computer/", {
+        method: "GET",
         headers: {
           'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-          'Session-Token': 'lu6aepcprdq0cr52fl6gs69qb7',
-          'Content-Type': 'application/json'
+          'Session-Token': `${TokenObjetc}`,
         },
-        body: JSON.stringify(criteriaFilter) 
-      });
+      }); console.log(TokenObjetc)
       if (response.ok) {
         let data = await response.json();
-        if (sortOrder === "alphabetical") {
+        if (sortOrder === "A-Z -> ID") {
           data = data.sort((a, b) => a.name.localeCompare(b.name));
         }
         setTickets(data);
       } else {
-        console.error("Failed to fetch tickets");
+        console.error("Erro em acessar a API");
       }
     } catch (error) {
-      console.error("Error loading tickets:", error);
+      console.error("Erro em carregar a API:", error);
     }
   };
   const searchTicketById = () => {
@@ -60,26 +57,24 @@ const TicketCrudComp = () => {
     }
   };
 
-
   const toggleSortOrder = () => {
-    const newOrder = sortOrder === "default" ? "alphabetical" : "default";
+    const newOrder = sortOrder === "ID -> A-Z" ? "A-Z -> ID" : "ID -> A-Z";
     setSortOrder(newOrder);
   };
 
   const toggleItem = (id) => {
     setExpandedItem((prevItem) => (prevItem === id ? null : id));
   };
-console.log(criteriaFilter)
+
   return (
     <View style={styles.container}>
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.filterButton} onPress={toggleSortOrder}>
           <Text style={styles.filterButtonText}>
-            {sortOrder === "default" ? "Ordenar A-Z" : "Ordenar Padrão"}
+            {sortOrder === "ID -> A-Z" ? "A-Z -> ID" : "ID -> A-Z"}
           </Text>
         </TouchableOpacity>
-
 
         <View style={styles.searchContainer}>
           <TextInput
@@ -90,7 +85,7 @@ console.log(criteriaFilter)
             keyboardType="numeric"
           />
           <TouchableOpacity style={styles.searchButton} onPress={searchTicketById}>
-            <Text style={styles.IdText}>Pesquisar ID</Text>
+            <Text style={styles.idText}>Pesquisar ID</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -107,11 +102,11 @@ console.log(criteriaFilter)
             </TouchableOpacity>
             {expandedItem === item.id && (
               <View style={styles.expandedContent}>
-                <Text>ID - {item.id}</Text>
-                <Text>Contato - {item.contact}</Text>
-                <Text>Data - {item.date_creation}</Text>
-                <Text>Data - {item.stringify(criteriaFilter)}</Text>
-
+                <TouchableOpacity onPress={() => openResponse}>
+                  <Text>ID - {item.id}</Text>
+                  <Text>Contato - {item.contact}</Text>
+                  <Text>Data - {item.date_creation}</Text>
+                </TouchableOpacity>
               </View>
             )}
           </View>
@@ -120,8 +115,6 @@ console.log(criteriaFilter)
     </View>
   );
 };
-
-
 const styles = StyleSheet.create({
   container: {
     padding: 20,
@@ -139,7 +132,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 10,
   },
-  IdText: {
+  idText: {
     color: '#fff'
   },
   searchContainer: {

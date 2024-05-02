@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from "react-native";
 import Modal from 'react-native-modal';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const TicketCrud = () => {
   const [tickets, setTickets] = useState([]);
-  const [novoTicket, setNovoTicket] = useState({ name: "", local: "", urgency: "" });
-  const [ModalVisivel, setModalVisivel] = useState(false);
-  const [expandirItem, setExpandirItem] = useState(null);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [expandedItem, setExpandedItem] = useState(null);
   const [sortOrder, setSortOrder] = useState("default");
   const [searchId, setSearchId] = useState("");
+  const [sessionToken, setSessionToken] = useState(null);
 
-//prioridade por cores//
-  const urgenciaCor = (urgency) => {
+
+  const getUrgencyColor = (urgency) => {
     switch (urgency) {
       case 1:
         return { backgroundColor: '#96be25' };
@@ -25,86 +26,42 @@ const TicketCrud = () => {
   };
 
   useEffect(() => {
-    carregarTickets();
+    loadTickets();
   }, [sortOrder]);
 
-//recebe a api para o crud//  
-  const carregarTickets = async () => {
+  const loadTickets = async () => {
     try {
-      const response = await fetch("http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/Ticket/", {
+      const storedSessionToken = await AsyncStorage.getItem('sessionToken');
+        setSessionToken(storedSessionToken);
+
+      const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
+      const TokenObjetc = JSON.parse(tokenPart)
+
+      const response = await fetch("http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/Ticket", {
         method: "GET",
         headers: {
           'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-          'Session-Token': 'lu6aepcprdq0cr52fl6gs69qb7',
+          'Session-Token': `${TokenObjetc}`,
         },
       });
 
       if (response.ok) {
         let data = await response.json();
-        if (sortOrder === "alphabetical") {
+        if (sortOrder === "A-Z -> ID") {
           data = data.sort((a, b) => a.name.localeCompare(b.name));
         }
         setTickets(data);
       } else {
-        console.error("Falha em alcançar a api");
+        console.error("Failed to fetch tickets");
       }
     } catch (error) {
-      console.error("Erro ao carregar a api:", error);
+      console.error("Error loading tickets:", error);
     }
   };
-//api add ticket
-  const adicionarTickets = async () => {
-    try {
-      const response = await fetch("http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/Ticket/", {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-          'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-          'Session-Token': 'sb0ljhqqcmmfifugmc3v7h7ak7',
-        },
-        body: JSON.stringify({
-          input: {
-            name: novoTicket.name,
-            urgency: novoTicket.urgency,
-            content: novoTicket.content,
-          },
-        }),
-      });
 
-      if (response.ok) {
-        setNovoTicket({ name: "", content: "", urgency: "" });
-        carregarTickets();
-      } else {
-        console.error("Falha ao alcançar a api")
-      }
-    } catch (error) {
-      console.error("Erro em adicionar o ticket", error);
-    }
-  };
-//api delete//
-  const deletarTicket = async (id) => {
-    try {
-      const response = await fetch(`http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/Ticket/${id}`, {
-        method: "DELETE",
-        headers: {
-          'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-          'Session-Token': 'lu6aepcprdq0cr52fl6gs69qb7',
-        },
-      });
-
-      if (response.ok) {
-        carregarTickets();
-      } else {
-        console.error("Falha ao alcançar a api");
-      }
-    } catch (error) {
-      console.error("Erro em deletar o ticket", error);
-    }
-  };
-//filtro por ID//
   const searchTicketById = () => {
     if (!searchId.trim()) {
-      carregarTickets();
+      loadTickets();
       return;
     }
 
@@ -115,47 +72,38 @@ const TicketCrud = () => {
       alert("Ticket não encontrado")
     }
   };  
-//função para abrir o modal//
-  const AbrirModal = () => {
-    setModalVisivel(true);
+
+  const openModal = () => {
+    setModalVisible(true);
   };
 
   const closeModal = () => {
-    setModalVisivel(false);
+    setModalVisible(false);
   };
 
-  const saveModal = () => {
-    setModalVisivel(false);
-    adicionarTickets(novoTicket);
-    setNovoTicket({ name: "", content: "", urgency: "" });
-    carregarTickets();
-  };
-//filtro para mudar a ordem do crud//
+
   const toggleItem = (id) => {
-    setExpandirItem((prevItem) => (prevItem === id ? null : id));
+    setExpandedItem((prevItem) => (prevItem === id ? null : id));
   };
   const toggleSortOrder = () => {
-    const newOrder = sortOrder === "padrão" ? "alfabetica" : "padrão";
+    const newOrder = sortOrder === "A-Z -> ID" ? "ID -> A-Z" : "A-Z -> ID";
     setSortOrder(newOrder);
   };
   useEffect(() => {
-    if (sortOrder === "urgencia") {
+    if (sortOrder === "urgency") {
       const sortedTickets = [...tickets].sort((a, b) => a.urgency - b.urgency);
       setTickets(sortedTickets);
     } else {
-      carregarTickets();
+      loadTickets();
     }
   }, [sortOrder]);
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.button} onPress={AbrirModal}>
-        <Text >Abrir Ticket</Text>
-      </TouchableOpacity>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.filterButton} onPress={toggleSortOrder}>
           <Text style={styles.filterButtonText}>
-            {sortOrder === "padrão" ? "Ordenar A-Z" : "Ordenar Padrão"}
+            {sortOrder === "A-Z -> ID" ? "ID -> A-Z" : "A-Z -> ID"}
           </Text>
         </TouchableOpacity>
 
@@ -188,52 +136,23 @@ const TicketCrud = () => {
             <TouchableOpacity onPress={() => toggleItem(item.id)}>
               <View style={styles.ticketContent}>
                 <Text>{item.name}</Text>
-                <View style={[styles.urgencyIndicator, urgenciaCor(item.urgency)]}>
+                <View style={[styles.urgencyIndicator, getUrgencyColor(item.urgency)]}>
                   <Text style={styles.urgencyNumber}>{item.urgency}</Text>
                 </View>
               </View>
             </TouchableOpacity>
-            {expandirItem === item.id && (
+            {expandedItem === item.id && (
               <View style={styles.expandedContent}>
                 <Text>ID - {item.id}</Text>
                 <Text>Local - {item.content}</Text>
                 <Text>Data - {item.date_creation}</Text>
 
-                <TouchableOpacity onPress={() => deletarTicket(item.id)}>
-                  <Text>Excluir</Text>
-                </TouchableOpacity>
+            
               </View>
             )}
           </View>
         )}
       />
-
-      <Modal isVisible={ModalVisivel} onBackdropPress={closeModal}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.modalHeader}>Adicione as informações</Text>
-          <TextInput
-            style={styles.modalInput}
-            placeholder="Nome"
-            value={novoTicket.name}
-            onChangeText={(text) => setNovoTicket({ ...novoTicket, name: text })}
-          />
-          <TextInput
-            style={styles.modalInput}
-            placeholder="Local"
-            value={novoTicket.content}
-            onChangeText={(text) => setNovoTicket({ ...novoTicket, content: text })}
-          />
-          <TextInput
-            style={styles.modalInput}
-            placeholder="Urgência"
-            value={novoTicket.urgency}
-            onChangeText={(text) => setNovoTicket({ ...novoTicket, urgency: text })}
-          />
-          <TouchableOpacity style={styles.modalButton} onPress={saveModal}>
-            <Text>Salvar</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
     </View>
   );
 };

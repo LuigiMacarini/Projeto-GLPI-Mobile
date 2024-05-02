@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const TicketCrudPrinter = () => {
   const [tickets, setTickets] = useState([]);
   const [expandedItem, setExpandedItem] = useState(null);
   const [sortOrder, setSortOrder] = useState("default");
   const [searchId, setSearchId] = useState("");
+  const [sessionToken, setSessionToken] = useState(null);
 
   useEffect(() => {
     loadTickets();
@@ -13,14 +15,18 @@ const TicketCrudPrinter = () => {
 
   const loadTickets = async () => {
     try {
+      const storedSessionToken = await AsyncStorage.getItem('sessionToken');
+      setSessionToken(storedSessionToken);
+
+    const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
+    const TokenObjetc = JSON.parse(tokenPart)
       const response = await fetch("http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/Printer/", {
         method: "GET",
         headers: {
           'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-          'Session-Token': 'lu6aepcprdq0cr52fl6gs69qb7',
+          'Session-Token': `${TokenObjetc}`,
         },
       });
-
 
       if (response.ok) {
         let data = await response.json();
@@ -29,10 +35,10 @@ const TicketCrudPrinter = () => {
         }
         setTickets(data);
       } else {
-        console.error("Falha ao alcançar a api");
+        console.error("Failed to fetch tickets");
       }
     } catch (error) {
-      console.error("Erro ao carregar:", error);
+
     }
   };
   const searchTicketById = () => {

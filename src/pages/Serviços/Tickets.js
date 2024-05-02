@@ -48,16 +48,17 @@ const AddTicket = () => {
             </Animatable.View>
 
             <Animatable.View delay={400} animation={"fadeInUp"} style={estilos.header}>
-                <Text>Home</Text>
-                <Text>/</Text>
-                <Text>Ativos</Text>
+                <TouchableOpacity
+                onPress={()=> navigation.navigate('Serviços')}>
+        
+                <Text>Serviços</Text>
+                </TouchableOpacity>
                 <Text>/</Text>
                 <Text>Tickets</Text>
-                <Text>/</Text>
             </Animatable.View>
 
             <Animatable.View delay={400} animation={"fadeInUp"} style={estilos.container} >
-                <Text style={estilos.headerText}>Tickets</Text>
+                <Text style={estilos.headerText}>Todos os Tickets</Text>
                 <TicketCrud></TicketCrud>
 
                 <TouchableOpacity

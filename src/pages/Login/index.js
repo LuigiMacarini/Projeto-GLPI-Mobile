@@ -15,7 +15,6 @@ const Login = () => {
     useEffect(() => {
     
         const unsubscribe = navigation.addListener('beforeRemove', () => {
-          
             AsyncStorage.removeItem('Credenciais');
         });
 
@@ -41,7 +40,6 @@ const Login = () => {
             await AsyncStorage.setItem('Credenciais', JSON.stringify(newCredentials));
             Alert.alert('Sucesso', 'Novas credenciais salvas com sucesso!');
         } catch (error) {
-            console.error("Erro ao salvar novas credenciais:", error);
             Alert.alert('Erro', 'Falha ao salvar novas credenciais.');
         }
     };
@@ -51,7 +49,9 @@ const Login = () => {
         const bytes = utf8.encode(texto);
         const encoded = base64.encode(bytes);
         console.log('token ' + encoded);
-
+        
+        
+    
         try {
             const response = await fetch('http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/initSession', {
                 method: "GET",
@@ -61,7 +61,8 @@ const Login = () => {
                 },
             });
             const json = await response.json();
-            console.log(json);
+            console.log(json)
+        
             if (!username || !password) {
                 Alert.alert('Erro', 'Preencha todos os campos');
                 return;
@@ -69,6 +70,7 @@ const Login = () => {
             if (json && json[0] === 'ERROR_GLPI_LOGIN') {
                 Alert.alert('Erro', 'Nome de usuário ou senha inválidos. Tente novamente.');
             } else {
+                await AsyncStorage.setItem('sessionToken', JSON.stringify(json));
                 await AsyncStorage.setItem('Credenciais', JSON.stringify({ username, password }));
                 navigation.navigate('Serviços');
             }
@@ -80,14 +82,16 @@ const Login = () => {
 
     return (
         <>
-            <View style={estilos.container}>
+            <View style={estilos.containerHeader}>
                 <View>
                     <Animatable.Image
                         animation={"flipInY"}
                         source={logo} style={estilos.image} />
                 </View>
             </View>
-            <View>
+
+        <View>
+            <View style={estilos.containerLogin}>
                 <Text style={estilos.texto}>
                     Usuário:
                 </Text>
@@ -122,13 +126,20 @@ const Login = () => {
                     <Image source={gear} style={estilos.gear} />
                 </TouchableOpacity>
             </View>
+            </View>
         </>
     );
 }
 
 const estilos = StyleSheet.create({
-    container: {
+    containerHeader: {
         backgroundColor: "#fff",
+    },
+    containerLogin: {
+        backgroundColor: "#fff",
+        height: '85%',
+        margin:16,
+    
     },
     image: {
         margin: 8,

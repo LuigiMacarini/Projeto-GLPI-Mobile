@@ -51,7 +51,7 @@ export default function Serviços() {
                                 </TouchableOpacity>
 
                                 <TouchableOpacity onPress={() => navigation.navigate('AddTicket')}>
-                                    <Text style={estilos.accordion_list}>Abrir Ticket</Text>
+                                    <Text style={estilos.accordion_list}>Tickets</Text>
                                 </TouchableOpacity>
 
                                 <TouchableOpacity onPress={() => navigation.navigate('Impressoras')}>

@@ -17,12 +17,14 @@ const Impressoras = () => {
                 </Animatable.View>
 
                 <Animatable.View delay={400} animation={"fadeInUp"} style={styles.header}>
-                    <Text>Home</Text>
-                    <Text>/</Text>
-                    <Text>Ativos</Text>
-                    <Text>/</Text>
+                <TouchableOpacity
+                onPress={()=> navigation.navigate('Serviços')}>
+        
+                <Text>Serviços</Text>
+                </TouchableOpacity>
+                <Text>/</Text>
                     <Text>Impressora</Text>
-                    <Text>/</Text>
+                    
                 </Animatable.View>
 
                 <Animatable.View delay={400} animation={"fadeInUp"} style={styles.container}>
