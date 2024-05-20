@@ -9,22 +9,26 @@ const TicketCrudPrinter = () => {
   const [searchId, setSearchId] = useState("");
   const [sessionToken, setSessionToken] = useState(null);
 
+  const TokenAPI = async () => {
+    const storedSessionToken = await AsyncStorage.getItem('sessionToken');
+          setSessionToken(storedSessionToken);
+    
+          const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
+          const TokenObjetc = JSON.parse(tokenPart)
+          return TokenObjetc
+    }
   useEffect(() => {
     loadTickets();
   }, [sortOrder]);
 
   const loadTickets = async () => {
     try {
-      const storedSessionToken = await AsyncStorage.getItem('sessionToken');
-      setSessionToken(storedSessionToken);
-
-    const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
-    const TokenObjetc = JSON.parse(tokenPart)
+      const TokenObjetc = await TokenAPI();
       const response = await fetch("http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/Printer/", {
         method: "GET",
         headers: {
           'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-          'Session-Token': `${TokenObjetc}`,
+          'Session-Token': TokenObjetc,
         },
       });
 
@@ -35,7 +39,7 @@ const TicketCrudPrinter = () => {
         }
         setTickets(data);
       } else {
-        console.error("Failed to fetch tickets");
+        console.error("Falha em acessar a API");
       }
     } catch (error) {
 
@@ -62,55 +66,56 @@ const TicketCrudPrinter = () => {
   const toggleItem = (id) => {
     setExpandedItem((prevItem) => (prevItem === id ? null : id));
   };
+  const cleanID = () =>
+  {
+    setSearchId("")
+  };
 
-  return (
-
-    <View style={styles.container}>
+return (
+  <View style={styles.container}>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.filterButton} onPress={toggleSortOrder}>
           <Text style={styles.filterButtonText}>
-            {sortOrder === "default" ? "Ordenar A-Z" : "Ordenar Padrão"}
+            {sortOrder === "default" ? "ID -> A-Z" : "A-Z -> ID"}
           </Text>
         </TouchableOpacity>
-
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
             placeholder="----"
             value={searchId}
             onChangeText={setSearchId}
-            keyboardType="numeric"
-          />
-          <TouchableOpacity style={styles.searchButton} onPress={searchTicketById}>
-            <Text style={styles.IdText}>Pesquisar ID</Text>
-          </TouchableOpacity>
+            keyboardType="numeric"/>
+        <TouchableOpacity style={styles.searchButton} onPress={searchTicketById}>
+          <Text style={styles.IdText}>Pesquisar ID</Text>
+        </TouchableOpacity>
         </View>
       </View>
+      <TouchableOpacity 
+      style={styles.cleanButton}
+      onPress={cleanID}>
+      <Text style={styles.cleanButtonText}>Limpar Id</Text>
+      </TouchableOpacity>
 
-      <FlatList
-        data={tickets}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.ticketItem}>
-            <TouchableOpacity onPress={() => toggleItem(item.id)}>
-              <View style={styles.ticketContent}>
-                <Text>{item.name}</Text>
-              </View>
-            </TouchableOpacity>
-            {expandedItem === item.id && (
-              <View style={styles.expandedContent}>
-                <Text>ID - {item.id}</Text>
-                <Text>Contato - {item.contact}</Text>
-                <Text>Data - {item.date_creation}</Text>
-              </View>
-            )}
-          </View>
-        )}
-      />
-    </View>
-
-  );
-};
+<FlatList
+  data={tickets}
+  keyExtractor={(item) => item.id.toString()}
+  renderItem={({ item }) => (
+    <View style={styles.ticketItem}>
+      <TouchableOpacity onPress={() => toggleItem(item.id)}>
+        <View style={styles.ticketContent}>
+          <Text>{item.name}</Text>
+        </View>
+      </TouchableOpacity>
+      {expandedItem === item.id && (
+        <View style={styles.expandedContent}>
+          <Text>ID - {item.id}</Text>
+          <Text>Contato - {item.contact}</Text>
+          <Text>Data - {item.date_creation}</Text>
+        </View>
+      )}
+    </View>)}/>
+    </View>);};
 
 const styles = StyleSheet.create({
   container: {
@@ -151,6 +156,16 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     padding: 10,
     alignItems: "center",
+  },
+  cleanButton: {
+    borderRadius: 6,
+    padding: 10,
+  },
+  cleanButtonText: {
+    color: "#484848",
+    bottom: '50%',
+    textDecorationLine: 'underline',
+    marginLeft: '80%'
   },
 
   ticketItem: {

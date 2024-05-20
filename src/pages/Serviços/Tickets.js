@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Text, StyleSheet, TouchableOpacity, View, ScrollView } from "react-native";
+import React from "react";
+import { Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import logo from '../assets/logo.png';
 import * as Animatable from 'react-native-animatable';
 import { useNavigation } from '@react-navigation/native';
@@ -8,36 +8,6 @@ import TicketCrud from "../Components/addTickets";
 
 const AddTicket = () => {
     const navigation = useNavigation();
-    const [ticketData, setTicketData] = useState(null);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch('http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/Ticket', {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                        'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-                        'Session-Token': 'sb0ljhqqcmmfifugmc3v7h7ak7',
-                    },
-                });
-
-                if (response.ok) {
-                    const jsonData = await response.json();
-                    setTicketData(jsonData);
-                    console.log(jsonData);
-                } else {
-                    console.error('API Request failed:', response.status, response.statusText);
-                }
-            } catch (error) {
-                console.error('API Request error:', error.message);
-            }
-        };
-
-        fetchData();
-    }, []);
-
     return (
         
         <ScrollView>

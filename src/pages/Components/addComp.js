@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, ScrollView } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 
 const TicketCrudComp = () => {
   const [tickets, setTickets] = useState([]);
@@ -9,6 +10,17 @@ const TicketCrudComp = () => {
   const [searchId, setSearchId] = useState("");
   const [sessionToken, setSessionToken] = useState(null);
 
+  const navigation = useNavigation();
+
+  const TokenAPI = async () => {
+    const storedSessionToken = await AsyncStorage.getItem('sessionToken');
+      setSessionToken(storedSessionToken);
+    const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
+    const TokenObjetc = JSON.parse(tokenPart)
+        return TokenObjetc
+          
+    }
+
   useEffect(() => {
     loadTickets();
   }, [sortOrder]);
@@ -16,23 +28,17 @@ const TicketCrudComp = () => {
 
   const loadTickets = async () => {
     try {
-
-      const storedSessionToken = await AsyncStorage.getItem('sessionToken');
-      setSessionToken(storedSessionToken);
-
-      const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
-      const TokenObjetc = JSON.parse(tokenPart)
-
+      const TokenObject = await TokenAPI();
       const response = await fetch("http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/Computer/", {
         method: "GET",
         headers: {
           'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-          'Session-Token': `${TokenObjetc}`,
+          'Session-Token': TokenObject,
         },
-      }); console.log(TokenObjetc)
+      }); console.log(TokenObject)
       if (response.ok) {
         let data = await response.json();
-        if (sortOrder === "A-Z -> ID") {
+        if (sortOrder === "alphabetical") {
           data = data.sort((a, b) => a.name.localeCompare(b.name));
         }
         setTickets(data);
@@ -58,21 +64,31 @@ const TicketCrudComp = () => {
   };
 
   const toggleSortOrder = () => {
-    const newOrder = sortOrder === "ID -> A-Z" ? "A-Z -> ID" : "ID -> A-Z";
+    const newOrder = sortOrder === "default" ? "alphabetical" : "default";
     setSortOrder(newOrder);
   };
 
-  const toggleItem = (id) => {
-    setExpandedItem((prevItem) => (prevItem === id ? null : id));
+  const toggleItem = async (id) => {
+    const newExpandedItem = expandedItem === id ? null : id;
+    setExpandedItem(newExpandedItem);
+    if (newExpandedItem !== null) {
+      await AsyncStorage.setItem('selectedTicketId', newExpandedItem.toString());
+    }
+    const storedId = await AsyncStorage.getItem('selectedTicketId');
+    console.log('Stored ID:', storedId);
   };
-
+  const cleanID = () =>
+  {
+    setSearchId("")
+  };
+  
   return (
     <View style={styles.container}>
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.filterButton} onPress={toggleSortOrder}>
-          <Text style={styles.filterButtonText}>
-            {sortOrder === "ID -> A-Z" ? "A-Z -> ID" : "ID -> A-Z"}
+          <Text style={styles.filterButtonText}> 
+            {sortOrder === "default" ? "ID -> A-Z" : "A-Z -> ID"}
           </Text>
         </TouchableOpacity>
 
@@ -89,6 +105,12 @@ const TicketCrudComp = () => {
           </TouchableOpacity>
         </View>
       </View>
+      <TouchableOpacity 
+      style={styles.cleanButton}
+      onPress={cleanID}
+      >
+      <Text style={styles.cleanButtonText}>Limpar Id</Text>
+      </TouchableOpacity>
 
       <FlatList
         data={tickets}
@@ -102,7 +124,7 @@ const TicketCrudComp = () => {
             </TouchableOpacity>
             {expandedItem === item.id && (
               <View style={styles.expandedContent}>
-                <TouchableOpacity onPress={() => openResponse}>
+                <TouchableOpacity onPress={() => navigation.navigate('Chat')}>
                   <Text>ID - {item.id}</Text>
                   <Text>Contato - {item.contact}</Text>
                   <Text>Data - {item.date_creation}</Text>
@@ -155,7 +177,16 @@ const styles = StyleSheet.create({
     padding: 10,
     alignItems: "center",
   },
-
+  cleanButton: {
+    borderRadius: 6,
+    padding: 10,
+  },
+  cleanButtonText: {
+    color: "#484848",
+    bottom: '50%',
+    textDecorationLine: 'underline',
+    marginLeft: '80%'
+  },
   ticketItem: {
     flexDirection: "column",
     borderColor: "#ddd",

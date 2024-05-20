@@ -4,13 +4,22 @@ import Modal from 'react-native-modal';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const TicketCrud = () => {
+
   const [tickets, setTickets] = useState([]);
+  const [newTicket, setNewTicket] = useState({ name: "", content: "", urgency: "" });
   const [isModalVisible, setModalVisible] = useState(false);
   const [expandedItem, setExpandedItem] = useState(null);
   const [sortOrder, setSortOrder] = useState("default");
   const [searchId, setSearchId] = useState("");
   const [sessionToken, setSessionToken] = useState(null);
 
+  const TokenAPI = async () => {
+    const storedSessionToken = await AsyncStorage.getItem('sessionToken');
+          setSessionToken(storedSessionToken);
+    
+          const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
+          const TokenObjetc = JSON.parse(tokenPart)
+          return TokenObjetc  }
 
   const getUrgencyColor = (urgency) => {
     switch (urgency) {
@@ -24,41 +33,62 @@ const TicketCrud = () => {
         return { backgroundColor: '#000' };
     }
   };
-
   useEffect(() => {
     loadTickets();
   }, [sortOrder]);
-
   const loadTickets = async () => {
     try {
-      const storedSessionToken = await AsyncStorage.getItem('sessionToken');
-        setSessionToken(storedSessionToken);
-
-      const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
-      const TokenObjetc = JSON.parse(tokenPart)
-
+      const TokenObjetc = await TokenAPI();
       const response = await fetch("http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/Ticket", {
         method: "GET",
         headers: {
           'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-          'Session-Token': `${TokenObjetc}`,
+          'Session-Token': TokenObjetc,
         },
       });
-
       if (response.ok) {
         let data = await response.json();
-        if (sortOrder === "A-Z -> ID") {
+        if (sortOrder === "alphabetical") {
           data = data.sort((a, b) => a.name.localeCompare(b.name));
         }
         setTickets(data);
       } else {
-        console.error("Failed to fetch tickets");
+        console.error("Falha em acessar a API Lista");
       }
     } catch (error) {
-      console.error("Error loading tickets:", error);
+      console.error("Erro ao carregar a API Lista:", error);
     }
   };
-
+  const addTicket = async () => {
+    try {
+      const TokenObjetc = await TokenAPI();
+      const response = await fetch("http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/Ticket", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
+          'Session-Token': TokenObjetc,
+        },
+        body: JSON.stringify({
+          input: {
+            name: newTicket.name,
+            urgency: newTicket.urgency,
+            content: newTicket.content,
+          },
+        }),
+      })
+      if (response.ok) {
+        setNewTicket({ name: "", content: "", urgency: "" });
+        loadTickets();
+        closeModal();
+      } else {
+        console.error("Falha em acessar a API ADD");
+      }
+    } catch (error) {
+      console.error("Erro em carregar a API ADD:", error);
+    }
+    alert('Não foi possivél adionar o Chamado')
+  };
   const searchTicketById = () => {
     if (!searchId.trim()) {
       loadTickets();
@@ -71,22 +101,25 @@ const TicketCrud = () => {
     } else {
       alert("Ticket não encontrado")
     }
-  };  
+  };
 
   const openModal = () => {
     setModalVisible(true);
   };
-
   const closeModal = () => {
     setModalVisible(false);
   };
-
-
+  const saveModal = () => {
+    setModalVisible(false);
+    addTicket(newTicket);
+    setNewTicket({ name: "", content: "", urgency: "" });
+    loadTickets();
+  }
   const toggleItem = (id) => {
     setExpandedItem((prevItem) => (prevItem === id ? null : id));
   };
   const toggleSortOrder = () => {
-    const newOrder = sortOrder === "A-Z -> ID" ? "ID -> A-Z" : "A-Z -> ID";
+    const newOrder = sortOrder === "default" ? "alphabetical" : "default";
     setSortOrder(newOrder);
   };
   useEffect(() => {
@@ -97,65 +130,90 @@ const TicketCrud = () => {
       loadTickets();
     }
   }, [sortOrder]);
+  const cleanID = () => {
+    setSearchId("")
+  };
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.filterButton} onPress={toggleSortOrder}>
-          <Text style={styles.filterButtonText}>
-            {sortOrder === "A-Z -> ID" ? "ID -> A-Z" : "A-Z -> ID"}
-          </Text>
+return (
+  <View style={styles.container}>
+    <TouchableOpacity style={styles.button} onPress={openModal}>
+      <Text >Abrir Ticket</Text>
+    </TouchableOpacity>
+    <View style={styles.buttonContainer}>
+      <TouchableOpacity style={styles.filterButton} onPress={toggleSortOrder}>
+        <Text style={styles.filterButtonText}>
+          {sortOrder === "default" ? "ID -> A-Z" : "A-Z -> ID"}
+        </Text>
+      </TouchableOpacity>
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="----"
+          value={searchId}
+          onChangeText={setSearchId}
+          keyboardType="numeric"/>
+        <TouchableOpacity style={styles.searchButton} onPress={searchTicketById}>
+          <Text style={styles.idText}>Pesquisar ID</Text>
         </TouchableOpacity>
-
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="----"
-            value={searchId}
-            onChangeText={setSearchId}
-            keyboardType="numeric"
-          />
-          <TouchableOpacity style={styles.searchButton} onPress={searchTicketById}>
-            <Text style={styles.IdText}>Pesquisar ID</Text>
-          </TouchableOpacity>
-        </View>
       </View>
-
-      <View style={styles.urgencyText}>
-        <Text>Urgência:</Text>
-        <Text style={styles.descUrgency1}> Baixa </Text>
-        <Text style={styles.descUrgency2}> Média </Text>
-        <Text style={styles.descUrgency3}>Alta</Text>
-
-      </View>
-      <FlatList
-        data={tickets}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.ticketItem}>
-            <TouchableOpacity onPress={() => toggleItem(item.id)}>
-              <View style={styles.ticketContent}>
-                <Text>{item.name}</Text>
-                <View style={[styles.urgencyIndicator, getUrgencyColor(item.urgency)]}>
-                  <Text style={styles.urgencyNumber}>{item.urgency}</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-            {expandedItem === item.id && (
-              <View style={styles.expandedContent}>
-                <Text>ID - {item.id}</Text>
-                <Text>Local - {item.content}</Text>
-                <Text>Data - {item.date_creation}</Text>
-
-            
-              </View>
-            )}
-          </View>
-        )}
-      />
     </View>
-  );
-};
+    <View style={styles.urgencyText}>
+      <Text>Urgência:</Text>
+      <Text style={styles.descUrgency1}> Baixa </Text>
+      <Text style={styles.descUrgency2}> Média </Text>
+      <Text style={styles.descUrgency3}>Alta</Text>
+      <TouchableOpacity
+        style={styles.cleanButton}
+        onPress={cleanID}>
+        <Text style={styles.cleanButtonText}>Limpar Id</Text>
+      </TouchableOpacity>
+    </View>
+
+<FlatList
+  data={tickets}
+  keyExtractor={(item) => item.id.toString()}
+  renderItem={({ item }) => (
+    <View style={styles.ticketItem}>
+      <TouchableOpacity onPress={() => toggleItem(item.id)}>
+        <View style={styles.ticketContent}>
+          <Text>{item.name} ({item.id})</Text>
+          <View style={[styles.urgencyIndicator, getUrgencyColor(item.urgency)]}>
+            <Text style={styles.urgencyNumber}>{item.urgency}</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+      {expandedItem === item.id && (
+        <View style={styles.expandedContent}>
+          <Text>Comentário - {item.content}</Text>
+          <Text>Data - {item.date_creation}</Text>
+        </View>
+      )}
+    </View>)}/>
+
+<Modal isVisible={isModalVisible} onBackdropPress={closeModal}>
+  <View style={styles.modalContainer}>
+    <Text style={styles.modalHeader}>Adicione as informações</Text>
+    <TextInput
+      style={styles.modalInput}
+      placeholder="Nome"
+      value={newTicket.name}
+      onChangeText={(text) => setNewTicket({ ...newTicket, name: text })}/>
+    <TextInput
+      style={styles.modalInput}
+      placeholder="Comentário"
+      value={newTicket.content}
+      onChangeText={(text) => setNewTicket({ ...newTicket, content: text })}/>
+    <TextInput
+      style={styles.modalInput}
+      placeholder="Urgência"
+      value={newTicket.urgency}
+      onChangeText={(text) => setNewTicket({ ...newTicket, urgency: text })}/>
+    <TouchableOpacity style={styles.modalButton} onPress={saveModal}>
+      <Text>Salvar</Text>
+    </TouchableOpacity>
+  </View>
+</Modal>
+</View>)};
 
 const styles = StyleSheet.create({
   container: {
@@ -181,7 +239,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 10,
   },
-  IdText: {
+  idText: {
     color: '#fff'
   },
   searchContainer: {
@@ -203,6 +261,16 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     padding: 10,
     alignItems: "center",
+  },
+  cleanButton: {
+    borderRadius: 6,
+    padding: 10,
+  },
+  cleanButtonText: {
+    color: "#484848",
+    bottom: '50%',
+    textDecorationLine: 'underline',
+    marginLeft: '42%'
   },
   filterButton: {
     backgroundColor: "#3273D4",
@@ -271,8 +339,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 10,
     backgroundColor: "#f0f0f0",
-  },
-  modalContainer: {
+  }, modalContainer: {
     backgroundColor: "#fff",
     padding: 20,
     borderRadius: 10,
