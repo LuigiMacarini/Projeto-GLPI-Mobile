@@ -12,8 +12,17 @@ const Login = () => {
     const navigation = useNavigation();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const clearSavedPages = async () => {
+        try {
+            await AsyncStorage.removeItem('Computer');
+            await AsyncStorage.removeItem('Ticket');
+            console.log('Valores salvos limpos com sucesso.');
+        } catch (error) {
+            console.error('Erro ao limpar os valores salvos:', error);
+        }
+    };
     useEffect(() => {
-    
+        clearSavedPages();
         const unsubscribe = navigation.addListener('beforeRemove', () => {
             AsyncStorage.removeItem('Credenciais');
         });

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from "react-native";
 import Modal from 'react-native-modal';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 
 const TicketCrud = () => {
 
@@ -12,14 +13,16 @@ const TicketCrud = () => {
   const [sortOrder, setSortOrder] = useState("default");
   const [searchId, setSearchId] = useState("");
   const [sessionToken, setSessionToken] = useState(null);
+  const navigation = useNavigation();
 
   const TokenAPI = async () => {
     const storedSessionToken = await AsyncStorage.getItem('sessionToken');
-          setSessionToken(storedSessionToken);
-    
-          const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
-          const TokenObjetc = JSON.parse(tokenPart)
-          return TokenObjetc  }
+    setSessionToken(storedSessionToken);
+
+    const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
+    const TokenObjetc = JSON.parse(tokenPart)
+    return TokenObjetc
+  }
 
   const getUrgencyColor = (urgency) => {
     switch (urgency) {
@@ -115,8 +118,27 @@ const TicketCrud = () => {
     setNewTicket({ name: "", content: "", urgency: "" });
     loadTickets();
   }
-  const toggleItem = (id) => {
-    setExpandedItem((prevItem) => (prevItem === id ? null : id));
+
+
+  const toggleItem = async (id) => {
+    const newExpandedItem = expandedItem === id ? null : id;
+    setExpandedItem(newExpandedItem);
+
+    if (newExpandedItem !== null) {
+      try {
+        await AsyncStorage.setItem('Ticket', 'Ticket');
+        await AsyncStorage.setItem('selectedTicketId', newExpandedItem.toString());
+      }
+
+      catch (error) {
+        console.error('Erro ao armazenar a página selecionada:', error);
+      }
+    }
+
+    const storedPage = await AsyncStorage.getItem('Ticket');
+    console.log("Pagina:", storedPage);
+    const storedId = await AsyncStorage.getItem('selectedTicketId');
+    console.log('ID:', storedId);
   };
   const toggleSortOrder = () => {
     const newOrder = sortOrder === "default" ? "alphabetical" : "default";
@@ -130,90 +152,94 @@ const TicketCrud = () => {
       loadTickets();
     }
   }, [sortOrder]);
+
   const cleanID = () => {
     setSearchId("")
   };
 
-return (
-  <View style={styles.container}>
-    <TouchableOpacity style={styles.button} onPress={openModal}>
-      <Text >Abrir Ticket</Text>
-    </TouchableOpacity>
-    <View style={styles.buttonContainer}>
-      <TouchableOpacity style={styles.filterButton} onPress={toggleSortOrder}>
-        <Text style={styles.filterButtonText}>
-          {sortOrder === "default" ? "ID -> A-Z" : "A-Z -> ID"}
-        </Text>
+  return (
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.button} onPress={openModal}>
+        <Text >Abrir Ticket</Text>
       </TouchableOpacity>
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="----"
-          value={searchId}
-          onChangeText={setSearchId}
-          keyboardType="numeric"/>
-        <TouchableOpacity style={styles.searchButton} onPress={searchTicketById}>
-          <Text style={styles.idText}>Pesquisar ID</Text>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.filterButton} onPress={toggleSortOrder}>
+          <Text style={styles.filterButtonText}>
+            {sortOrder === "default" ? "ID -> A-Z" : "A-Z -> ID"}
+          </Text>
+        </TouchableOpacity>
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="----"
+            value={searchId}
+            onChangeText={setSearchId}
+            keyboardType="numeric" />
+          <TouchableOpacity style={styles.searchButton} onPress={searchTicketById}>
+            <Text style={styles.idText}>Pesquisar ID</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View style={styles.urgencyText}>
+        <Text>Urgência:</Text>
+        <Text style={styles.descUrgency1}> Baixa </Text>
+        <Text style={styles.descUrgency2}> Média </Text>
+        <Text style={styles.descUrgency3}>Alta</Text>
+        <TouchableOpacity
+          style={styles.cleanButton}
+          onPress={cleanID}>
+          <Text style={styles.cleanButtonText}>Limpar Id</Text>
         </TouchableOpacity>
       </View>
-    </View>
-    <View style={styles.urgencyText}>
-      <Text>Urgência:</Text>
-      <Text style={styles.descUrgency1}> Baixa </Text>
-      <Text style={styles.descUrgency2}> Média </Text>
-      <Text style={styles.descUrgency3}>Alta</Text>
-      <TouchableOpacity
-        style={styles.cleanButton}
-        onPress={cleanID}>
-        <Text style={styles.cleanButtonText}>Limpar Id</Text>
-      </TouchableOpacity>
-    </View>
 
-<FlatList
-  data={tickets}
-  keyExtractor={(item) => item.id.toString()}
-  renderItem={({ item }) => (
-    <View style={styles.ticketItem}>
-      <TouchableOpacity onPress={() => toggleItem(item.id)}>
-        <View style={styles.ticketContent}>
-          <Text>{item.name} ({item.id})</Text>
-          <View style={[styles.urgencyIndicator, getUrgencyColor(item.urgency)]}>
-            <Text style={styles.urgencyNumber}>{item.urgency}</Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-      {expandedItem === item.id && (
-        <View style={styles.expandedContent}>
-          <Text>Comentário - {item.content}</Text>
-          <Text>Data - {item.date_creation}</Text>
-        </View>
-      )}
-    </View>)}/>
+      <FlatList
+        data={tickets}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.ticketItem}>
+            <TouchableOpacity onPress={() => toggleItem(item.id)}>
+              <View style={styles.ticketContent}>
+                <Text>{item.name} ({item.id})</Text>
+                <View style={[styles.urgencyIndicator, getUrgencyColor(item.urgency)]}>
+                  <Text style={styles.urgencyNumber}>{item.urgency}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+            {expandedItem === item.id && (
+              <View style={styles.expandedContent}>
+                <TouchableOpacity onPress={() => navigation.navigate('Chat')}>
+                  <Text>Comentário - {item.content}</Text>
+                  <Text>Data - {item.date_creation}</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>)} />
 
-<Modal isVisible={isModalVisible} onBackdropPress={closeModal}>
-  <View style={styles.modalContainer}>
-    <Text style={styles.modalHeader}>Adicione as informações</Text>
-    <TextInput
-      style={styles.modalInput}
-      placeholder="Nome"
-      value={newTicket.name}
-      onChangeText={(text) => setNewTicket({ ...newTicket, name: text })}/>
-    <TextInput
-      style={styles.modalInput}
-      placeholder="Comentário"
-      value={newTicket.content}
-      onChangeText={(text) => setNewTicket({ ...newTicket, content: text })}/>
-    <TextInput
-      style={styles.modalInput}
-      placeholder="Urgência"
-      value={newTicket.urgency}
-      onChangeText={(text) => setNewTicket({ ...newTicket, urgency: text })}/>
-    <TouchableOpacity style={styles.modalButton} onPress={saveModal}>
-      <Text>Salvar</Text>
-    </TouchableOpacity>
-  </View>
-</Modal>
-</View>)};
+      <Modal isVisible={isModalVisible} onBackdropPress={closeModal}>
+        <View style={styles.modalContainer}>
+          <Text style={styles.modalHeader}>Adicione as informações</Text>
+          <TextInput
+            style={styles.modalInput}
+            placeholder="Nome"
+            value={newTicket.name}
+            onChangeText={(text) => setNewTicket({ ...newTicket, name: text })} />
+          <TextInput
+            style={styles.modalInput}
+            placeholder="Comentário"
+            value={newTicket.content}
+            onChangeText={(text) => setNewTicket({ ...newTicket, content: text })} />
+          <TextInput
+            style={styles.modalInput}
+            placeholder="Urgência"
+            value={newTicket.urgency}
+            onChangeText={(text) => setNewTicket({ ...newTicket, urgency: text })} />
+          <TouchableOpacity style={styles.modalButton} onPress={saveModal}>
+            <Text>Salvar</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    </View>)
+};
 
 const styles = StyleSheet.create({
   container: {

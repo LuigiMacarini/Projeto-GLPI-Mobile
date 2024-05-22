@@ -71,11 +71,21 @@ const TicketCrudComp = () => {
   const toggleItem = async (id) => {
     const newExpandedItem = expandedItem === id ? null : id;
     setExpandedItem(newExpandedItem);
+    
     if (newExpandedItem !== null) {
-      await AsyncStorage.setItem('selectedTicketId', newExpandedItem.toString());
+      try {
+        await AsyncStorage.setItem('Computer', 'Computer');
+        await AsyncStorage.setItem('selectedTicketId', newExpandedItem.toString());
+      }
+      catch (error) {
+        console.error('Erro ao armazenar a página selecionada:', error);
+      }
     }
+
+    const storedPage = await AsyncStorage.getItem('Computer');
+    console.log("Pagina:", storedPage);
     const storedId = await AsyncStorage.getItem('selectedTicketId');
-    console.log('Stored ID:', storedId);
+    console.log('ID:', storedId);
   };
   const cleanID = () =>
   {

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
+
+
 
 const TicketCrudPrinter = () => {
   const [tickets, setTickets] = useState([]);
@@ -8,15 +11,15 @@ const TicketCrudPrinter = () => {
   const [sortOrder, setSortOrder] = useState("default");
   const [searchId, setSearchId] = useState("");
   const [sessionToken, setSessionToken] = useState(null);
-
+  const navigation = useNavigation();
   const TokenAPI = async () => {
     const storedSessionToken = await AsyncStorage.getItem('sessionToken');
-          setSessionToken(storedSessionToken);
-    
-          const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
-          const TokenObjetc = JSON.parse(tokenPart)
-          return TokenObjetc
-    }
+    setSessionToken(storedSessionToken);
+
+    const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
+    const TokenObjetc = JSON.parse(tokenPart)
+    return TokenObjetc
+  }
   useEffect(() => {
     loadTickets();
   }, [sortOrder]);
@@ -24,7 +27,7 @@ const TicketCrudPrinter = () => {
   const loadTickets = async () => {
     try {
       const TokenObjetc = await TokenAPI();
-      const response = await fetch("http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/Printer/", {
+      const response = await fetch("http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/Printer", {
         method: "GET",
         headers: {
           'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
@@ -63,16 +66,32 @@ const TicketCrudPrinter = () => {
     setSortOrder(newOrder);
   };
 
-  const toggleItem = (id) => {
-    setExpandedItem((prevItem) => (prevItem === id ? null : id));
+  const toggleItem = async (id) => {
+    const newExpandedItem = expandedItem === id ? null : id;
+    setExpandedItem(newExpandedItem);
+
+    if (newExpandedItem !== null) {
+      try {
+        await AsyncStorage.setItem('Printer', 'Printer');
+        await AsyncStorage.setItem('selectedTicketId', newExpandedItem.toString());
+      }
+
+      catch (error) {
+        console.error('Erro ao armazenar a página selecionada:', error);
+      }
+    }
+
+    const storedPage = await AsyncStorage.getItem('Printer');
+    console.log("Pagina:", storedPage);
+    const storedId = await AsyncStorage.getItem('selectedTicketId');
+    console.log('ID:', storedId);
   };
-  const cleanID = () =>
-  {
+  const cleanID = () => {
     setSearchId("")
   };
 
-return (
-  <View style={styles.container}>
+  return (
+    <View style={styles.container}>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.filterButton} onPress={toggleSortOrder}>
           <Text style={styles.filterButtonText}>
@@ -85,37 +104,39 @@ return (
             placeholder="----"
             value={searchId}
             onChangeText={setSearchId}
-            keyboardType="numeric"/>
-        <TouchableOpacity style={styles.searchButton} onPress={searchTicketById}>
-          <Text style={styles.IdText}>Pesquisar ID</Text>
-        </TouchableOpacity>
+            keyboardType="numeric" />
+          <TouchableOpacity style={styles.searchButton} onPress={searchTicketById}>
+            <Text style={styles.IdText}>Pesquisar ID</Text>
+          </TouchableOpacity>
         </View>
       </View>
-      <TouchableOpacity 
-      style={styles.cleanButton}
-      onPress={cleanID}>
-      <Text style={styles.cleanButtonText}>Limpar Id</Text>
+      <TouchableOpacity
+        style={styles.cleanButton}
+        onPress={cleanID}>
+        <Text style={styles.cleanButtonText}>Limpar Id</Text>
       </TouchableOpacity>
 
-<FlatList
-  data={tickets}
-  keyExtractor={(item) => item.id.toString()}
-  renderItem={({ item }) => (
-    <View style={styles.ticketItem}>
-      <TouchableOpacity onPress={() => toggleItem(item.id)}>
-        <View style={styles.ticketContent}>
-          <Text>{item.name}</Text>
-        </View>
-      </TouchableOpacity>
-      {expandedItem === item.id && (
-        <View style={styles.expandedContent}>
-          <Text>ID - {item.id}</Text>
-          <Text>Contato - {item.contact}</Text>
-          <Text>Data - {item.date_creation}</Text>
-        </View>
-      )}
-    </View>)}/>
-    </View>);};
+      <FlatList
+        data={tickets}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.ticketItem}>
+            <TouchableOpacity onPress={() => toggleItem(item.id)}>
+              <View style={styles.ticketContent}>
+                <Text>{item.name}</Text>
+              </View>
+            </TouchableOpacity>
+            {expandedItem === item.id && (
+              <View style={styles.expandedContent}>
+                <TouchableOpacity onPress={() => navigation.navigate('Chat')}>
+                  <Text>Comentário - {item.contact}</Text>
+                  <Text>Data - {item.date_creation}</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>)} />
+    </View>);
+};
 
 const styles = StyleSheet.create({
   container: {
