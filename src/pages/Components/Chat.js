@@ -8,6 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const Chat = () => {
     const navigation = useNavigation();
     const [chatData, setChatData] = useState([]);
+    const [chatMensagemData, setChatMensagemData] = useState([]);
     const [newMessage, setNewMessage] = useState("");
 
     useEffect(() => {
@@ -18,16 +19,26 @@ const Chat = () => {
         fetchData();
     }, []);
 
+    useEffect(() => {
+        const fetchData = async () => {
+            const data = await chatMensagemScreen();
+            setChatMensagemData(data);
+        };
+        fetchData();
+    }, []);
+
     const TokenAPI = async () => {
         const storedSessionToken = await AsyncStorage.getItem('sessionToken');
         const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
         const tokenObject = JSON.parse(tokenPart);
         return tokenObject;
     }
+
     const SaveId = async () => {
         const storedId = await AsyncStorage.getItem('selectedTicketId');
         return storedId;
     }
+
     const RoutePageChat = async () => {
         try {
             const ticketPage = await AsyncStorage.getItem('Ticket');
@@ -44,17 +55,14 @@ const Chat = () => {
             return null;
         }
     };
+
     const ChatScreen = async () => {
         try {
             const storedId = await SaveId();
             const TokenObject = await TokenAPI();
             const pages = await RoutePageChat();
-    
-            //console.log('Pagina:', pages.ticket);//
-            //console.log('Pagina:', pages.computer);//
-            //console.log('Pagina:', pages.printerPage);//
             const pageToUse = pages.ticket || pages.computer || pages.printer;
-    
+
             const response = await fetch(`http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/${pageToUse}/${storedId}`, {
                 method: "GET",
                 headers: {
@@ -62,24 +70,93 @@ const Chat = () => {
                     'Session-Token': TokenObject,
                 },
             });
-    
-            //console.log(TokenObject)//
+
             if (response.ok) {
                 const data = await response.json();
                 return [data];
             } else {
                 console.error("Erro em acessar a API");
-                return;
+                return [];
             }
         } catch (error) {
             console.error("Erro em carregar a API:", error);
-            return;
+            return [];
         }
     };
-    const enviarMensagem = () => {
-        console.log("Mensagem enviada:", newMessage);
-        setNewMessage("");
+
+    const chatMensagemScreen = async () => {
+        try {
+            const storedId = await SaveId();
+            const tokenObject = await TokenAPI();
+            const pages = await RoutePageChat();
+            const pageToUse = pages.ticket || pages.computer || pages.printer;
+
+            const response = await fetch(`http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/${pageToUse}/${storedId}/ITILFollowup/`, {
+                method: "GET",
+                headers: {
+                    'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
+                    'Session-Token': tokenObject,
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                return data;
+            } else {
+                console.error("Erro em acessar a API");
+                return [];
+            }
+        } catch (error) {
+            console.error("Erro em carregar a API:", error);
+            return [];
+        }
     };
+
+    const sendMessage = async () => {
+        try {
+            const storedId = await SaveId();
+            const tokenObject = await TokenAPI();
+            const pages = await RoutePageChat();
+            const pageToUse = pages.ticket || pages.computer || pages.printer;
+
+            if (!newMessage.trim()) {
+                console.error("Mensagem está vazia");
+                return;
+            }
+
+            const response = await fetch(`http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/${pageToUse}/${storedId}/ITILFollowup/`, {
+                method: "POST",
+                headers: {
+                    'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
+                    'Session-Token': tokenObject,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify([{ content: newMessage }]), // Enviando a mensagem como vetor de objetos
+            });
+
+            if (response.ok) {
+                console.log("Mensagem enviada com sucesso");
+                setNewMessage("");
+                const data = await chatMensagemScreen();
+                setChatMensagemData(data);
+            } else {
+                const errorData = await response.json();
+                console.error("Erro ao enviar a mensagem:", errorData);
+            }
+        } catch (error) {
+            console.error("Erro ao enviar a mensagem:", error);
+        }
+    };
+    const textHeaderRoutes = async () =>{
+        const pages = await RoutePageChat();
+            const pageToUse = pages.ticket || pages.computer || pages.printer;
+            switch (pages){
+                case pages.ticket:return {Text:'Chamados'};
+                case pages.computer:return {Text:'Computadores'};
+                case pages.printer:return {Text:'Impressoras'};
+            }
+
+    }
 
     return (
         <ScrollView>
@@ -99,35 +176,49 @@ const Chat = () => {
             </Animatable.View>
 
             <Animatable.View delay={400} animation={"fadeInUp"} style={styles.container}>
-                <Text style={styles.headerText}>Chat Chamados</Text>
+                <Text style={styles.headerText}>Chat Chamados {textHeaderRoutes}</Text>
                 <FlatList
                     data={chatData}
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={({ item }) => (
                         <View style={styles.chatItem}>
                             <Text>({item.id}) - {item.name}</Text>
-                            <Text>Mensagem - {item.content}</Text>
+                            <Text>Mensagem - {item.contact}</Text>
                         </View>
                     )}
                 />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Digite sua mensagem..."
-                    value={newMessage}
-                    onChangeText={setNewMessage} />
-                <TouchableOpacity onPress={enviarMensagem} style={styles.sendButton}>
+                <View style={styles.containerChat}>
+                    <Text style={styles.headerTextChat}>Mensagens</Text>
+                    <FlatList
+                        data={chatMensagemData}
+                        keyExtractor={(item) => item.id.toString()}
+                        renderItem={({ item }) => (
+                            <View>
+                                <Text>({item.items_id})</Text>
+                                <Text>{item.content}</Text>
+                            </View>
+                        )}
+                    />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Digite sua mensagem..."
+                        value={newMessage}
+                        onChangeText={setNewMessage} />
+                </View>
+                <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
                     <Text style={styles.sendButtonText}>Enviar</Text>
                 </TouchableOpacity>
             </Animatable.View>
 
-            <Animatable.View delay={400} animation={"fadeInUp"} >
+            <Animatable.View delay={400} animation={"fadeInUp"}>
                 <TouchableOpacity
                     onPress={() => navigation.navigate('Serviços')}
                     style={styles.button}>
                     <Text>Voltar</Text>
                 </TouchableOpacity>
             </Animatable.View>
-        </ScrollView>);
+        </ScrollView>
+    );
 };
 
 const styles = StyleSheet.create({
@@ -152,6 +243,20 @@ const styles = StyleSheet.create({
     text: {
         alignSelf: "center",
         fontSize: 20,
+    },
+    containerChat: {
+        alignContent: 'flex-end',
+        
+        backgroundColor: "#D9DAD8",
+        borderRadius: 8,
+    },
+    headerTextChat: {
+        alignSelf: 'flex-end',
+        width: '70%',
+        textAlign: 'center',
+        height: 50,
+        margin: '5%',
+        width: '60%',
     },
     input: {
         borderWidth: 1,
@@ -183,7 +288,6 @@ const styles = StyleSheet.create({
         marginVertical: 10,
     },
     chatItem: {
-        borderBottomColor: "#f12",
         paddingVertical: 10,
         paddingHorizontal: 15,
     }

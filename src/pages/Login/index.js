@@ -16,6 +16,7 @@ const Login = () => {
         try {
             await AsyncStorage.removeItem('Computer');
             await AsyncStorage.removeItem('Ticket');
+            await AsyncStorage.removeItem('Printer');
             console.log('Valores salvos limpos com sucesso.');
         } catch (error) {
             console.error('Erro ao limpar os valores salvos:', error);
