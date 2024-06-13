@@ -4,6 +4,7 @@ import logo from '../assets/logo.png'
 import * as Animatable from 'react-native-animatable'
 import { useNavigation } from '@react-navigation/native'
 import Modal from 'react-native-modal';
+import menu from '../assets/menu.png'
 
 export default function Projetos() {
     const navigation = useNavigation();
@@ -33,7 +34,11 @@ export default function Projetos() {
                     animation={"flipInY"}
                     source={logo} style={styles.image} />
             </Animatable.View>
-
+            <View>
+                <Animatable.Image
+                    animation={"flipInY"}
+                />
+            </View>
             <Animatable.View delay={400} animation={"fadeInUp"} style={styles.barHeader}>
                 <Text>Home</Text>
                 <Text>/</Text>
@@ -45,15 +50,12 @@ export default function Projetos() {
 
             <Animatable.View delay={400} animation={"fadeInUp"} style={styles.container}>
                 <Text style={styles.headerText}>Projetos</Text>
-                <TouchableOpacity
-                    onPress={abriModal}
-                    style={styles.buttonExit}>
-                    <Text style={styles.text2}>Projeto +</Text>
-                </TouchableOpacity>
-            </Animatable.View>
 
+            </Animatable.View>
+           
             <Modal isVisible={modalVisivel} onBackdropPress={fecharModal}>
                 <View style={styles.modalContainer}>
+
                     <Text style={styles.modalHeader}>Adicione as informações do Projeto</Text>
                     <TextInput
                         style={styles.modalInput}
@@ -73,9 +75,14 @@ export default function Projetos() {
                 </View>
             </Modal>
 
-            <View style={styles.containerBox}>
-               
-            </View>
+        <View style={styles.containerBox}>
+            <View>
+                <TouchableOpacity
+                onPress={abriModal}
+                style={styles.buttonProject}>
+                <Text style={styles.text2}>Adicionar Projeto</Text>
+            </TouchableOpacity></View>
+        </View>
             <TouchableOpacity
                 onPress={() => navigation.navigate('Login')}
                 style={styles.buttonExit}>
@@ -86,6 +93,9 @@ export default function Projetos() {
 }
 
 const styles = StyleSheet.create({
+
+
+
     background: {
         backgroundColor: '#fff',
         height: '100%'
@@ -112,23 +122,21 @@ const styles = StyleSheet.create({
         margin: 8,
         alignSelf: 'center'
     },
-    text1: {
-        fontSize: 20,
-    },
     text2: {
         fontSize: 15,
     },
     buttonExit: {
         backgroundColor: '#498DF3',
-        width: 70,
-        marginRight: 12,
+        width: "25%",
+        marginStart: "5%",
+        justifyContent: "center",
         alignItems: "center",
         textAlign: "center",
-        marginRight: '5%',
         borderRadius: 3,
     },
     containerBox: {
-        backgroundColor: '#ddd',
+        backgroundColor: '#D9DAD8',
+        alignItems: "center",
         height: '70%',
         margin: '5%'
     },
@@ -136,6 +144,14 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         padding: 20,
         borderRadius: 10,
+    }, 
+    buttonProject: {
+        backgroundColor: '#498DF3',
+        width: "45%",
+        marginTop: "5%",
+        alignItems: "center",
+        textAlign: "center",
+        borderRadius: 3,
     },
     modalHeader: {
         fontSize: 18,

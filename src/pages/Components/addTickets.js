@@ -5,14 +5,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 
 const TicketCrud = () => {
-
   const [tickets, setTickets] = useState([]);
   const [newTicket, setNewTicket] = useState({ name: "", content: "", urgency: "" });
   const [isModalVisible, setModalVisible] = useState(false);
   const [expandedItem, setExpandedItem] = useState(null);
   const [sortOrder, setSortOrder] = useState("default");
   const [searchId, setSearchId] = useState("");
-  const [sessionToken, setSessionToken] = useState(null);
+  const [buttonVisible, setButtonVisible] = useState(true);
+  const [, setSessionToken] = useState(null);
   const navigation = useNavigation();
 
   const TokenAPI = async () => {
@@ -20,8 +20,8 @@ const TicketCrud = () => {
     setSessionToken(storedSessionToken);
 
     const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
-    const TokenObjetc = JSON.parse(tokenPart)
-    return TokenObjetc
+    const TokenObjetc = JSON.parse(tokenPart);
+    return TokenObjetc;
   }
 
   const getUrgencyColor = (urgency) => {
@@ -33,39 +33,70 @@ const TicketCrud = () => {
       case 3:
         return { backgroundColor: '#C1232e' };
       default:
-        return { backgroundColor: '#000' };
+        return {};
     }
   };
+
+  const autoPages = async () => {
+    try {
+      const routes = await AsyncStorage.getItem('option');
+      if (routes !== null) {
+        return JSON.parse(routes);
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error('Erro em pegar a pagina:', error);
+      return null;
+    }
+  }
+
   useEffect(() => {
     loadTickets();
   }, [sortOrder]);
+
+  useEffect(() => {
+    const checkPage = async () => {
+      const routes = await autoPages();
+      setButtonVisible(!(routes === 'Computer' || routes === 'Printer'));
+    };
+    checkPage();
+  }, []);
+
   const loadTickets = async () => {
     try {
       const TokenObjetc = await TokenAPI();
-      const response = await fetch("http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/Ticket", {
+      const routes = await autoPages();
+      const ip = 'http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/';
+      const response = await fetch(`${ip}${routes}`, {
         method: "GET",
         headers: {
           'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
           'Session-Token': TokenObjetc,
         },
       });
+
       if (response.ok) {
         let data = await response.json();
-        if (sortOrder === "alphabetical") {
+        if (sortOrder === 'alphabetical') {
           data = data.sort((a, b) => a.name.localeCompare(b.name));
+        } else if (sortOrder === "urgency") {
+          data = data.sort((a, b) => a.urgency - b.urgency);
         }
         setTickets(data);
       } else {
-        console.error("Falha em acessar a API Lista");
+        console.error('Falha em acessar a API Lista');
       }
     } catch (error) {
-      console.error("Erro ao carregar a API Lista:", error);
+      console.error('Erro ao carregar a API Lista:', error);
     }
   };
+
   const addTicket = async () => {
     try {
       const TokenObjetc = await TokenAPI();
-      const response = await fetch("http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/Ticket", {
+      const routes = await autoPages();
+      const response = await fetch(`http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/${routes}`, {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
@@ -79,7 +110,8 @@ const TicketCrud = () => {
             content: newTicket.content,
           },
         }),
-      })
+      });
+
       if (response.ok) {
         setNewTicket({ name: "", content: "", urgency: "" });
         loadTickets();
@@ -90,8 +122,9 @@ const TicketCrud = () => {
     } catch (error) {
       console.error("Erro em carregar a API ADD:", error);
     }
-    alert('Não foi possivél adionar o Chamado')
+    alert.error('Não foi possivél adicionar o Chamado');
   };
+
   const searchTicketById = () => {
     if (!searchId.trim()) {
       loadTickets();
@@ -102,23 +135,24 @@ const TicketCrud = () => {
     if (foundTicket) {
       setTickets([foundTicket]);
     } else {
-      alert("Ticket não encontrado")
+      alert("Ticket não encontrado");
     }
   };
 
   const openModal = () => {
     setModalVisible(true);
   };
+
   const closeModal = () => {
     setModalVisible(false);
   };
-  const saveModal = () => {
+
+  const saveModal = async () => {
     setModalVisible(false);
     addTicket(newTicket);
     setNewTicket({ name: "", content: "", urgency: "" });
     loadTickets();
-  }
-
+  };
 
   const toggleItem = async (id) => {
     const newExpandedItem = expandedItem === id ? null : id;
@@ -126,48 +160,45 @@ const TicketCrud = () => {
 
     if (newExpandedItem !== null) {
       try {
-        await AsyncStorage.setItem('Ticket', 'Ticket');
         await AsyncStorage.setItem('selectedTicketId', newExpandedItem.toString());
-      }
-
-      catch (error) {
+      } catch (error) {
         console.error('Erro ao armazenar a página selecionada:', error);
       }
     }
 
-    const storedPage = await AsyncStorage.getItem('Ticket');
-    console.log("Pagina:", storedPage);
     const storedId = await AsyncStorage.getItem('selectedTicketId');
     console.log('ID:', storedId);
   };
-  const toggleSortOrder = () => {
-    const newOrder = sortOrder === "default" ? "alphabetical" : "default";
-    setSortOrder(newOrder);
-  };
-  useEffect(() => {
-    if (sortOrder === "urgency") {
-      const sortedTickets = [...tickets].sort((a, b) => a.urgency - b.urgency);
-      setTickets(sortedTickets);
+
+  const toggleSortOrder = async () => {
+    const routes = await autoPages();
+    if (routes === 'Computer' || routes === 'Printer') {
+      const newOrder = sortOrder === "default" ? "alphabetical" : "default";
+      setSortOrder(newOrder);
     } else {
-      loadTickets();
+      const newOrder = sortOrder === "default" ? "alphabetical" : (sortOrder === "alphabetical" ? "urgency" : "default");
+      setSortOrder(newOrder);
     }
-  }, [sortOrder]);
+  };
 
   const cleanID = () => {
-    setSearchId("")
+    setSearchId("");
   };
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.button} onPress={openModal}>
-        <Text >Abrir Ticket</Text>
-      </TouchableOpacity>
+      {buttonVisible && (
+        <TouchableOpacity style={styles.button} onPress={openModal}>
+          <Text>Abrir Ticket</Text>
+        </TouchableOpacity>
+      )}
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.filterButton} onPress={toggleSortOrder}>
           <Text style={styles.filterButtonText}>
-            {sortOrder === "default" ? "ID -> A-Z" : "A-Z -> ID"}
+            {sortOrder === "default" ? "ID -> A-Z" : (sortOrder === "alphabetical" ? "A-Z -> Urgência" : "Urgência -> ID")}
           </Text>
         </TouchableOpacity>
+
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
@@ -194,7 +225,7 @@ const TicketCrud = () => {
 
       <FlatList
         data={tickets}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={item => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.ticketItem}>
             <TouchableOpacity onPress={() => toggleItem(item.id)}>
@@ -213,8 +244,9 @@ const TicketCrud = () => {
                 </TouchableOpacity>
               </View>
             )}
-          </View>)} />
-
+          </View>
+        )}
+      />
       <Modal isVisible={isModalVisible} onBackdropPress={closeModal}>
         <View style={styles.modalContainer}>
           <Text style={styles.modalHeader}>Adicione as informações</Text>

@@ -12,6 +12,7 @@ const Login = () => {
     const navigation = useNavigation();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+
     const clearSavedPages = async () => {
         try {
             await AsyncStorage.removeItem('Computer');
@@ -22,6 +23,7 @@ const Login = () => {
             console.error('Erro ao limpar os valores salvos:', error);
         }
     };
+    
     useEffect(() => {
         clearSavedPages();
         const unsubscribe = navigation.addListener('beforeRemove', () => {

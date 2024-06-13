@@ -1,13 +1,68 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import logo from '../assets/logo.png';
 import * as Animatable from 'react-native-animatable';
 import { useNavigation } from '@react-navigation/native';
 import TicketCrud from "../Components/addTickets";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AddTicket = () => {
     const navigation = useNavigation();
+    const [headerText, setHeaderText] = useState("");
+    const [textServices, setTextServicesRoutes] = useState("");
+
+
+    const textHeaderRoutes = async () => {
+        const routes = await autoPages();
+        switch (routes) {
+            case 'Ticket': return 'Tickets';
+            case 'Computer': return 'Ativos -> Computadores';
+            case 'Printer': return 'Ativos -> Impressoras';
+            default: return 'vazio';
+        }
+    };
+    const textServicesRoutes = async () => {
+        const routes = await autoPages();
+        switch (routes) {
+            case 'Ticket': return 'Tickets';
+            case 'Computer': return 'Computadores';
+            case 'Printer': return 'Impressoras';
+            default: return 'erro';
+        }
+      };
+    
+    useEffect(() => {
+        const updateHeaderText = async () => {
+            const text = await textHeaderRoutes();
+            setHeaderText(text);
+        };
+        const updateTextServices = async()=>{
+            const textHeader = await textServicesRoutes();
+            setTextServicesRoutes(textHeader);
+        }
+        updateHeaderText();
+        updateTextServices();
+    }, []);
+
+    const autoPages = async () => {
+        try {
+            const routes = await AsyncStorage.getItem('option');
+            if (routes !== null) {
+                return JSON.parse(routes);
+            } else {
+                return null;
+            }
+            
+        } catch (error) {
+            console.error('Erro em pegar a pagina:', error);
+            return null;
+        }
+    }
+    autoPages().then(routes => {
+    }).catch(error => {
+      console.error('Erro:', error);
+    });
+
     return (
         
         <ScrollView>
@@ -24,13 +79,14 @@ const AddTicket = () => {
                 <Text>Serviços</Text>
                 </TouchableOpacity>
                 <Text>/</Text>
-                <Text>Tickets</Text>
+                <Text>{textServices}</Text>
             </Animatable.View>
 
             <Animatable.View delay={400} animation={"fadeInUp"} style={estilos.container} >
-                <Text style={estilos.headerText}>Todos os Tickets</Text>
+                <Text style={estilos.headerText}>{headerText}</Text>
+               
                 <TicketCrud></TicketCrud>
-
+              
                 <TouchableOpacity
                     onPress={() => navigation.navigate('Serviços')}
                     style={estilos.button}><Text>Voltar</Text>
