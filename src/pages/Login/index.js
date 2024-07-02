@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, Alert} from "react-native";
-import { useNavigation } from '@react-navigation/native'
-import * as Animatable from 'react-native-animatable'
+import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, Alert } from "react-native";
+import { useNavigation } from '@react-navigation/native';
+import * as Animatable from 'react-native-animatable';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import logo from '../assets/logo.png'
-import gear from '../assets/gear.png'
-import utf8 from 'utf8'
-import base64 from 'base-64'
+import CheckBox from "react-native-check-box";
+import logo from '../assets/logo.png';
+import gear from '../assets/gear.png';
+import utf8 from 'utf8';
+import base64 from 'base-64';
 
 const Login = () => {
     const navigation = useNavigation();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [user, setUser] = useState('');
+    const [saveUser, setSaveUser] = useState(false); 
 
     const clearSavedPages = async () => {
         try {
@@ -23,7 +26,7 @@ const Login = () => {
             console.error('Erro ao limpar os valores salvos:', error);
         }
     };
-    
+
     useEffect(() => {
         clearSavedPages();
         const unsubscribe = navigation.addListener('beforeRemove', () => {
@@ -61,9 +64,9 @@ const Login = () => {
         const bytes = utf8.encode(texto);
         const encoded = base64.encode(bytes);
         console.log('token ' + encoded);
-        
-        
-    
+
+        await AsyncStorage.setItem('encoded', encoded);
+
         try {
             const response = await fetch('http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/initSession', {
                 method: "GET",
@@ -73,8 +76,8 @@ const Login = () => {
                 },
             });
             const json = await response.json();
-            console.log(json)
-        
+            console.log(json);
+
             if (!username || !password) {
                 Alert.alert('Erro', 'Preencha todos os campos');
                 return;
@@ -84,6 +87,9 @@ const Login = () => {
             } else {
                 await AsyncStorage.setItem('sessionToken', JSON.stringify(json));
                 await AsyncStorage.setItem('Credenciais', JSON.stringify({ username, password }));
+                if (saveUser) {
+                    await AsyncStorage.setItem('user', username); 
+                }
                 navigation.navigate('Serviços');
             }
         } catch (error) {
@@ -102,42 +108,46 @@ const Login = () => {
                 </View>
             </View>
 
-        <View>
-            <View style={estilos.containerLogin}>
-                <Text style={estilos.texto}>
-                    Usuário:
-                </Text>
-                <TextInput
-                    placeholder="Login..."
-                    style={estilos.input}
-                    onChangeText={setUsername}
-                    value={username}
-                />
-                <Text style={estilos.bar}></Text>
-                <Text style={estilos.texto}>
-                    Senha:
-                </Text>
-                <TextInput
-                    placeholder="Senha..."
-                    style={estilos.input}
-                    onChangeText={setPassword}
-                    value={password}
-                    secureTextEntry={true}
-                />
-                <Text style={estilos.bar}></Text>
-
-                <TouchableOpacity style={estilos.button} onPress={handleLogin}>
-                    <Text>Entrar</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={estilos.button} onPress={saveNewCredentials}>
-                    <Text>Salvar Novas Credenciais</Text>
-                </TouchableOpacity>
-            </View>
             <View>
-                <TouchableOpacity style={estilos.gear} onPress={() => navigation.navigate('Servidores')}>
-                    <Image source={gear} style={estilos.gear} />
-                </TouchableOpacity>
-            </View>
+                <View style={estilos.containerLogin}>
+                    <Text style={estilos.texto}>
+                        Usuário:
+                    </Text>
+                    <TextInput
+                        placeholder="Login..."
+                        style={estilos.input}
+                        onChangeText={setUsername}
+                        value={username}
+                    />
+                    <Text style={estilos.bar}></Text>
+                    <Text style={estilos.texto}>
+                        Senha:
+                    </Text>
+                    <TextInput
+                        placeholder="Senha..."
+                        style={estilos.input}
+                        onChangeText={setPassword}
+                        value={password}
+                        secureTextEntry={true}
+                    />
+                    <Text style={estilos.bar}></Text>
+
+                    <CheckBox
+                    style={estilos.checkBox}
+                        title="Salvar usuário"
+                        checked={saveUser}
+                        onPress={() => setSaveUser(!saveUser)}
+                    />
+
+                    <TouchableOpacity style={estilos.button} onPress={handleLogin}>
+                        <Text>Entrar</Text>
+                    </TouchableOpacity>
+                </View>
+                <View>
+                    <TouchableOpacity style={estilos.gear} onPress={() => navigation.navigate('Servidores')}>
+                        <Image source={gear} style={estilos.gear} />
+                    </TouchableOpacity>
+                </View>
             </View>
         </>
     );
@@ -150,8 +160,7 @@ const estilos = StyleSheet.create({
     containerLogin: {
         backgroundColor: "#fff",
         height: '85%',
-        margin:16,
-    
+        margin: 16,
     },
     image: {
         margin: 8,
@@ -176,6 +185,9 @@ const estilos = StyleSheet.create({
         marginLeft: 16,
         padding: 16,
         width: "90%"
+    },
+    checkBox:{
+        margin:12
     },
     button: {
         backgroundColor: "#FFE382",

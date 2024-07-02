@@ -73,7 +73,7 @@ const Chat = () => {
             console.log(routes);
             console.log(storedId);
 
-            const response = await fetch(`http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/${routes}/${storedId}`, {
+            const res = await fetch(`http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/${routes}/${storedId}`, {
                 method: "GET",
                 headers: {
                     'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
@@ -81,16 +81,16 @@ const Chat = () => {
                 },
             });
 
-            if (response.ok) {
-                const data = await response.json();
+            if (res.ok) {
+                const data = await res.json();
                 return [data];
             } else {
                 console.error("Erro em acessar a API 1");
-                return;
+                return[];
             }
         } catch (error) {
             console.error("Erro em carregar a API:", error);
-            return;
+            return[];
         }
     };
 
@@ -101,7 +101,7 @@ const Chat = () => {
             const routes = await autoPages();
             //console.log(routes);
 
-            const response = await fetch(`http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/${routes}/${storedId}/ITILFollowup/`, {
+            const res = await fetch(`http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/${routes}/${storedId}/ITILFollowup/`, {
                 method: "GET",
                 headers: {
                     'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
@@ -109,12 +109,12 @@ const Chat = () => {
                 },
             });
 
-            if (response.ok) {
-                const data = await response.json();
+            if (res.ok) {
+                const data = await res.json();
                 return data;
             } else {
                 console.error("Erro em acessar a API 2");
-                return;
+                return[];
             }
         } catch (error) {
             console.error("Erro em carregar a API:", error);
@@ -134,24 +134,24 @@ const Chat = () => {
                 return;
             }
 
-            const response = await fetch(`http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/${routes}/${storedId}/ITILFollowup/`, {
+            const res = await fetch(`http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/${routes}/${storedId}/ITILFollowup/`, {
                 method: "POST",
                 headers: {
                     'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
                     'Session-Token': tokenObject,
                     'Content-Type': 'application/json',
                 },
-                
+                body: JSON.stringify({ input: { content: newMessage }})
             });
 
-            if (response.ok) {
+            if (res.ok) {
                 console.log("Mensagem enviada com sucesso");
                 setNewMessage("");
                 const data = await chatMensagemScreen();
-                setChatMensagemData(data);
+                setChatMensagemData([newMessage]);
                 setChatVisible(data.length > 0);
             } else {
-                const errorData = await response.json();
+                const errorData = await res.json();
                 console.error("Erro ao enviar a mensagem:", errorData);
             }
         } catch (error) {
@@ -216,13 +216,14 @@ const Chat = () => {
                                 </View>
                             )}
                         />
-                        <TextInput
+                        
+                    </View>
+                )}
+                <TextInput
                             style={styles.input}
                             placeholder="Digite sua mensagem..."
                             value={newMessage}
                             onChangeText={setNewMessage} />
-                    </View>
-                )}
                 <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
                     <Text style={styles.text}>Enviar</Text>
                 </TouchableOpacity>

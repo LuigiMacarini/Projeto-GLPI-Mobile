@@ -4,30 +4,38 @@ import logo from '../assets/logo.png'
 import * as Animatable from 'react-native-animatable'
 import {useNavigation} from '@react-navigation/native'
 export default function Welcome() {
+
+//<View><Text style={style.text}>© Prefeitura de Araraguá </Text></View>
+
     const navigation = useNavigation();
     
     return <>
-        <View style={estilos.container}>
+        <View style={style.container}>
             <View>
                 <Animatable.Image 
                 animation={"flipInY"}
-                source={logo} style={estilos.image} />
+                source={logo} style={style.image} />
             </View>
         </View>
         <Animatable.View delay={400} animation={"fadeInUp"}>
             <TouchableOpacity 
             onPress ={ () => navigation.navigate('Login')} 
-            style={estilos.button}><Text>Acessar Login</Text></TouchableOpacity>
+            style={style.button}><Text>Fazer Login</Text></TouchableOpacity>
         </Animatable.View>
-    </>
+    
+        </>
 }
-const estilos = StyleSheet.create({
+const style = StyleSheet.create({
     container: {
         backgroundColor: "#fff",
     },
     image: {
         margin: 8,
         alignSelf: 'center',
+    },
+    text:{
+        alignSelf:'center' ,
+        marginTop: '80%',
     },
     button: {
         backgroundColor: "#FFE382",

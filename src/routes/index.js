@@ -9,7 +9,6 @@ import Projetos from "../pages/Serviços/projetos";
 import Chat from "../pages/Components/Chat";
 
 
-
 const Stack = createNativeStackNavigator();
 
 export default function Routes() {
@@ -40,18 +39,23 @@ export default function Routes() {
                 name="Servidores"
                 component={Servidores}
                 options={{ headerShown: false }}
-            /> 
+            />
             <Stack.Screen
                 name="Projetos"
                 component={Projetos}
                 options={{ headerShown: false }}
-            /> 
+            />
             <Stack.Screen
-            name="Chat"
-            component={Chat}
-            options={{ headerShown: false }}
-        />
-           
+                name="Chat"
+                component={Chat}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="Tickets"
+                component={Tickets}
+                options={{ headerShown: false }}
+            />
+
         </Stack.Navigator>
 
 

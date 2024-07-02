@@ -1,30 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from "react-native";
 import Modal from 'react-native-modal';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage"; //salva informações e passa pra outros lugares
+import { useNavigation } from "@react-navigation/native"; //component para navegação entre paginas
 
 const TicketCrud = () => {
-  const [tickets, setTickets] = useState([]);
-  const [newTicket, setNewTicket] = useState({ name: "", content: "", urgency: "" });
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [expandedItem, setExpandedItem] = useState(null);
-  const [sortOrder, setSortOrder] = useState("default");
-  const [searchId, setSearchId] = useState("");
-  const [buttonVisible, setButtonVisible] = useState(true);
-  const [, setSessionToken] = useState(null);
-  const navigation = useNavigation();
+  const [tickets, setTickets] = useState([]); //renderiza os chamados
+  const [newTicket, setNewTicket] = useState({ name: "", content: "", urgency: "" }); //add chamados
+  const [isModalVisible, setModalVisible] = useState(false); //modal pros chamados
+  const [expandedItem, setExpandedItem] = useState(null); //colapsed pra abrir o conteudo dos chamados
+  const [sortOrder, setSortOrder] = useState("default"); //ordenação por nome e id
+  const [searchId, setSearchId] = useState(""); //id de busca
+  const [buttonVisible, setButtonVisible] = useState(true); //style para as routes
+  const [, setSessionToken] = useState(null); //token da sessão
+  const [range, setRange] = useState("0-200"); //paginação dos itens 
+  const navigation = useNavigation(); //navegação de paginas
 
   const TokenAPI = async () => {
-    const storedSessionToken = await AsyncStorage.getItem('sessionToken');
+    const storedSessionToken = await AsyncStorage.getItem('sessionToken');//recupera o token e joga pra ca
     setSessionToken(storedSessionToken);
 
-    const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
+    const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':'); //transforma o token em object 
     const TokenObjetc = JSON.parse(tokenPart);
     return TokenObjetc;
-  }
+  };
 
-  const getUrgencyColor = (urgency) => {
+  const getUrgencyColor = (urgency) => { //filtro pra cor
     switch (urgency) {
       case 1:
         return { backgroundColor: '#96be25' };
@@ -49,11 +50,11 @@ const TicketCrud = () => {
       console.error('Erro em pegar a pagina:', error);
       return null;
     }
-  }
+  };
 
-  useEffect(() => {
-    loadTickets();
-  }, [sortOrder]);
+  useEffect(() => { //atualiza os tickets e a paginação
+    loadTickets(range);
+  }, [sortOrder, range]);
 
   useEffect(() => {
     const checkPage = async () => {
@@ -63,12 +64,13 @@ const TicketCrud = () => {
     checkPage();
   }, []);
 
-  const loadTickets = async () => {
+  const loadTickets = async (range) => {
     try {
+      const [start, end] = range.split('-').map(Number); //map pra paginação
       const TokenObjetc = await TokenAPI();
       const routes = await autoPages();
       const ip = 'http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/';
-      const response = await fetch(`${ip}${routes}`, {
+      const response = await fetch(`${ip}/${routes}/?range=${start}-${end}`, {
         method: "GET",
         headers: {
           'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
@@ -78,6 +80,7 @@ const TicketCrud = () => {
 
       if (response.ok) {
         let data = await response.json();
+        data = data.filter(ticket => !ticket.is_deleted && ticket.status !== 'closed');
         if (sortOrder === 'alphabetical') {
           data = data.sort((a, b) => a.name.localeCompare(b.name));
         } else if (sortOrder === "urgency") {
@@ -114,7 +117,7 @@ const TicketCrud = () => {
 
       if (response.ok) {
         setNewTicket({ name: "", content: "", urgency: "" });
-        loadTickets();
+        loadTickets(range);
         closeModal();
       } else {
         console.error("Falha em acessar a API ADD");
@@ -122,12 +125,11 @@ const TicketCrud = () => {
     } catch (error) {
       console.error("Erro em carregar a API ADD:", error);
     }
-    alert.error('Não foi possivél adicionar o Chamado');
   };
 
   const searchTicketById = () => {
     if (!searchId.trim()) {
-      loadTickets();
+      loadTickets(range);
       return;
     }
 
@@ -150,8 +152,6 @@ const TicketCrud = () => {
   const saveModal = async () => {
     setModalVisible(false);
     addTicket(newTicket);
-    setNewTicket({ name: "", content: "", urgency: "" });
-    loadTickets();
   };
 
   const toggleItem = async (id) => {
@@ -183,6 +183,7 @@ const TicketCrud = () => {
 
   const cleanID = () => {
     setSearchId("");
+    loadTickets(range);
   };
 
   return (
@@ -222,6 +223,8 @@ const TicketCrud = () => {
           <Text style={styles.cleanButtonText}>Limpar Id</Text>
         </TouchableOpacity>
       </View>
+
+      
 
       <FlatList
         data={tickets}

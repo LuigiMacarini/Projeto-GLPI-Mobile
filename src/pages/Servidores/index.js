@@ -32,7 +32,7 @@ export default function Servidores() {
             </View>
             <TouchableOpacity
                 onPress={() => navigation.navigate('Login')}
-                style={estilos.button}><Text>Voltar Para tela de Login</Text></TouchableOpacity>
+                style={estilos.button}><Text>Voltar para Login</Text></TouchableOpacity>
         </View>
     </>
 }

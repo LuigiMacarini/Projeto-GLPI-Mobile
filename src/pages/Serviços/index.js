@@ -77,7 +77,7 @@ console.log(selectedOption)
                             <TouchableOpacity
                                 onPress={() => {
                                     autoPages('Ticket');
-                                    navigation.navigate('AddTicket');
+                                    navigation.navigate('Tickets');
                                 }}
                             >
                                 <Text style={estilos.accordion_list}>Tickets</Text>
@@ -99,7 +99,7 @@ console.log(selectedOption)
                     </TouchableOpacity>
                     <Collapsible collapsed={collapsed2}>
                         <View>
-                            <TouchableOpacity onPress={() => navigation.navigate('Projetos')}>
+                            <TouchableOpacity onPress={() => navigation.navigate('TicketList')}>
                                 <Text style={estilos.accordion_list}>Projetos</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => navigation.navigate('Lembretes')}>
