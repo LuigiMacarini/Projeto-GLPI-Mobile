@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from "react-native";
+import { View, Text, TextInput, Pressable, FlatList, StyleSheet } from "react-native";
 import Modal from 'react-native-modal';
 import AsyncStorage from "@react-native-async-storage/async-storage"; //salva informações e passa pra outros lugares
 import { useNavigation } from "@react-navigation/native"; //component para navegação entre paginas
@@ -189,16 +189,16 @@ const TicketCrud = () => {
   return (
     <View style={styles.container}>
       {buttonVisible && (
-        <TouchableOpacity style={styles.button} onPress={openModal}>
+        <Pressable style={styles.button} onPress={openModal}>
           <Text>Abrir Ticket</Text>
-        </TouchableOpacity>
+        </Pressable>
       )}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.filterButton} onPress={toggleSortOrder}>
+        <Pressable style={styles.filterButton} onPress={toggleSortOrder}>
           <Text style={styles.filterButtonText}>
             {sortOrder === "default" ? "ID -> A-Z" : (sortOrder === "alphabetical" ? "A-Z -> Urgência" : "Urgência -> ID")}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
 
         <View style={styles.searchContainer}>
           <TextInput
@@ -207,9 +207,9 @@ const TicketCrud = () => {
             value={searchId}
             onChangeText={setSearchId}
             keyboardType="numeric" />
-          <TouchableOpacity style={styles.searchButton} onPress={searchTicketById}>
+          <Pressable style={styles.searchButton} onPress={searchTicketById}>
             <Text style={styles.idText}>Pesquisar ID</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </View>
       <View style={styles.urgencyText}>
@@ -217,11 +217,11 @@ const TicketCrud = () => {
         <Text style={styles.descUrgency1}> Baixa </Text>
         <Text style={styles.descUrgency2}> Média </Text>
         <Text style={styles.descUrgency3}>Alta</Text>
-        <TouchableOpacity
+        <Pressable
           style={styles.cleanButton}
           onPress={cleanID}>
           <Text style={styles.cleanButtonText}>Limpar Id</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       
@@ -231,20 +231,20 @@ const TicketCrud = () => {
         keyExtractor={item => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.ticketItem}>
-            <TouchableOpacity onPress={() => toggleItem(item.id)}>
+            <Pressable onPress={() => toggleItem(item.id)}>
               <View style={styles.ticketContent}>
                 <Text>{item.name} ({item.id})</Text>
                 <View style={[styles.urgencyIndicator, getUrgencyColor(item.urgency)]}>
                   <Text style={styles.urgencyNumber}>{item.urgency}</Text>
                 </View>
               </View>
-            </TouchableOpacity>
+            </Pressable>
             {expandedItem === item.id && (
               <View style={styles.expandedContent}>
-                <TouchableOpacity onPress={() => navigation.navigate('Chat')}>
+                <Pressable onPress={() => navigation.navigate('Chat')}>
                   <Text>Comentário - {item.content}</Text>
                   <Text>Data - {item.date_creation}</Text>
-                </TouchableOpacity>
+                </Pressable>
               </View>
             )}
           </View>
@@ -268,9 +268,9 @@ const TicketCrud = () => {
             placeholder="Urgência"
             value={newTicket.urgency}
             onChangeText={(text) => setNewTicket({ ...newTicket, urgency: text })} />
-          <TouchableOpacity style={styles.modalButton} onPress={saveModal}>
+          <Pressable style={styles.modalButton} onPress={saveModal}>
             <Text>Salvar</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </Modal>
     </View>)

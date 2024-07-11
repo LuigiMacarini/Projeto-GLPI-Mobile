@@ -1,14 +1,10 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
 import Login from '../pages/Login'
 import Welcome from '../pages/Welcome'
 import Servidores from '../pages/Servidores'
 import Serviços from '../pages/Serviços'
 import Tickets from '../pages/Serviços/Tickets'
-import Projetos from "../pages/Serviços/projetos";
 import Chat from "../pages/Components/Chat";
-
-
 const Stack = createNativeStackNavigator();
 
 export default function Routes() {
@@ -41,11 +37,6 @@ export default function Routes() {
                 options={{ headerShown: false }}
             />
             <Stack.Screen
-                name="Projetos"
-                component={Projetos}
-                options={{ headerShown: false }}
-            />
-            <Stack.Screen
                 name="Chat"
                 component={Chat}
                 options={{ headerShown: false }}
@@ -55,10 +46,6 @@ export default function Routes() {
                 component={Tickets}
                 options={{ headerShown: false }}
             />
-
         </Stack.Navigator>
-
-
-
     </>
 }

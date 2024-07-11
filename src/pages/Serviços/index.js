@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, StyleSheet, Pressable, ScrollView, Alert } from "react-native";
 import logo from '../assets/logo.png';
 import * as Animatable from 'react-native-animatable';
 import { useNavigation } from '@react-navigation/native';
@@ -10,8 +10,23 @@ export default function Serviços() {
     const [collapsed, setCollapsed] = useState(true);
     const [collapsed2, setCollapsed2] = useState(true);
     const [selectedOption, setSelectedOption] = useState('null');
+    const [User, setUser] = useState(null);
+
+    const storedUser = async () => {
+        try {
+            const User = await AsyncStorage.getItem('User');
+            setUser(User);
+        } catch (error) {
+            console.error('Erro ao limpar os valores salvos:', error);
+        }
+    }
+
+    useEffect(() => {
+        storedUser();
+    }, []);
 
     const navigation = useNavigation();
+
     useEffect(() => {
         if (selectedOption !== null) {
             const storeOption = async () => {
@@ -21,7 +36,6 @@ export default function Serviços() {
                     console.error('Erro ao armazenar a opção:', error);
                 }
             };
-
             storeOption();
         }
     }, [selectedOption]);
@@ -38,9 +52,8 @@ export default function Serviços() {
         setSelectedOption(option);
     };
 
-console.log(selectedOption)
     return (
-        <ScrollView>
+        <View>
             <Animatable.View style={estilos.container}>
                 <Animatable.Image
                     animation={"flipInY"}
@@ -50,69 +63,74 @@ console.log(selectedOption)
             </Animatable.View>
 
             <Animatable.View delay={400} animation={"fadeInUp"}>
-                <Text style={estilos.text1}>Serviços</Text>
-
-                <TouchableOpacity
-                    onPress={() => navigation.navigate('Login')}
-                    style={estilos.button}
-                >
-                    <Text style={estilos.text2}>Sair</Text>
-                </TouchableOpacity>
-
+                <View style={estilos.header}>
+                    <Text style={estilos.textUser}>User-{User}</Text>
+                    <Text style={estilos.textServicos}>Serviços</Text>
+                    <Pressable
+                        onPress={() => navigation.navigate('Login')}
+                        style={estilos.button}
+                    >
+                        <Text style={estilos.textButton}>Sair</Text>
+                    </Pressable>
+                </View>
+               
                 <View style={estilos.box}>
-                    <TouchableOpacity onPress={toggleExpand}>
+                    <Pressable onPress={toggleExpand}>
                         <Text style={estilos.lserv2}>-Ativos-</Text>
-                    </TouchableOpacity>
+                    </Pressable>
                     <Collapsible collapsed={collapsed}>
                         <View>
-                            <TouchableOpacity
+                            <Pressable
                                 onPress={() => {
                                     autoPages('Computer');
                                     navigation.navigate('AddTicket');
-                                }}
-                            >
+                                }}>
                                 <Text style={estilos.accordion_list}>Computadores</Text>
-                            </TouchableOpacity>
+                            </Pressable>
 
-                            <TouchableOpacity
+                            <Pressable
                                 onPress={() => {
                                     autoPages('Ticket');
                                     navigation.navigate('Tickets');
-                                }}
-                            >
+                                }}>
                                 <Text style={estilos.accordion_list}>Tickets</Text>
-                            </TouchableOpacity>
+                            </Pressable>
 
-                            <TouchableOpacity
+                            <Pressable style={
+                                estilos.pressed
+                            }
                                 onPress={() => {
                                     autoPages('Printer');
                                     navigation.navigate('AddTicket');
-                                }}
-                            >
+                                }}>
                                 <Text style={estilos.accordion_list}>Impressoras</Text>
-                            </TouchableOpacity>
+                            </Pressable>
                         </View>
                     </Collapsible>
 
-                    <TouchableOpacity onPress={toggleExpand2}>
+                    <Pressable onPress={toggleExpand2}
+                    >
                         <Text style={estilos.lserv2}>-Ferramentas-</Text>
-                    </TouchableOpacity>
+                    </Pressable>
                     <Collapsible collapsed={collapsed2}>
                         <View>
-                            <TouchableOpacity onPress={() => navigation.navigate('TicketList')}>
-                                <Text style={estilos.accordion_list}>Projetos</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => navigation.navigate('Lembretes')}>
+                            <Pressable onPress={() => {
+                                Alert.alert('Erro', 'Aba não disponível');}}>
                                 <Text style={estilos.accordion_list}>Lembretes</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => navigation.navigate('')}>
+                            </Pressable>
+                            <Pressable onPress={() => {
+                                Alert.alert('Erro', 'Aba não disponível');}}>
+                                <Text style={estilos.accordion_list}>Projetos</Text>
+                            </Pressable>
+                            <Pressable onPress={() => {
+                                Alert.alert('Erro', 'Aba não disponível');}}>
                                 <Text style={estilos.accordion_list}>Guias TI</Text>
-                            </TouchableOpacity>
+                            </Pressable>
                         </View>
                     </Collapsible>
                 </View>
             </Animatable.View>
-        </ScrollView>
+        </View>
     );
 }
 
@@ -124,32 +142,35 @@ const estilos = StyleSheet.create({
         margin: 8,
         alignSelf: 'center',
     },
-    text1: {
-        alignSelf: "center",
+    pressed: {
+        pressed :'rgb(210, 230, 255)'  
+    },
+    header: {
+        backgroundColor: "#498DF3",
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        bottom: 5,
+        padding: "1%"
+    },
+    textUser: {
+        flex: 1,
+        textAlign: 'left',
+        fontSize: 16,
+    },
+    textServicos: {
+        flex: 1,
+        textAlign: 'center',
         fontSize: 20,
         backgroundColor: "#498DF3",
         width: "100%",
-        textAlign: "center",
-    },
-    text2: {
-        alignSelf: "center",
-        fontSize: 20,
     },
     button: {
-        backgroundColor: "#3273D4",
+        flex: 1,
+        backgroundColor: "#FFE382",
         borderRadius: 6,
-        width: "25%",
-        alignSelf: "flex-end",
-        alignItems: "center",
-        shadowColor: "#000",
-        shadowOpacity: 0.23,
-        shadowRadius: 2.62,
-        elevation: 4,
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        bottom: 29.9,
+        alignItems: 'center',
+        
     },
     box: {
         backgroundColor: "#498DF3",

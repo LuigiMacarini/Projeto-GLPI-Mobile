@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
 import logo from '../assets/logo.png'
 import * as Animatable from 'react-native-animatable'
 import { useNavigation } from '@react-navigation/native'
@@ -17,22 +17,29 @@ export default function Servidores() {
                 <Text style={estilos.lserv}>
                     Lista de Servidores
                 </Text>
-                <TouchableOpacity>
+                <Pressable onPress={() => {
+                    Alert.alert('Erro', 'Aba não disponível');
+                }}>
                     <Text style={estilos.lserv2}>
                         1: Araranguá
-                    </Text></TouchableOpacity>
-                <TouchableOpacity>
+                    </Text></Pressable>
+                <Pressable onPress={() => {
+                    Alert.alert('Erro', 'Aba não disponível');
+                }}>
                     <Text style={estilos.lserv2}>
                         2: Criciúma
-                    </Text></TouchableOpacity>
-                <TouchableOpacity>
+                    </Text></Pressable>
+                <Pressable onPress={() => {
+                    Alert.alert('Erro', 'Aba não disponível');
+                }}>
                     <Text style={estilos.lserv2}>
                         3: ......
-                    </Text></TouchableOpacity>
+                    </Text></Pressable>
             </View>
-            <TouchableOpacity
+            <Pressable
                 onPress={() => navigation.navigate('Login')}
-                style={estilos.button}><Text>Voltar para Login</Text></TouchableOpacity>
+                style={estilos.button}><Text>Voltar para Login</Text>
+            </Pressable>
         </View>
     </>
 }
@@ -49,10 +56,11 @@ const estilos = StyleSheet.create({
     button: {
         backgroundColor: "#FFE382",
         padding: 16,
-        borderRadius: 16,
-        width: "50%",
+        borderRadius: 6,
+        width: "45%",
         alignSelf: "center",
         alignItems: "center",
+        marginVertical: "5%",
         shadowColor: "#000",
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
@@ -61,10 +69,9 @@ const estilos = StyleSheet.create({
             width: 0,
             height: 2,
         },
-        margin: 16
     },
     box: {
-        backgroundColor: "#D9D9D9",
+        backgroundColor: "#fff",
         alignSelf: "center",
         width: "85%",
         borderRadius: 6,

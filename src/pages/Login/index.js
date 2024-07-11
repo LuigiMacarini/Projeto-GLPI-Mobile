@@ -1,27 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, Alert } from "react-native";
+import { View, Text, Image, StyleSheet, Pressable, TextInput, Alert } from "react-native";
 import { useNavigation } from '@react-navigation/native';
-import * as Animatable from 'react-native-animatable';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import CheckBox from "react-native-check-box";
+import base64 from 'base-64';
+
 import logo from '../assets/logo.png';
 import gear from '../assets/gear.png';
-import utf8 from 'utf8';
-import base64 from 'base-64';
 
 const Login = () => {
     const navigation = useNavigation();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [user, setUser] = useState('');
-    const [saveUser, setSaveUser] = useState(false); 
+    const [selectedOption, setSelectedOption] = useState('');
+
+    const option = async (selected) => {
+        if (selected === 'TI') {
+            await AsyncStorage.setItem('User', 'TI');
+        } else if (selected === 'Banco Interno') {
+            await AsyncStorage.setItem('User', 'BC');
+        }
+    };
 
     const clearSavedPages = async () => {
         try {
             await AsyncStorage.removeItem('Computer');
             await AsyncStorage.removeItem('Ticket');
             await AsyncStorage.removeItem('Printer');
-            console.log('Valores salvos limpos com sucesso.');
         } catch (error) {
             console.error('Erro ao limpar os valores salvos:', error);
         }
@@ -29,67 +33,38 @@ const Login = () => {
 
     useEffect(() => {
         clearSavedPages();
-        const unsubscribe = navigation.addListener('beforeRemove', () => {
-            AsyncStorage.removeItem('Credenciais');
-        });
-
-        return unsubscribe;
     }, []);
 
-    const loadStoredCredentials = async () => {
-        try {
-            const storedData = await AsyncStorage.getItem('Credenciais');
-            if (storedData) {
-                const parsedData = JSON.parse(storedData);
-                setUsername(parsedData.username || '');
-                setPassword(parsedData.password || '');
-            }
-        } catch (error) {
-            console.error("Erro ao carregar credenciais salvas:", error);
-        }
-    };
-
-    const saveNewCredentials = async () => {
-        try {
-            const newCredentials = { username, password };
-            await AsyncStorage.setItem('Credenciais', JSON.stringify(newCredentials));
-            Alert.alert('Sucesso', 'Novas credenciais salvas com sucesso!');
-        } catch (error) {
-            Alert.alert('Erro', 'Falha ao salvar novas credenciais.');
-        }
-    };
+    useEffect(() => {
+        option(selectedOption);
+    }, [selectedOption]);
 
     const handleLogin = async () => {
-        const texto = `${username}:${password}`;
-        const bytes = utf8.encode(texto);
-        const encoded = base64.encode(bytes);
-        console.log('token ' + encoded);
+        if (!username || !password || !selectedOption) {
+            Alert.alert('Preencha todos os campos e selecione uma opção');
+            return;
+        }
 
+        const text = `${username}:${password}`;
+        const encoded = base64.encode(text);
         await AsyncStorage.setItem('encoded', encoded);
 
         try {
-            const response = await fetch('http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/initSession', {
+            const res = await fetch('http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/initSession', {
                 method: "GET",
                 headers: {
                     'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
                     'Authorization': 'Basic ' + encoded
                 },
             });
-            const json = await response.json();
-            console.log(json);
 
-            if (!username || !password) {
-                Alert.alert('Erro', 'Preencha todos os campos');
-                return;
-            }
+            const json = await res.json();
+
             if (json && json[0] === 'ERROR_GLPI_LOGIN') {
-                Alert.alert('Erro', 'Nome de usuário ou senha inválidos. Tente novamente.');
+                Alert.alert('Erro', 'Nome de usuário ou senha inválidos');
             } else {
                 await AsyncStorage.setItem('sessionToken', JSON.stringify(json));
                 await AsyncStorage.setItem('Credenciais', JSON.stringify({ username, password }));
-                if (saveUser) {
-                    await AsyncStorage.setItem('user', username); 
-                }
                 navigation.navigate('Serviços');
             }
         } catch (error) {
@@ -98,62 +73,72 @@ const Login = () => {
         }
     };
 
+    
+
     return (
         <>
-            <View style={estilos.containerHeader}>
+            <View style={styles.containerHeader}>
                 <View>
-                    <Animatable.Image
+                    <Image
                         animation={"flipInY"}
-                        source={logo} style={estilos.image} />
+                        source={logo} style={styles.image} />
                 </View>
             </View>
 
             <View>
-                <View style={estilos.containerLogin}>
-                    <Text style={estilos.texto}>
+                <View style={styles.containerLogin}>
+                    <Text style={styles.text}>
                         Usuário:
                     </Text>
                     <TextInput
                         placeholder="Login..."
-                        style={estilos.input}
+                        style={styles.input}
                         onChangeText={setUsername}
                         value={username}
                     />
-                    <Text style={estilos.bar}></Text>
-                    <Text style={estilos.texto}>
+                    <Text style={styles.bar}></Text>
+                    <Text style={styles.text}>
                         Senha:
                     </Text>
+                    
                     <TextInput
                         placeholder="Senha..."
-                        style={estilos.input}
+                        style={styles.input}
                         onChangeText={setPassword}
                         value={password}
                         secureTextEntry={true}
                     />
-                    <Text style={estilos.bar}></Text>
+                    <Text style={styles.bar}></Text>
 
-                    <CheckBox
-                    style={estilos.checkBox}
-                        title="Salvar usuário"
-                        checked={saveUser}
-                        onPress={() => setSaveUser(!saveUser)}
-                    />
+                    <View style={styles.optionsContainer}>
+                        <Pressable 
+                            style={[styles.optionButton, selectedOption === 'TI' && styles.selectedOption]} 
+                            onPress={() => setSelectedOption('TI')}>
+                            <Text style={styles.optionText}>TI</Text>
+                        </Pressable>
+                        <Pressable 
+                            style={[styles.optionButton, selectedOption === 'Banco Interno' && styles.selectedOption]} 
+                            onPress={() => setSelectedOption('Banco Interno')}>
+                            <Text style={styles.optionText}>Banco Interno</Text>
+                        </Pressable>
+                    </View>
 
-                    <TouchableOpacity style={estilos.button} onPress={handleLogin}>
+                    <Pressable style={styles.button} onPress={handleLogin}>
                         <Text>Entrar</Text>
-                    </TouchableOpacity>
+                    </Pressable>
+                    
                 </View>
                 <View>
-                    <TouchableOpacity style={estilos.gear} onPress={() => navigation.navigate('Servidores')}>
-                        <Image source={gear} style={estilos.gear} />
-                    </TouchableOpacity>
+                    <Pressable style={styles.gear} onPress={() => navigation.navigate('Servidores')}>
+                        <Image source={gear} style={styles.gear} />
+                    </Pressable>
                 </View>
             </View>
         </>
     );
-}
+};
 
-const estilos = StyleSheet.create({
+const styles = StyleSheet.create({
     containerHeader: {
         backgroundColor: "#fff",
     },
@@ -166,7 +151,7 @@ const estilos = StyleSheet.create({
         margin: 8,
         alignSelf: 'center'
     },
-    texto: {
+    text: {
         fontSize: 26,
         marginLeft: 16,
         padding: 16,
@@ -186,9 +171,6 @@ const estilos = StyleSheet.create({
         padding: 16,
         width: "90%"
     },
-    checkBox:{
-        margin:12
-    },
     button: {
         backgroundColor: "#FFE382",
         padding: 16,
@@ -196,7 +178,7 @@ const estilos = StyleSheet.create({
         width: "45%",
         alignSelf: "center",
         alignItems: "center",
-        marginVertical: "15%",
+        marginVertical: "5%",
         shadowColor: "#000",
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
@@ -212,6 +194,26 @@ const estilos = StyleSheet.create({
         alignSelf: "flex-end",
         bottom: "75%"
     },
+    optionsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginVertical: 20,
+    },
+    optionButton: {
+        padding: 10,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+    },
+    selectedOption: {
+        backgroundColor: '#FFE382',
+    },
+    optionText: {
+        fontSize: 16,
+    },
 });
-
+const buttonDinamic = ({ pressed }) => [
+    styles.pressable,
+    { backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white' },
+  ];
 export default Login;

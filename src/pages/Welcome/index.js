@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet,Pressable } from "react-native";
 import logo from '../assets/logo.png'
 import * as Animatable from 'react-native-animatable'
 import {useNavigation} from '@react-navigation/native'
@@ -18,9 +18,9 @@ export default function Welcome() {
             </View>
         </View>
         <Animatable.View delay={400} animation={"fadeInUp"}>
-            <TouchableOpacity 
+            <Pressable 
             onPress ={ () => navigation.navigate('Login')} 
-            style={style.button}><Text>Fazer Login</Text></TouchableOpacity>
+            style={style.button}><Text>Fazer Login</Text></Pressable>
         </Animatable.View>
     
         </>
