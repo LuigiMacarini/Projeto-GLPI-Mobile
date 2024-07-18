@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Text, StyleSheet, Pressable, View, TextInput, FlatList, Image, KeyboardAvoidingView, Platform } from "react-native";
+import { Text, StyleSheet, Pressable, View, TextInput, FlatList, ScrollView, KeyboardAvoidingView, Platform, Dimensions } from "react-native";
 import logo from '../assets/logo.png';
 import * as Animatable from 'react-native-animatable';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import RenderHtml from 'react-native-render-html';
 
 const Chat = () => {
     const navigation = useNavigation();
@@ -12,14 +13,13 @@ const Chat = () => {
     const [newMessage, setNewMessage] = useState("");
     const [headerText, setHeaderText] = useState("Chat");
     const [chatVisible, setChatVisible] = useState(true);
-    const [editingMessageId, setEditingMessageId] = useState(null);
+    const url = "http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/"
 
     useEffect(() => {
         const fetchData = async () => {
             const data = await ChatScreen();
             setChatData(data);
-        };
-        fetchData();
+        };fetchData();
     }, []);
 
     useEffect(() => {
@@ -27,57 +27,45 @@ const Chat = () => {
             const data = await chatMessageScream();
             setMessageData(data);
             setChatVisible(data && data.length > 0);
-        };
-        fetchData();
+        };fetchData();
     }, []);
-
-   
 
     useEffect(() => {
         const updateHeaderText = async () => {
             const text = await textHeaderRoutes();
             setHeaderText(text);
-        };
-        updateHeaderText();
+        };updateHeaderText();
     }, []);
 
-    const TokenAPI = async () => {
+    const TokenAPI = async () => { //var do token 
         const storedSessionToken = await AsyncStorage.getItem('sessionToken');
         const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
-        const tokenObject = JSON.parse(tokenPart);
-        return tokenObject;
+        const tokenObject = JSON.parse(tokenPart);return tokenObject;
     };
 
-    const SaveId = async () => {
-        const storedId = await AsyncStorage.getItem('selectedTicketId');
-        return storedId;
+    const SaveId = async () => { //pega o ID do item clicado e joga pra API
+        const storedId = await AsyncStorage.getItem('selectedTicketId');return storedId;
     };
 
-    const autoPages = async () => {
+    const autoPages = async () => { //pega o serviço que o user selecionou e joga pra API
         try {
             const routes = await AsyncStorage.getItem('option');
             if (routes !== null) {
                 return JSON.parse(routes);
-            } else {
-                return null;
+            } else { return null;
             }
         } catch (error) {
-            console.error('Erro ao recuperar a opção:', error);
-            return null;
+            console.error('Erro ao recuperar a opção:', error);return null;
         }
-    }
-
-    
+    };
 
     const ChatScreen = async () => {
         try {
             const storedId = await SaveId();
             const TokenObject = await TokenAPI();
             const routes = await autoPages();
-            // console.log(routes);
-            // console.log(storedId);
 
-            const res = await fetch(`http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/${routes}/${storedId}`, {
+            const res = await fetch(`${url}${routes}/${storedId}`, {
                 method: "GET",
                 headers: {
                     'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
@@ -86,15 +74,12 @@ const Chat = () => {
             });
 
             if (res.ok) {
-                const data = await res.json();
-                return [data];
+                const data = await res.json(); return [data];
             } else {
-                console.error("Erro em acessar a API 1");
-                return [];
+                console.error("Erro em acessar a API 1"); return [];
             }
         } catch (error) {
-            console.error("Erro em carregar a API:", error);
-            return [];
+            console.error("Erro em carregar a API:", error); return [];
         }
     };
 
@@ -103,9 +88,8 @@ const Chat = () => {
             const storedId = await SaveId();
             const tokenObject = await TokenAPI();
             const routes = await autoPages();
-            //console.log(routes);
 
-            const res = await fetch(`http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/${routes}/${storedId}/ITILFollowup/`, {
+            const res = await fetch(`${url}${routes}/${storedId}/ITILFollowup/`, {
                 method: "GET",
                 headers: {
                     'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
@@ -137,81 +121,35 @@ const Chat = () => {
                 return;
             }
 
-            const bodyContent = {
-                input: {
-                    itemtype: "ITILFollowup",
-                    items_id: storedId,
-                    content: newMessage,
-                    date: new Date().toISOString(),
-                    users_id: 9 
-                }
-            };
-
-            const res = await fetch(`http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/${routes}/${storedId}/ITILFollowup/`, {
+            const formattedMessage = `${newMessage}`;
+            const response = await fetch(`${url}ITILFollowup/`, {
                 method: "POST",
                 headers: {
+                    'Content-Type': 'application/json',
                     'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
                     'Session-Token': tokenObject,
-                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(bodyContent)
+                body: JSON.stringify({
+                    input: {
+                        itemtype: routes, //manda pra rota do chamado - Ticket - Computer - Printer 
+                        items_id: storedId, //abre o id do chamado
+                        users_id: 9, //usar uma var para o mudar o user 
+                        content: formattedMessage //mensagem do user
+                    }
+                }),
             });
-
-            if (res.ok) {
+            if (response.ok) {
                 console.log("Mensagem enviada com sucesso");
                 setNewMessage("");
                 const data = await chatMessageScream();
                 setMessageData(data);
             } else {
-                const errorData = await res.json();
+                const errorData = await response.json();
                 console.error("Erro ao enviar a mensagem:", errorData);
             }
         } catch (error) {
             console.error("Erro ao enviar a mensagem:", error);
         }
-    };
-
-    const updateMessage = async (messageId, updatedContent) => {
-        try {
-            const storedId = await SaveId();
-            const tokenObject = await TokenAPI();
-            const routes = await autoPages();
-
-            const res = await fetch(`http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/${routes}/${storedId}/ITILFollowup/${messageId}`, {
-                method: "POST",
-                headers: {
-                    'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-                    'Session-Token': tokenObject,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ input: { content: updatedContent } })
-            });
-            if (res.ok) {
-                console.log("Mensagem atualizada com sucesso");
-                const data = await chatMessageScream();
-                setMessageData(data);
-            } else {
-                const errorData = await res.json();
-                console.error("Erro ao atualizar a mensagem:", errorData);
-            }
-        } catch (error) {
-            console.error("Erro ao atualizar a mensagem:", error);
-        }
-    };
-
-    const editMessage = (messageId, currentContent) => {
-        setNewMessage(currentContent);
-        setEditingMessageId(messageId);
-    };
-
-    const handleSendOrUpdateMessage = async () => {
-        if (editingMessageId) {
-            await updateMessage(editingMessageId, newMessage);
-            setEditingMessageId(null);
-        } else {
-            await sendMessage();
-        }
-        setNewMessage("");
     };
 
     const textHeaderRoutes = async () => {
@@ -224,100 +162,105 @@ const Chat = () => {
         }
     };
 
+    const renderItem = ({ item }) => {
+        const isSentByCurrentUser = item.users_id === 9; // trocar pelo Var ID User
+
+        return (
+            <Animatable.View 
+            delay={400} animation={"fadeInUp"} style={[styles.chatbox, isSentByCurrentUser ? styles.sentMessage : styles.receivedMessage]}>
+                <RenderHtml contentWidth={Dimensions.get('window').width - 40} source={{ html: item.content }} />
+            </Animatable.View >
+        );
+    };
+
+    const renderChatItem = ({ item }) => {
+        return (
+            
+            <Animatable.View 
+                delay={400} animation={"fadeInUp"} style={styles.chatItem}>
+                <Text style={styles.headerTextChat}>Chat com {item.name}</Text>
+                <Text>({item.id}) - {item.name}</Text>
+                <Text>{item.contact}</Text>
+                <Text>({item.serial})</Text>
+            </Animatable.View>
+        );
+    };
+
     return (
         <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-        <View>
-            <Animatable.View style={styles.container}>
-                <Animatable.Image
-                    animation={"flipInY"}
-                    source={logo}
-                    style={styles.image} />
-            </Animatable.View>
+            style={{ flex: 1 }}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+            <View style={{ flex: 1 }}>
+                <FlatList
+                    ListHeaderComponent={
+                        <>
+                            <Animatable.View style={styles.container}>
+                                <Animatable.Image
+                                    animation={"flipInY"}
+                                    source={logo}
+                                    style={styles.image}
+                                />
+                            </Animatable.View>
 
-            <Animatable.View delay={400} animation={"fadeInUp"} style={styles.header}>
-                <Pressable onPress={() => navigation.navigate('Serviços')}>
-                    <Text style={styles.text}>Serviços</Text>
+                            <Animatable.View delay={400} animation={"fadeInUp"} style={styles.header}>
+                <Pressable
+                onPress={()=> navigation.navigate('Serviços')}>
+        
+                <Text style={styles.text}>Serviços</Text>
                 </Pressable>
-                <Text style={styles.text}>/</Text>
+                <Text style={styles.text}> /</Text>
                 <Text style={styles.text}>Chat</Text>
             </Animatable.View>
 
-            <Animatable.View delay={400} animation={"fadeInUp"} style={styles.container}>
-                <Text style={styles.headerText}>Chat Chamados {headerText}</Text>
-
-                <FlatList
-                    data={chatData}
+                            <Animatable.View delay={400} animation={"fadeInUp"} style={styles.container}>
+                                <Text style={styles.headerText}>Chat Chamados {headerText}</Text>
+                            </Animatable.View>
+                        </>
+                    }
+                    data={chatVisible ? chatMessageData : chatData}
                     keyExtractor={(item) => item.id.toString()}
-                    renderItem={({ item }) => (
-                        <View style={styles.chatItem}>
-                            <Text style={styles.headerTextChat}>Chat com {item.name}</Text>
-                            <Text>({item.id}) - {item.name}</Text>
-
-                            <Text>{item.contact}</Text>
-                            <Text>({item.serial})</Text>
-                        </View>
-                    )}
+                    renderItem={chatVisible ? renderItem : renderChatItem}
                 />
-                {chatVisible && (
-                    <View style={styles.containerChat}>
-                        <FlatList
-                            data={chatMessageData}
-                            keyExtractor={(item) => item.id.toString()}
-                            renderItem={({ item }) => (
-                                <View style={styles.chatbox}>
-                                    <Text>{item.content}</Text>
-                                    <Pressable onPress={() => editMessage(item.id, item.content)}>
-                                        <Text style={styles.editButtonText}>Editar</Text>
-                                    </Pressable>
-                                </View>
-                            )}
-                        />
-                    </View>
-                )}
-                <TextInput
-                    style={styles.input}
-                    placeholder="Digite sua mensagem..."
-                    value={newMessage}
-                    onChangeText={setNewMessage}
-                />
-                <Pressable onPress={handleSendOrUpdateMessage} style={styles.sendButton}>
-                    <Text style={styles.text}>{editingMessageId ? "Atualizar" : "Enviar"}</Text>
-                </Pressable>
-            </Animatable.View>
-
-            <Animatable.View delay={400} animation={"fadeInUp"}>
-                <Pressable
-                    onPress={() => navigation.navigate('Serviços')}
-                    style={styles.button}>
-                    <Text style={styles.text}>Voltar</Text>
-                </Pressable>
-            </Animatable.View>
-        </View>
+                <View style={styles.inputContainer}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Digite sua mensagem..."
+                        value={newMessage}
+                        onChangeText={setNewMessage}
+                    />
+                    <Pressable onPress={sendMessage} style={styles.sendButton}>
+                        <Text style={styles.text}>Enviar</Text>
+                    </Pressable>
+                </View>
+            </View>
         </KeyboardAvoidingView>
     );
 };
+
 const styles = StyleSheet.create({
     container: {
         backgroundColor: "#fff",
         paddingHorizontal: 20,
-        paddingTop: 40,
+        paddingTop: 20,
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        padding: 10,
+        backgroundColor: '#fff',
     },
     image: {
         alignSelf: 'center',
-        marginBottom: 20,
+        marginBottom: 10,
     },
     header: {
         flexDirection: 'row',
-        justifyContent: 'space-around',
+        justifyContent: 'space-evenly',
         backgroundColor: '#498DF3',
     },
     headerText: {
         fontSize: 20,
         fontWeight: 'bold',
-        padding: 10,
     },
     containerChat: {
         marginBottom: 20,
@@ -333,15 +276,20 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         padding: 10,
         marginBottom: 10,
-        marginEnd: '30%',
+    },
+    sentMessage: {
+        marginLeft: 'auto',
+        backgroundColor: '#ADD8E6',
+    },
+    receivedMessage: {
+        marginRight: 'auto',
+        backgroundColor: '#DBE6FD',
     },
     input: {
         backgroundColor: "#ADD8E6",
         borderRadius: 8,
         marginBottom: 10,
         padding: 10,
-        textAlign: 'right',
-        marginStart: '30%',
     },
     sendButton: {
         backgroundColor: "#498DF3",
@@ -373,4 +321,5 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
 });
+
 export default Chat;

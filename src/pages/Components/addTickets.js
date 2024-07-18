@@ -190,7 +190,7 @@ const TicketCrud = () => {
     <View style={styles.container}>
       {buttonVisible && (
         <Pressable style={styles.button} onPress={openModal}>
-          <Text>Abrir Ticket</Text>
+          <Text style={styles.idText}>Abrir Ticket</Text>
         </Pressable>
       )}
       <View style={styles.buttonContainer}>

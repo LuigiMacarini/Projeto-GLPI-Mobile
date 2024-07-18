@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, Pressable, TextInput, Alert } from "react-native";
+import * as Animatable from 'react-native-animatable';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import base64 from 'base-64';
-
 import logo from '../assets/logo.png';
 import gear from '../assets/gear.png';
 
@@ -77,13 +77,13 @@ const Login = () => {
 
     return (
         <>
-            <View style={styles.containerHeader}>
+            <Animatable.View style={styles.containerHeader}>
                 <View>
                     <Image
                         animation={"flipInY"}
                         source={logo} style={styles.image} />
                 </View>
-            </View>
+            </Animatable.View>
 
             <View>
                 <View style={styles.containerLogin}>

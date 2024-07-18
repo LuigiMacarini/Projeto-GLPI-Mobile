@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import logo from '../assets/logo.png';
 import * as Animatable from 'react-native-animatable';
 import { useNavigation } from '@react-navigation/native';
@@ -73,26 +73,23 @@ const AddTicket = () => {
             </Animatable.View>
 
             <Animatable.View delay={400} animation={"fadeInUp"} style={estilos.header}>
-                <TouchableOpacity
+                <Pressable
                 onPress={()=> navigation.navigate('Serviços')}>
         
-                <Text>Serviços</Text>
-                </TouchableOpacity>
-                <Text>/</Text>
-                <Text>{textServices}</Text>
+                <Text style={estilos.textHeader}>Serviços</Text>
+                </Pressable>
+                <Text style={estilos.textHeader}> /</Text>
+                <Text style={estilos.textHeader}>{textServices}</Text>
             </Animatable.View>
 
             <Animatable.View delay={400} animation={"fadeInUp"} style={estilos.container} >
                 <Text style={estilos.headerText}>{headerText}</Text>
-               
                 <TicketCrud></TicketCrud>
-              
-                <TouchableOpacity
+                <Pressable
                     onPress={() => navigation.navigate('Serviços')}
-                    style={estilos.button}><Text>Voltar</Text>
-                </TouchableOpacity>
+                    style={estilos.button}><Text style={estilos.textHeader}>Voltar</Text>
+                </Pressable>
             </Animatable.View>
-            
             </ScrollView>
     );
 };
@@ -105,11 +102,13 @@ const estilos = StyleSheet.create({
         margin: 8,
         alignSelf: 'center'
     },
+    textHeader: {
+        color: "#fff"
+    },
     header: {
         backgroundColor: "#498DF3",
         flexDirection: 'row',
         justifyContent: 'space-evenly',
-
     },
     headerText: {
         margin: '5%',
@@ -119,7 +118,6 @@ const estilos = StyleSheet.create({
     text: {
         alignSelf: "center",
         fontSize: 20,
-
     },
     button: {
         backgroundColor: "#498DF3",
