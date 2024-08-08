@@ -1,31 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Pressable, FlatList, StyleSheet } from "react-native";
 import Modal from 'react-native-modal';
-import AsyncStorage from "@react-native-async-storage/async-storage"; //salva informações e passa pra outros lugares
-import { useNavigation } from "@react-navigation/native"; //component para navegação entre paginas
+import AsyncStorage from "@react-native-async-storage/async-storage"; // salva informações e passa pra outros lugares
+import { useNavigation } from "@react-navigation/native"; // component para navegação entre páginas
+import servers from "./servers";
 
 const TicketCrud = () => {
-  const [tickets, setTickets] = useState([]); //renderiza os chamados
-  const [newTicket, setNewTicket] = useState({ name: "", content: "", urgency: "" }); //add chamados
-  const [isModalVisible, setModalVisible] = useState(false); //modal pros chamados
-  const [expandedItem, setExpandedItem] = useState(null); //colapsed pra abrir o conteudo dos chamados
-  const [sortOrder, setSortOrder] = useState("default"); //ordenação por nome e id
-  const [searchId, setSearchId] = useState(""); //id de busca
-  const [buttonVisible, setButtonVisible] = useState(true); //style para as routes
-  const [, setSessionToken] = useState(null); //token da sessão
-  const [range, setRange] = useState("0-200"); //paginação dos itens 
-  const navigation = useNavigation(); //navegação de paginas
+  const [tickets, setTickets] = useState([]); // renderiza os chamados
+  const [newTicket, setNewTicket] = useState({ name: "", content: "", urgency: "" }); // add chamados
+  const [isModalVisible, setModalVisible] = useState(false); // modal para chamados
+  const [expandedItem, setExpandedItem] = useState(null); // colapsed para abrir o conteúdo dos chamados
+  const [sortOrder, setSortOrder] = useState("default"); // ordenação por nome e id
+  const [searchId, setSearchId] = useState(""); // id de busca
+  const [buttonVisible, setButtonVisible] = useState(true); // style para as routes
+  const [, setSessionToken] = useState(null); // token da sessão
+  const [range, setRange] = useState("0-200"); // paginação dos itens
+  const navigation = useNavigation(); // navegação de páginas
+  const [, setServerUrl] = useState('');
 
   const TokenAPI = async () => {
-    const storedSessionToken = await AsyncStorage.getItem('sessionToken');//recupera o token e joga pra ca
+    const storedSessionToken = await AsyncStorage.getItem('sessionToken'); // recupera o token
     setSessionToken(storedSessionToken);
 
-    const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':'); //transforma o token em object 
-    const TokenObjetc = JSON.parse(tokenPart);
-    return TokenObjetc;
+    const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':'); // transforma o token em object 
+    return JSON.parse(tokenPart);
   };
 
-  const getUrgencyColor = (urgency) => { //filtro pra cor
+  const getUrgencyColor = (urgency) => { // filtro para cor
     switch (urgency) {
       case 1:
         return { backgroundColor: '#96be25' };
@@ -38,23 +39,31 @@ const TicketCrud = () => {
     }
   };
 
+  const openChat = () => {
+    navigation.navigate('Chat',{ range: '0-200' });
+  };
+
   const autoPages = async () => {
     try {
       const routes = await AsyncStorage.getItem('option');
-      if (routes !== null) {
-        return JSON.parse(routes);
-      } else {
-        return null;
-      }
+      return routes ? JSON.parse(routes) : null;
     } catch (error) {
-      console.error('Erro em pegar a pagina:', error);
+      console.error('Erro em pegar a página:', error);
       return null;
     }
   };
 
-  useEffect(() => { //atualiza os tickets e a paginação
+  useEffect(() => { // atualiza os tickets e a paginação
     loadTickets(range);
   }, [sortOrder, range]);
+
+  useEffect(() => {
+    const fetchServerUrl = async () => {
+        const url = await servers();
+        setServerUrl(url);
+    };
+    fetchServerUrl();
+  }, []);
 
   useEffect(() => {
     const checkPage = async () => {
@@ -66,11 +75,11 @@ const TicketCrud = () => {
 
   const loadTickets = async (range) => {
     try {
-      const [start, end] = range.split('-').map(Number); //map pra paginação
+      const url = await servers();
+      const [start, end] = range.split('-').map(Number); // map para paginação
       const TokenObjetc = await TokenAPI();
       const routes = await autoPages();
-      const ip = 'http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/';
-      const response = await fetch(`${ip}/${routes}/?range=${start}-${end}`, {
+      const response = await fetch(`${url}/${routes}/?range=${start}-${end}`, {
         method: "GET",
         headers: {
           'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
@@ -99,7 +108,8 @@ const TicketCrud = () => {
     try {
       const TokenObjetc = await TokenAPI();
       const routes = await autoPages();
-      const response = await fetch(`http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/${routes}`, {
+      const url = await servers();
+      const response = await fetch(`${url}/${routes}`, {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
@@ -165,9 +175,6 @@ const TicketCrud = () => {
         console.error('Erro ao armazenar a página selecionada:', error);
       }
     }
-
-    const storedId = await AsyncStorage.getItem('selectedTicketId');
-    console.log('ID:', storedId);
   };
 
   const toggleSortOrder = async () => {
@@ -224,8 +231,6 @@ const TicketCrud = () => {
         </Pressable>
       </View>
 
-      
-
       <FlatList
         data={tickets}
         keyExtractor={item => item.id.toString()}
@@ -241,7 +246,7 @@ const TicketCrud = () => {
             </Pressable>
             {expandedItem === item.id && (
               <View style={styles.expandedContent}>
-                <Pressable onPress={() => navigation.navigate('Chat')}>
+                <Pressable onPress={openChat}>
                   <Text>Comentário - {item.content}</Text>
                   <Text>Data - {item.date_creation}</Text>
                 </Pressable>
@@ -273,7 +278,8 @@ const TicketCrud = () => {
           </Pressable>
         </View>
       </Modal>
-    </View>)
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -400,7 +406,8 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 10,
     backgroundColor: "#f0f0f0",
-  }, modalContainer: {
+  }, 
+  modalContainer: {
     backgroundColor: "#fff",
     padding: 20,
     borderRadius: 10,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+/*import React, { useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, Pressable, TextInput, Alert } from "react-native";
 import * as Animatable from 'react-native-animatable';
 import { useNavigation } from '@react-navigation/native';
@@ -6,12 +6,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import base64 from 'base-64';
 import logo from '../assets/logo.png';
 import gear from '../assets/gear.png';
+import servers from "../Components/servers";
 
 const Login = () => {
     const navigation = useNavigation();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [selectedOption, setSelectedOption] = useState('');
+    const [serverUrl, setServerUrl] = useState('');
 
     const option = async (selected) => {
         if (selected === 'TI') {
@@ -30,6 +32,13 @@ const Login = () => {
             console.error('Erro ao limpar os valores salvos:', error);
         }
     };
+    useEffect(() => {
+        const fetchServerUrl = async () => {
+            const url = await servers();
+            setServerUrl(url);
+        };
+        fetchServerUrl();
+    }, []);
 
     useEffect(() => {
         clearSavedPages();
@@ -48,13 +57,15 @@ const Login = () => {
         const text = `${username}:${password}`;
         const encoded = base64.encode(text);
         await AsyncStorage.setItem('encoded', encoded);
-
+        //console.log(serverUrl)
+        //console.log(username)
         try {
-            const res = await fetch('http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php/initSession', {
+            const res = await fetch(`${serverUrl}/initSession`, {
                 method: "GET",
                 headers: {
                     'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-                    'Authorization': 'Basic ' + encoded
+                    'Authorization': 'Basic ' + encoded,
+                    'Session-Token': `${session_token}`
                 },
             });
 
@@ -63,8 +74,10 @@ const Login = () => {
             if (json && json[0] === 'ERROR_GLPI_LOGIN') {
                 Alert.alert('Erro', 'Nome de usuário ou senha inválidos');
             } else {
+                const sessionToken = json.session_token;
+                await AsyncStorage.setItem('username',username);
                 await AsyncStorage.setItem('sessionToken', JSON.stringify(json));
-                await AsyncStorage.setItem('Credenciais', JSON.stringify({ username, password }));
+                await AsyncStorage.setItem('Credenciais', JSON.stringify({ password,username }));
                 navigation.navigate('Serviços');
             }
         } catch (error) {
@@ -73,7 +86,7 @@ const Login = () => {
         }
     };
 
-    
+
 
     return (
         <>
@@ -100,7 +113,7 @@ const Login = () => {
                     <Text style={styles.text}>
                         Senha:
                     </Text>
-                    
+
                     <TextInput
                         placeholder="Senha..."
                         style={styles.input}
@@ -111,13 +124,13 @@ const Login = () => {
                     <Text style={styles.bar}></Text>
 
                     <View style={styles.optionsContainer}>
-                        <Pressable 
-                            style={[styles.optionButton, selectedOption === 'TI' && styles.selectedOption]} 
+                        <Pressable
+                            style={[styles.optionButton, selectedOption === 'TI' && styles.selectedOption]}
                             onPress={() => setSelectedOption('TI')}>
                             <Text style={styles.optionText}>TI</Text>
                         </Pressable>
-                        <Pressable 
-                            style={[styles.optionButton, selectedOption === 'Banco Interno' && styles.selectedOption]} 
+                        <Pressable
+                            style={[styles.optionButton, selectedOption === 'Banco Interno' && styles.selectedOption]}
                             onPress={() => setSelectedOption('Banco Interno')}>
                             <Text style={styles.optionText}>Banco Interno</Text>
                         </Pressable>
@@ -126,7 +139,7 @@ const Login = () => {
                     <Pressable style={styles.button} onPress={handleLogin}>
                         <Text>Entrar</Text>
                     </Pressable>
-                    
+
                 </View>
                 <View>
                     <Pressable style={styles.gear} onPress={() => navigation.navigate('Servidores')}>
@@ -212,8 +225,5 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
 });
-const buttonDinamic = ({ pressed }) => [
-    styles.pressable,
-    { backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white' },
-  ];
 export default Login;
+*/

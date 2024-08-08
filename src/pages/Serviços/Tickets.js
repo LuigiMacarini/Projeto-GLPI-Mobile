@@ -66,35 +66,37 @@ const AddTicket = () => {
     return (
         
         <ScrollView>
-            <Animatable.View style={estilos.container}>
+            <Animatable.View style={style.container}>
                 <Animatable.Image
                     animation={"flipInY"}
-                    source={logo} style={estilos.image} />
+                    source={logo} style={style.image} />
             </Animatable.View>
 
-            <Animatable.View delay={400} animation={"fadeInUp"} style={estilos.header}>
+            <Animatable.View delay={400} animation={"fadeInUp"} style={style.header}>
                 <Pressable
                 onPress={()=> navigation.navigate('Serviços')}>
         
-                <Text style={estilos.textHeader}>Serviços</Text>
+                <Text style={style.textHeader}>Serviços</Text>
                 </Pressable>
-                <Text style={estilos.textHeader}> /</Text>
-                <Text style={estilos.textHeader}>{textServices}</Text>
+                <Text style={style.textHeader}> /</Text>
+                <Text style={style.textHeader}>{textServices}</Text>
             </Animatable.View>
 
-            <Animatable.View delay={400} animation={"fadeInUp"} style={estilos.container} >
-                <Text style={estilos.headerText}>{headerText}</Text>
+            <Animatable.View delay={400} animation={"fadeInUp"} style={style.container} >
+                <Text style={style.headerText}>{headerText}</Text>
                 <TicketCrud></TicketCrud>
                 <Pressable
                     onPress={() => navigation.navigate('Serviços')}
-                    style={estilos.button}><Text style={estilos.textHeader}>Voltar</Text>
+                    style={style.button}>
+                    
+                    <Text style={style.text}>Voltar</Text>
                 </Pressable>
             </Animatable.View>
             </ScrollView>
     );
 };
 
-const estilos = StyleSheet.create({
+const style = StyleSheet.create({
     container: {
         backgroundColor: "#fff",
     },
@@ -103,7 +105,7 @@ const estilos = StyleSheet.create({
         alignSelf: 'center'
     },
     textHeader: {
-        color: "#fff"
+        color: "#fff",
     },
     header: {
         backgroundColor: "#498DF3",
@@ -117,13 +119,13 @@ const estilos = StyleSheet.create({
     },
     text: {
         alignSelf: "center",
+        color: "#fff",
         fontSize: 20,
     },
     button: {
         backgroundColor: "#498DF3",
         borderRadius: 6,
         width: "35%",
-        height: "5%",
         alignSelf: "center",
         alignItems: "center",
         justifyContent: "center",

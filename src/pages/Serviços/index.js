@@ -9,132 +9,112 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function Serviços() {
     const [collapsed, setCollapsed] = useState(true);
     const [collapsed2, setCollapsed2] = useState(true);
-    const [selectedOption, setSelectedOption] = useState('null');
-    const [User, setUser] = useState(null);
-
-    const storedUser = async () => {
-        try {
-            const User = await AsyncStorage.getItem('User');
-            setUser(User);
-        } catch (error) {
-            console.error('Erro ao limpar os valores salvos:', error);
-        }
-    }
-
-    useEffect(() => {
-        storedUser();
-    }, []);
+    const [selectedOption, setSelectedOption] = useState(null);
+    const [user, setUser] = useState(null);
 
     const navigation = useNavigation();
 
     useEffect(() => {
-        if (selectedOption !== null) {
-            const storeOption = async () => {
-                try {
+        const fetchUser = async () => {
+            try {
+                const storedUser = await AsyncStorage.getItem('User');
+                setUser(storedUser);
+            } catch (error) {
+                console.error('Erro ao pegar usuário:', error);
+            }
+        };
+        fetchUser();
+    }, []);
+
+    useEffect(() => {
+        const storeOption = async () => {
+            try {
+                if (selectedOption !== null) {
                     await AsyncStorage.setItem('option', JSON.stringify(selectedOption));
-                } catch (error) {
-                    console.error('Erro ao armazenar a opção:', error);
                 }
-            };
-            storeOption();
-        }
+            } catch (error) {
+                console.error('Erro ao armazenar a opção:', error);
+            }
+        };
+        storeOption();
     }, [selectedOption]);
 
-    const toggleExpand = () => {
-        setCollapsed(!collapsed);
-    };
-
-    const toggleExpand2 = () => {
-        setCollapsed2(!collapsed2);
-    };
-
-    const autoPages = async (option) => {
+    const toggleExpand = () => setCollapsed(!collapsed);
+    const toggleExpand2 = () => setCollapsed2(!collapsed2);
+    const handleOptionSelect = (option) => {
         setSelectedOption(option);
+        navigation.navigate(option === 'Ticket' ? 'AddTicket' : 'Tickets');
+    };
+
+    const handleAlert = (message) => {
+        Alert.alert('Erro', message);
     };
 
     return (
-        <View>
-            <Animatable.View style={estilos.container}>
+        <ScrollView>
+            <Animatable.View style={styles.container}>
                 <Animatable.Image
                     animation={"flipInY"}
                     source={logo}
-                    style={estilos.image}
+                    style={styles.image}
                 />
             </Animatable.View>
 
             <Animatable.View delay={400} animation={"fadeInUp"}>
-                <View style={estilos.header}>
-                    <Text style={estilos.textUser}>User-{User}</Text>
-                    <Text style={estilos.textServicos}>Serviços</Text>
+                <View style={styles.header}>
+                    <Text style={styles.textUser}>User-{user}</Text>
+                    <Text style={styles.textServices}>Serviços</Text>
                     <Pressable
                         onPress={() => navigation.navigate('Login')}
-                        style={estilos.button}
+                        style={styles.button}
                     >
-                        <Text style={estilos.textButton}>Sair</Text>
+                        <Text style={styles.textButton}>Voltar</Text>
                     </Pressable>
                 </View>
-               
-                <View style={estilos.box}>
+
+                <View style={styles.box}>
                     <Pressable onPress={toggleExpand}>
-                        <Text style={estilos.lserv2}>-Ativos-</Text>
+                        <Text style={styles.toggleText}>-Ativos-</Text>
                     </Pressable>
                     <Collapsible collapsed={collapsed}>
                         <View>
-                            <Pressable
-                                onPress={() => {
-                                    autoPages('Computer');
-                                    navigation.navigate('AddTicket');
-                                }}>
-                                <Text style={estilos.accordion_list}>Computadores</Text>
+                            <Pressable onPress={() => handleOptionSelect('Computer')}>
+                                <Text style={styles.accordionItem}>Computadores</Text>
                             </Pressable>
 
-                            <Pressable
-                                onPress={() => {
-                                    autoPages('Ticket');
-                                    navigation.navigate('Tickets');
-                                }}>
-                                <Text style={estilos.accordion_list}>Tickets</Text>
+                            <Pressable onPress={() => handleOptionSelect('Ticket')}>
+                                <Text style={styles.accordionItem}>Tickets</Text>
                             </Pressable>
 
-                            <Pressable style={
-                                estilos.pressed
-                            }
-                                onPress={() => {
-                                    autoPages('Printer');
-                                    navigation.navigate('AddTicket');
-                                }}>
-                                <Text style={estilos.accordion_list}>Impressoras</Text>
+                            <Pressable onPress={() => handleOptionSelect('Printer')}>
+                                <Text style={styles.accordionItem}>Impressoras</Text>
                             </Pressable>
                         </View>
                     </Collapsible>
 
-                    <Pressable onPress={toggleExpand2}
-                    >
-                        <Text style={estilos.lserv2}>-Ferramentas-</Text>
+                    <Pressable onPress={toggleExpand2}>
+                        <Text style={styles.toggleText}>-Ferramentas-</Text>
                     </Pressable>
                     <Collapsible collapsed={collapsed2}>
                         <View>
-                            <Pressable onPress={() => {
-                                Alert.alert('Erro', 'Aba não disponível');}}>
-                                <Text style={estilos.accordion_list}>Lembretes</Text>
+                            <Pressable onPress={() => handleAlert('Aba não disponível')}>
+                                <Text style={styles.accordionItem}>Lembretes</Text>
                             </Pressable>
-                            <Pressable onPress={() => {
-                                Alert.alert('Erro', 'Aba não disponível');}}>
-                                <Text style={estilos.accordion_list}>Projetos</Text>
+                            <Pressable onPress={() => handleAlert('Aba não disponível')}>
+                                <Text style={styles.accordionItem}>Projetos</Text>
                             </Pressable>
-                            <Pressable onPress={() => {
-                                Alert.alert('Erro', 'Aba não disponível');}}>
-                                <Text style={estilos.accordion_list}>Guias TI</Text>
+                            <Pressable onPress={() => handleAlert('Aba não disponível')}>
+                                <Text style={styles.accordionItem}>Guias TI</Text>
                             </Pressable>
                         </View>
                     </Collapsible>
                 </View>
             </Animatable.View>
-        </View>
+        </ScrollView>
     );
 }
 
-const estilos = StyleSheet.create({
+const styles = StyleSheet.create({
     container: {
         backgroundColor: "#fff",
     },
@@ -142,71 +122,53 @@ const estilos = StyleSheet.create({
         margin: 8,
         alignSelf: 'center',
     },
-    pressed: {
-        pressed :'rgb(210, 230, 255)'  
-    },
     header: {
         backgroundColor: "#498DF3",
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        bottom: 5,
-        padding: "1%"
+        padding: 10,
     },
     textUser: {
-        flex: 1,
-        textAlign: 'left',
         fontSize: 16,
+        color: "#fff",
     },
-    textServicos: {
-        flex: 1,
-        textAlign: 'center',
+    textServices: {
         fontSize: 20,
+        color: "#fff",
         backgroundColor: "#498DF3",
-        width: "100%",
+        textAlign: 'center',
+        flex: 1,
     },
     button: {
-        flex: 1,
         backgroundColor: "#FFE382",
         borderRadius: 6,
-        alignItems: 'center',
+        padding: 10,
         
+    },
+    textButton: {
+        fontSize: 16,
     },
     box: {
         backgroundColor: "#498DF3",
         borderRadius: 6,
-        marginStart: 12,
-        marginEnd: 12,
+        margin: 12,
         alignItems: "center",
     },
-    lserv: {
-        fontSize: 16,
-        borderRadius: 8,
-        alignSelf: "center",
-        marginTop: 12,
-        padding: 12,
-        marginVertical: 12,
-    },
-    lserv2: {
+    toggleText: {
         width: 150,
         fontSize: 16,
         borderRadius: 8,
-        alignSelf: "center",
         textAlign: "center",
-        marginTop: 12,
-        padding: 12,
         marginVertical: 12,
+        padding: 12,
         backgroundColor: "#3273D4",
+        color: "#fff",
     },
-    accordion_list: {
-        alignSelf: "center",
+    accordionItem: {
         fontSize: 16,
         padding: 15,
-    },
-    selectedOptionText: {
-        alignSelf: "center",
-        fontSize: 16,
-        padding: 15,
-        color: '#000',
+        color: "#fff",
+        textAlign: "center",
     },
 });
