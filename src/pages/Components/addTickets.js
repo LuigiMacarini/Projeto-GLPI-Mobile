@@ -1,32 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Pressable, FlatList, StyleSheet } from "react-native";
 import Modal from 'react-native-modal';
-import AsyncStorage from "@react-native-async-storage/async-storage"; // salva informações e passa pra outros lugares
-import { useNavigation } from "@react-navigation/native"; // component para navegação entre páginas
+import AsyncStorage from "@react-native-async-storage/async-storage"; 
+import { useNavigation } from "@react-navigation/native"; 
 import servers from "./servers";
 
 const TicketCrud = () => {
-  const [tickets, setTickets] = useState([]); // renderiza os chamados
-  const [newTicket, setNewTicket] = useState({ name: "", content: "", urgency: "" }); // add chamados
-  const [isModalVisible, setModalVisible] = useState(false); // modal para chamados
-  const [expandedItem, setExpandedItem] = useState(null); // colapsed para abrir o conteúdo dos chamados
-  const [sortOrder, setSortOrder] = useState("default"); // ordenação por nome e id
-  const [searchId, setSearchId] = useState(""); // id de busca
-  const [buttonVisible, setButtonVisible] = useState(true); // style para as routes
-  const [, setSessionToken] = useState(null); // token da sessão
-  const [range, setRange] = useState("0-200"); // paginação dos itens
-  const navigation = useNavigation(); // navegação de páginas
+  const [tickets, setTickets] = useState([]); 
+  const [newTicket, setNewTicket] = useState({ name: "", content: "", urgency: "" }); 
+  const [isModalVisible, setModalVisible] = useState(false); 
+  const [expandedItem, setExpandedItem] = useState(null); 
+  const [sortOrder, setSortOrder] = useState("default"); 
+  const [searchId, setSearchId] = useState(""); 
+  const [buttonVisible, setButtonVisible] = useState(true);
+  const [, setSessionToken] = useState(null); 
+  const [range, setRange] = useState("0-200"); // paginação
+  const navigation = useNavigation(); 
   const [, setServerUrl] = useState('');
 
   const TokenAPI = async () => {
-    const storedSessionToken = await AsyncStorage.getItem('sessionToken'); // recupera o token
+    const storedSessionToken = await AsyncStorage.getItem('sessionToken');
     setSessionToken(storedSessionToken);
 
     const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':'); // transforma o token em object 
     return JSON.parse(tokenPart);
   };
 
-  const getUrgencyColor = (urgency) => { // filtro para cor
+  const getUrgencyColor = (urgency) => { 
     switch (urgency) {
       case 1:
         return { backgroundColor: '#96be25' };
@@ -53,7 +53,7 @@ const TicketCrud = () => {
     }
   };
 
-  useEffect(() => { // atualiza os tickets e a paginação
+  useEffect(() => { // atualiza os tickets
     loadTickets(range);
   }, [sortOrder, range]);
 

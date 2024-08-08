@@ -42,7 +42,6 @@ const Chat = () => {
 
     const fetchServerUrl = async () => {
         const url = await servers();
-        //console.log("Server URL:", url);
         return url;
     };
 
@@ -129,7 +128,6 @@ const Chat = () => {
             });
 
             if (response.ok) {
-               // console.log("Mensagem enviada com sucesso");
                 setNewMessage("");
                 loadMessages();
             } else {
