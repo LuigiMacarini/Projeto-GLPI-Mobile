@@ -62,10 +62,10 @@ const AddTicket = () => {
     }).catch(error => {
       console.error('Erro:', error);
     });
-
+console.log("teste")
     return (
         
-        <ScrollView>
+        <View>
             <Animatable.View style={style.container}>
                 <Animatable.Image
                     animation={"flipInY"}
@@ -92,7 +92,7 @@ const AddTicket = () => {
                     <Text style={style.text}>Voltar</Text>
                 </Pressable>
             </Animatable.View>
-            </ScrollView>
+            </View>
     );
 };
 
