@@ -7,26 +7,26 @@ import servers from "./servers";
 
 const TicketCrud = () => {
   const [tickets, setTickets] = useState([]); 
-  const [newTicket, setNewTicket] = useState({ name: "", content: "", urgency: "" }); 
-  const [isModalVisible, setModalVisible] = useState(false); 
-  const [expandedItem, setExpandedItem] = useState(null); 
-  const [sortOrder, setSortOrder] = useState("default"); 
-  const [searchId, setSearchId] = useState(""); 
-  const [buttonVisible, setButtonVisible] = useState(true);
-  const [, setSessionToken] = useState(null); 
+  const [newTicket, setNewTicket] = useState({ name: "", content: "", urgency: "" }); //input para os chamados - tickets 
+  const [isModalVisible, setModalVisible] = useState(false); //modal visivel apenas nos tickets 
+  const [expandedItem, setExpandedItem] = useState(null); //accordion
+  const [sortOrder, setSortOrder] = useState("default"); // ordenação de chamados
+  const [searchId, setSearchId] = useState(""); //acha ticket por ID
+  const [buttonVisible, setButtonVisible] = useState(true);//caso não tenha mensagem muda o CSS
+  const [, setSessionToken] = useState(null); //seta o sessionToken do user
   const [range, setRange] = useState("0-200"); // paginação
-  const navigation = useNavigation(); 
-  const [, setServerUrl] = useState('');
+  const navigation = useNavigation(); //navegação entre pages
+  const [, setServerUrl] = useState(''); //seta o servidor do login 
 
   const TokenAPI = async () => {
-    const storedSessionToken = await AsyncStorage.getItem('sessionToken');
+    const storedSessionToken = await AsyncStorage.getItem('sessionToken'); //pega o session token e passa como string 
     setSessionToken(storedSessionToken);
 
-    const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':'); // transforma o token em object 
+    const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':'); // transforma o token em object para usar na API
     return JSON.parse(tokenPart);
   };
 
-  const getUrgencyColor = (urgency) => { 
+  const getUrgencyColor = (urgency) => { //estilo para prioridade
     switch (urgency) {
       case 1:
         return { backgroundColor: '#96be25' };
@@ -40,10 +40,10 @@ const TicketCrud = () => {
   };
 
   const openChat = () => {
-    navigation.navigate('Chat',{ range: '0-200' });
+    navigation.navigate('Chat',{ range: '0-200' }); //paginação até 200 mensagem para o chat de cada chamado 
   };
 
-  const autoPages = async () => {
+  const autoPages = async () => { //automatiza as pages reduzindo o codigo 
     try {
       const routes = await AsyncStorage.getItem('option');
       return routes ? JSON.parse(routes) : null;
@@ -58,7 +58,7 @@ const TicketCrud = () => {
   }, [sortOrder, range]);
 
   useEffect(() => {
-    const fetchServerUrl = async () => {
+    const fetchServerUrl = async () => { //atualiza o servidor 
         const url = await servers();
         setServerUrl(url);
     };
@@ -66,7 +66,7 @@ const TicketCrud = () => {
   }, []);
 
   useEffect(() => {
-    const checkPage = async () => {
+    const checkPage = async () => { 
       const routes = await autoPages();
       setButtonVisible(!(routes === 'Computer' || routes === 'Printer'));
     };
