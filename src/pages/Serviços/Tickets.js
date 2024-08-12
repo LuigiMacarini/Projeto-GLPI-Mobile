@@ -65,7 +65,7 @@ const AddTicket = () => {
 console.log("teste")
     return (
         
-        <View>
+        <ScrollView>
             <Animatable.View style={style.container}>
                 <Animatable.Image
                     animation={"flipInY"}
@@ -92,7 +92,7 @@ console.log("teste")
                     <Text style={style.text}>Voltar</Text>
                 </Pressable>
             </Animatable.View>
-            </View>
+            </ScrollView>
     );
 };
 
