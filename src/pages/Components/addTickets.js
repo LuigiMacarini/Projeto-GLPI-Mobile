@@ -89,6 +89,11 @@ const TicketCrud = () => {
 
       if (response.ok) {
         let data = await response.json();
+        data = data.filter(ticket => //filtra o crud para caso o chamado esteja fechado ou deletado
+          !ticket.is_deleted && 
+          ticket.close_delay_stat !== true && 
+          !ticket.solve_delay_stat
+        );
         data = data.filter(ticket => !ticket.is_deleted && ticket.status !== 'closed');
         if (sortOrder === 'alphabetical') { //sort em ordem alfabetica
           data = data.sort((a, b) => a.name.localeCompare(b.name));
