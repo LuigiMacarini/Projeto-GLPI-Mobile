@@ -68,7 +68,7 @@ const TicketCrud = () => {
   useEffect(() => {
     const checkPage = async () => { 
       const routes = await autoPages();
-      setButtonVisible(!(routes === 'Computer' || routes === 'Printer'));
+      setButtonVisible(!(routes === 'Computer' || routes === 'Printer')); //desabilita o Pressable caso esteja nessas pages
     };
     checkPage();
   }, []);
@@ -90,7 +90,7 @@ const TicketCrud = () => {
       if (response.ok) {
         let data = await response.json();
         data = data.filter(ticket => !ticket.is_deleted && ticket.status !== 'closed');
-        if (sortOrder === 'alphabetical') {
+        if (sortOrder === 'alphabetical') { //sort em ordem alfabetica
           data = data.sort((a, b) => a.name.localeCompare(b.name));
         } else if (sortOrder === "urgency") {
           data = data.sort((a, b) => a.urgency - b.urgency);
@@ -151,26 +151,26 @@ const TicketCrud = () => {
     }
   };
 
-  const openModal = () => {
+  const openModal = () => {//modal = entra
     setModalVisible(true);
   };
 
-  const closeModal = () => {
+  const closeModal = () => {//modal = sai 
     setModalVisible(false);
   };
 
-  const saveModal = async () => {
+  const saveModal = async () => {//salva o que foi digitado no modal para a API
     setModalVisible(false);
     addTicket(newTicket);
   };
 
   const toggleItem = async (id) => {
-    const newExpandedItem = expandedItem === id ? null : id;
+    const newExpandedItem = expandedItem === id ? null : id; //accordion dos chamados 
     setExpandedItem(newExpandedItem);
 
     if (newExpandedItem !== null) {
       try {
-        await AsyncStorage.setItem('selectedTicketId', newExpandedItem.toString());
+        await AsyncStorage.setItem('selectedTicketId', newExpandedItem.toString()); //salva o id do ticket para o chat 
       } catch (error) {
         console.error('Erro ao armazenar a página selecionada:', error);
       }
@@ -184,13 +184,13 @@ const TicketCrud = () => {
       setSortOrder(newOrder);
     } else {
       const newOrder = sortOrder === "default" ? "alphabetical" : (sortOrder === "alphabetical" ? "urgency" : "default");
-      setSortOrder(newOrder);
+      setSortOrder(newOrder); //alterna o botão de filtro
     }
   };
 
   const cleanID = () => {
     setSearchId("");
-    loadTickets(range);
+    loadTickets(range); //limpa o input do achar ID
   };
 
   return (

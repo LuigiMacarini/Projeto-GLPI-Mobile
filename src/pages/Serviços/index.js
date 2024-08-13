@@ -7,12 +7,11 @@ import Collapsible from "react-native-collapsible";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Serviços() {
-    const [collapsed, setCollapsed] = useState(true);
-    const [collapsed2, setCollapsed2] = useState(true);
+    const [collapsed, setCollapsed] = useState(true);// Estado para controlar a expansão da primeira seção
+    const [collapsed2, setCollapsed2] = useState(true); // Estado para controlar a expansão da segunda seção
     const [selectedOption, setSelectedOption] = useState(null);
-    const [user, setUser] = useState(null);
-
-    const navigation = useNavigation();
+    const [user, setUser] = useState(null); // Estado para armazenar o tipo de usuário (TI ou Banco Interno)
+    const navigation = useNavigation(); // Hook para navegação
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -39,13 +38,16 @@ export default function Serviços() {
         storeOption();
     }, [selectedOption]);
 
+    //Função para alternar a expansão da primeira seção Ativos
     const toggleExpand = () => setCollapsed(!collapsed);
+
+    // Função para alternar a expansão da segunda seção Ferramentas
     const toggleExpand2 = () => setCollapsed2(!collapsed2);
     const handleOptionSelect = (option) => {
         setSelectedOption(option);
         navigation.navigate(option === 'Ticket' ? 'AddTicket' : 'Tickets');
     };
-
+    // Função para exibir um alerta quando uma aba não estiver disponível
     const handleAlert = (message) => {
         Alert.alert('Erro', message);
     };
@@ -54,7 +56,7 @@ export default function Serviços() {
         <ScrollView>
             <Animatable.View style={styles.container}>
                 <Animatable.Image
-                    animation={"flipInY"}
+                    animation={"flipInY"} // Animação de flip para a logo
                     source={logo}
                     style={styles.image}
                 />

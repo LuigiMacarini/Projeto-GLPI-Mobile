@@ -9,13 +9,13 @@ import gear from '../assets/gear.png';
 import servers from "../Components/servers";
 
 const Login = () => {
-    const navigation = useNavigation();
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [selectedOption, setSelectedOption] = useState('');
-    const [, setServerUrl] = useState('');
+    const navigation = useNavigation(); // Hook para navegação
+    const [username, setUsername] = useState(''); // Estado para armazenar o nome de usuário
+    const [password, setPassword] = useState(''); // Estado para armazenar o nome de senha
+    const [selectedOption, setSelectedOption] = useState('');  // Estado para armazenar a opção selecionada (TI ou Banco Interno)
+    const [, setServerUrl] = useState(''); //Estado para armazenar a URL do servidor
 
-    const option = async (selected) => {
+    const option = async (selected) => {  //seleção entre o banco de dados internos ou ou ti - ainda não está funcional 
         if (selected === 'TI') {
             await AsyncStorage.setItem('User', 'TI');
         } else if (selected === 'Banco Interno') {
@@ -23,7 +23,7 @@ const Login = () => {
         }
     };
 
-    const clearSavedPages = async () => {
+    const clearSavedPages = async () => { //limpa o AsyncStorage do routes para evitar possiveis bugs
         try {
             await AsyncStorage.removeItem('Computer');
             await AsyncStorage.removeItem('Ticket');
@@ -49,14 +49,14 @@ const Login = () => {
     }, [selectedOption]);
 
     const handleLogin = async () => {
-        if (!username || !password || !selectedOption) {
+        if (!username || !password || !selectedOption) {  // o user tem que preencher os três campos
             Alert.alert('Preencha todos os campos e selecione uma opção');
             return;
         }
-
-        const text = `${username}:${password}`;
+        //Codifica as credenciais em base64
+        const text = `${username}:${password}`; 
         const encoded = base64.encode(text);
-        await AsyncStorage.setItem('encoded', encoded);
+        await AsyncStorage.setItem('encoded', encoded); 
 
         try {
             const url = await servers();
@@ -68,13 +68,13 @@ const Login = () => {
                 },
             });
 
-            const json = await res.json();
+            const json = await res.json(); //resposta em JSON
 
             if (json && json[0] === 'ERROR_GLPI_LOGIN') {
                 Alert.alert('Erro', 'Nome de usuário ou senha inválidos');
             } else {
-                await AsyncStorage.setItem('sessionToken', JSON.stringify(json));
-                await AsyncStorage.setItem('Credenciais', JSON.stringify({ username, password }));
+                await AsyncStorage.setItem('sessionToken', JSON.stringify(json)); // Salva as o token
+                await AsyncStorage.setItem('Credenciais', JSON.stringify({ username, password })); // Salva as credenciais
                 navigation.navigate('Serviços');
             }
         } catch (error) {

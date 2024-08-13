@@ -15,13 +15,13 @@ const Chat = () => {
     const [chatData, setChatData] = useState([]);
     const [chatMessageData, setMessageData] = useState([]);
     const [newMessage, setNewMessage] = useState("");
-    const [headerText, setHeaderText] = useState("Chat");
+    const [headerText, setHeaderText] = useState("Chat"); //muda o header conforme a page que está 
     const [chatVisible, setChatVisible] = useState(true);
-    const { range } = route.params||{};
+    const { range } = route.params||{}; //armazena 
     const [textServices, setTextServicesRoutes] = useState("");
 
     const tokenApi = async () => {
-        const storedSessionToken = await AsyncStorage.getItem('sessionToken');
+        const storedSessionToken = await AsyncStorage.getItem('sessionToken'); //converte a string e arruma para objeto para usasr na API
         const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
         return JSON.parse(tokenPart);
     };
@@ -191,7 +191,7 @@ const Chat = () => {
     }, []);
 
     const renderChatHeader = () => {
-        if (chatData.length > 0) {
+        if (chatData.length > 0) { //mostra ou esconde o chat se a mensagen estiver vazia 
             const item = chatData[0];
             return (
                 <View style={styles.chatItem}>
@@ -214,8 +214,8 @@ const Chat = () => {
         const isSentByCurrentUser = item.users_id === 9;
         return (
             <View style={[styles.chatbox, isSentByCurrentUser ? styles.receivedMessage : styles.sentMessage]}>
-                <RenderHtml contentWidth={Dimensions.get('window').width - 40} source={{ html: item.content }} />
-            </View>
+                <RenderHtml contentWidth={Dimensions.get('window').width - 40} source={{ html: item.content }} /> 
+            </View> //alterna as caixas de chat - por enquanto ainda não fuciona tão bem 
         );
     };
 

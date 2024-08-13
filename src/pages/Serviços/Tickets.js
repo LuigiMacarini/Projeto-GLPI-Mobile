@@ -30,7 +30,8 @@ const AddTicket = () => {
             default: return 'erro';
         }
       };
-    
+
+     // useEffect para atualizar os textos da header 
     useEffect(() => {
         const updateHeaderText = async () => {
             const text = await textHeaderRoutes();
@@ -44,6 +45,7 @@ const AddTicket = () => {
         updateTextServices();
     }, []);
 
+    // Função para recuperar a rota armazenada no AsyncStorage
     const autoPages = async () => {
         try {
             const routes = await AsyncStorage.getItem('option');
@@ -62,7 +64,7 @@ const AddTicket = () => {
     }).catch(error => {
       console.error('Erro:', error);
     });
-console.log("teste")
+
     return (
         
         <ScrollView>
