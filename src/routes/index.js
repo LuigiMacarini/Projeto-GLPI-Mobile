@@ -5,6 +5,7 @@ import Servidores from '../pages/Servidores'
 import Serviços from '../pages/Serviços'
 import Tickets from '../pages/Serviços/Tickets'
 import Chat from "../pages/Components/Chat";
+import Ti from "../pages/Components/ti";
 const Stack = createNativeStackNavigator();
 
 export default function Routes() {
@@ -16,7 +17,6 @@ export default function Routes() {
                 options={{ headerShown: false }}
             />
             
-
             <Stack.Screen
                 name="AddTicket"
                 component={Tickets}
@@ -47,6 +47,13 @@ export default function Routes() {
                 component={Login}
                 options={{ headerShown: false }}
             />
+            <Stack.Screen
+                name="Ti"
+                component={Ti}
+                options={{ headerShown: false }}
+            />
+
+            
         </Stack.Navigator>
     </>
 }

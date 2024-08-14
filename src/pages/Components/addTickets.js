@@ -243,7 +243,8 @@ const TicketCrud = () => {
           <View style={styles.ticketItem}>
             <Pressable onPress={() => toggleItem(item.id)}>
               <View style={styles.ticketContent}>
-                <Text>{item.name} ({item.id})</Text>
+                <Text>{item.name} ({item.id}) </Text>
+               
                 <View style={[styles.urgencyIndicator, getUrgencyColor(item.urgency)]}>
                   <Text style={styles.urgencyNumber}>{item.urgency}</Text>
                 </View>
@@ -252,8 +253,8 @@ const TicketCrud = () => {
             {expandedItem === item.id && (
               <View style={styles.expandedContent}>
                 <Pressable onPress={openChat}>
-                  <Text>Comentário - {item.content}</Text>
-                  <Text>Data - {item.date_creation}</Text>
+                  <Text>{item.content}</Text>
+                  <Text>Criação - {item.date_creation}</Text>
                 </Pressable>
               </View>
             )}

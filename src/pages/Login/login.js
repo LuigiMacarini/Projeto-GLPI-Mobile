@@ -8,6 +8,10 @@ import logo from '../assets/logo.png';
 import gear from '../assets/gear.png';
 import servers from "../Components/servers";
 
+//MELHORAR LOGIN COM OUTROS METODOS
+
+
+
 const Login = () => {
     const navigation = useNavigation(); // Hook para navegação
     const [username, setUsername] = useState(''); // Estado para armazenar o nome de usuário
@@ -123,9 +127,11 @@ const Login = () => {
                     <View style={styles.optionsContainer}>
                         <Pressable 
                             style={[styles.optionButton, selectedOption === 'TI' && styles.selectedOption]} 
-                            onPress={() => setSelectedOption('TI')}>
+                            onPress={() => navigation.navigate('Ti')}>
                             <Text style={styles.optionText}>TI</Text>
+                            
                         </Pressable>
+                        
                         <Pressable 
                             style={[styles.optionButton, selectedOption === 'Banco Interno' && styles.selectedOption]} 
                             onPress={() => setSelectedOption('Banco Interno')}>
@@ -138,6 +144,7 @@ const Login = () => {
                     </Pressable>
                     
                 </View>
+                
                 <View>
                     <Pressable style={styles.gear} onPress={() => navigation.navigate('Servidores')}>
                         <Image source={gear} style={styles.gear} />
