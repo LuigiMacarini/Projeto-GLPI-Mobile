@@ -5,7 +5,9 @@ import Servidores from '../pages/Servidores'
 import Serviços from '../pages/Serviços'
 import Tickets from '../pages/Serviços/Tickets'
 import Chat from "../pages/Components/Chat";
-import Ti from "../pages/Components/ti";
+import Ti from "../pages/Components/Ti";
+
+
 const Stack = createNativeStackNavigator();
 
 export default function Routes() {
@@ -52,7 +54,7 @@ export default function Routes() {
                 component={Ti}
                 options={{ headerShown: false }}
             />
-
+            
             
         </Stack.Navigator>
     </>
