@@ -64,7 +64,7 @@ const TicketCrud = () => {
     };
     fetchServerUrl();
   }, []);
-
+ 
   useEffect(() => {
     const checkPage = async () => { 
       const routes = await autoPages();
@@ -75,7 +75,9 @@ const TicketCrud = () => {
 
   const loadTickets = async (range) => {
     try {
+      
       const url = await servers();
+      console.log(url)
       const [start, end] = range.split('-').map(Number); // map para paginação
       const TokenObjetc = await TokenAPI();
       const routes = await autoPages();
@@ -195,8 +197,9 @@ const TicketCrud = () => {
 
   const cleanID = () => {
     setSearchId("");
-    loadTickets(range); //limpa o input do achar ID
+    
   };
+  
 
   return (
     <View style={styles.container}>

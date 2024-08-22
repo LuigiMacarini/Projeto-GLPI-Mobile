@@ -4,13 +4,14 @@ import { View, Text, FlatList, StyleSheet, Pressable } from 'react-native';
 import { useApiService } from '../../APIsComponents/get'; 
 import Accordion from './accordion';
 
-const Teste = () => {
+const Ti = () => {
   const { data, error } = useApiService();
 
   const renderItem = ({ item }) => (
     <Pressable style={styles.itemContainer}>
       <Text style={styles.itemName}>{item.id}-{item.name}</Text>
       <Text style={styles.itemContent}>{item.content}</Text>
+      
     </Pressable>
   );
 
@@ -61,4 +62,4 @@ const styles = StyleSheet.create({
   
 });
 
-export default Teste;
+export default Ti;

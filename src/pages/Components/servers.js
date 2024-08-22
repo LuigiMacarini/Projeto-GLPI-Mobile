@@ -5,15 +5,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const servers = async () => {
     try {
-        const selectedServer = await AsyncStorage.getItem('selectedServer');
-        switch (selectedServer) {
-            case 'Ararangua':
-                return 'http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php';
-            case 'Criciuma':
-                return 'http://ti.criciuma.sc.gov.br:00000/glpi/apirest.php';
-            default:
-                return 'default.server.url';
-        }
+        const customServer = await AsyncStorage.getItem('setURL')
+            return customServer;
+        
     } catch (error) {
         console.error("Erro ao acessar o AsyncStorage:", error);
         return 'error.server.url';
