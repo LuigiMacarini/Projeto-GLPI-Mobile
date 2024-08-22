@@ -19,7 +19,7 @@ export const useApiService = () => {
     });
 
     if (!response.ok) {
-      throw new Error('Network response was not ok');
+      throw new Error('Erro em acessar a API');
     }
 
     const result = await response.json();
