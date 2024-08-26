@@ -54,7 +54,7 @@ const Login = () => {
 
     const handleLogin = async () => {
         if (!username || !password || !selectedOption) { // o user tem que preencher os três campos
-            Alert.alert('Preencha todos os campos e selecione uma opção');
+            Alert.alert('Erro','Preencha todos os campos e selecione uma opção');
             return;
         }
         //Codifica as credenciais em base64
