@@ -1,13 +1,15 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, Pressable, Alert,TextInput } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, Pressable, Alert, TextInput, KeyboardAvoidingView, Platform, ScrollView  } from "react-native";
 import logo from '../assets/logo.png'
 import * as Animatable from 'react-native-animatable'
 import { useNavigation } from '@react-navigation/native'
 import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function Servidores() {
 
-const [config, setConfig]= useState();
+    const [config, setConfig] = useState();
     const navigation = useNavigation();
+
+
 
     const handlePress = async (server) => { //function de seleção de servidor - adicione conforme nescessario
         try {
@@ -18,21 +20,35 @@ const [config, setConfig]= useState();
         }
     };
 
-const saveURL = async()=>{
-    if (config.trim()){
-        try{
-            await AsyncStorage.setItem('setURL', config);
-            console.log(config)
-            Alert.alert('Url salva!');
+    const saveURL = async () => {
+        if (config.trim()) {
+            try {
+                await AsyncStorage.setItem('setURL', config);
+                console.log(config)
+                Alert.alert('Sucesso!');
 
-        }catch(error){
-            Alert.alert('Erro ao salvar URL')
-        } 
-    }else{
-        Alert.alert("Insira uma URL")
+            } catch (error) {
+                Alert.alert("Erro", "Falha ao salvar URL")
+            }
+        } else {
+            Alert.alert("Erro", "Insira uma URL")
+        }
     }
-}
+    useEffect(() => {
+        const urlView = async () => {
+            try {
+                const savedURL = await AsyncStorage.getItem('setURL');
+                if (savedURL) {
+                    setConfig(savedURL)
 
+                }
+            }
+            catch (error) {
+                console.error('Erro em pegar a URL', error);
+            }
+        }
+        urlView();
+    }, [])
     return (
         <>
             <View style={styles.container}>
@@ -45,50 +61,57 @@ const saveURL = async()=>{
             <View>
                 <View style={styles.box}>
                     <Text style={styles.lserv}>
-                        Lista de Servidores
+                        Servidor em uso
                     </Text>
-                    
-                        <TextInput style={styles.lserv2}
+                    <Text style={styles.lserv}>
+                        {config}
+                    </Text>
+                    <TextInput style={styles.textInput}
                         autoCapitalize="none"
                         placeholder="Insira a URL do seu Município"
                         value={config}
                         onChangeText={setConfig}
-                        styles={styles.lserv}>
-                        </TextInput>
-                       
-                    <Pressable onPress={saveURL}
-                        style={styles.buttonURL}>
-                            <Text style={styles.text} >Salvar</Text>
+                    >
+                    </TextInput>
+
+                    <View style={styles.buttonContainer}>
+                        <Pressable onPress={saveURL} style={styles.buttonURL}>
+                            <Text style={styles.text}>Salvar</Text>
                         </Pressable>
-                        
+                    </View>
+
                 </View>
                 <Pressable
                     onPress={() => navigation.navigate('Login')}
                     style={styles.button}>
                     <Text>Voltar para Login</Text>
                 </Pressable>
-                <Text style={styles.lserv}>Caso mude de Servidor recarregue o App</Text>
             </View>
+           
         </>
     );
 }
 const styles = StyleSheet.create({
     container: {
         backgroundColor: "#fff",
-
     },
     image: {
         margin: 8,
         alignSelf: 'center'
     },
-    buttonURL:{
+    buttonContainer: {
+        flex: 1,
+        justifyContent: "flex-end",
+        alignItems: "center",
+    },
+    buttonURL: {
         backgroundColor: "#FFE382",
         borderRadius: 6,
-        width:"25%",
-        height: "10%",
+        width: "25%",
+        height: "20%",
         alignSelf: "center",
         alignItems: "center",
-        justifyContent:"center",
+        justifyContent: "center",
         shadowColor: "#000",
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
@@ -98,7 +121,7 @@ const styles = StyleSheet.create({
             width: 0,
             height: 2,
         },
-        marginVertical: "30%"
+        marginVertical:"5%"
     },
     button: {
         backgroundColor: "#FFE382",
@@ -122,9 +145,10 @@ const styles = StyleSheet.create({
         alignSelf: "center",
         width: "85%",
         borderRadius: 6,
-        bottom: "0%",
         height: "60%",
-        marginTop: 26
+        marginTop: 26,
+        padding: 16,
+        justifyContent: "space-between", 
     },
     lserv: {
         fontSize: 16,
@@ -132,11 +156,21 @@ const styles = StyleSheet.create({
         marginTop: 16
     },
     lserv2: {
-        fontSize: 16,
-        marginStart: 16,
+        fontSize: 13,
+        fontWeight: "bold",
+        textAlign: "center",
         marginTop: 16
     },
-
+    textInput: {
+        fontSize: 13,
+        backgroundColor: "#f5f5f5",
+        width: "100%",
+        borderRadius: 6,
+        justifyContent: "center",
+        fontWeight: "bold",
+        textAlign: "center",
+        marginTop: 16
+    },
     text: {
         fontSize: 16,
         textAlign: "center"

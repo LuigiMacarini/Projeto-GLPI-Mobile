@@ -1,5 +1,4 @@
 //pagina serve para mudar os servidores na aba de login 
-//servidor de criciuma não existe ainda 
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -9,7 +8,7 @@ const servers = async () => {
             return customServer;
         
     } catch (error) {
-        console.error("Erro ao acessar o AsyncStorage:", error);
+        console.error("Erro ao acessar o AsyncStorage - SaveURL:", error);
         return 'error.server.url';
     }
 };
