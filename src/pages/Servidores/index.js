@@ -5,12 +5,8 @@ import * as Animatable from 'react-native-animatable'
 import { useNavigation } from '@react-navigation/native'
 import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function Servidores() {
-
     const [config, setConfig] = useState();
     const navigation = useNavigation();
-
-
-
     const handlePress = async (server) => { //function de seleção de servidor - adicione conforme nescessario
         try {
             await AsyncStorage.setItem('selectedServer', server);
@@ -19,12 +15,10 @@ export default function Servidores() {
             Alert.alert('Erro', 'Não foi possível salvar a seleção do servidor.');
         }
     };
-
-    const saveURL = async () => {
-        if (config.trim()) {
+    const saveURL = async () => {       //essa função salva a url e manda lá pro servers.js
+        if (config.trim()) {            //variavel que é pra manipular é "config"
             try {
                 await AsyncStorage.setItem('setURL', config);
-                console.log(config)
                 Alert.alert('Sucesso!');
 
             } catch (error) {
@@ -34,20 +28,16 @@ export default function Servidores() {
             Alert.alert("Erro", "Insira uma URL")
         }
     }
-    useEffect(() => {
+    useEffect(() => {                           //salva o estado da URL para que fique aparecendo caso feche o APP
         const urlView = async () => {
             try {
                 const savedURL = await AsyncStorage.getItem('setURL');
                 if (savedURL) {
                     setConfig(savedURL)
-
-                }
-            }
-            catch (error) {
-                console.error('Erro em pegar a URL', error);
-            }
+                }}
+            catch (error) {console.error('Erro em pegar a URL', error);}
         }
-        urlView();
+            urlView();
     }, [])
     return (
         <>
