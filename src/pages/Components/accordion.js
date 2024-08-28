@@ -1,4 +1,4 @@
-
+// Accordion para a aba de TI
 import React, { useState } from 'react';
 import * as Animatable from 'react-native-animatable';
 import { View, Text, Pressable, StyleSheet } from 'react-native';

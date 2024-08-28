@@ -77,7 +77,6 @@ const TicketCrud = () => {
     try {
       
       const url = await servers();
-      console.log(url)
       const [start, end] = range.split('-').map(Number); // map para paginação
       const TokenObjetc = await TokenAPI();
       const routes = await autoPages();
@@ -283,7 +282,7 @@ const TicketCrud = () => {
             value={newTicket.urgency}
             onChangeText={(text) => setNewTicket({ ...newTicket, urgency: text })} />
           <Pressable style={styles.modalButton} onPress={saveModal}>
-            <Text>Salvar</Text>
+            <Text style={styles.idText}>Salvar</Text>
           </Pressable>
         </View>
       </Modal>
