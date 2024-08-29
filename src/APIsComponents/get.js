@@ -1,20 +1,28 @@
 
 import servers from '../pages/Components/servers';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState, useEffect, } from 'react';
 export const useApiService = () => {
   const [data, setData] = useState([]);
   const [error, setError] = useState(null);
+
+  const TokenAPI = async () => {
+    const storedSessionToken = await AsyncStorage.getItem('sessionToken');
+    const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
+    return JSON.parse(tokenPart);
+  };
  
   useEffect(() => {
     const fetchData = async () => {
   try {
     const url = await servers();
+    const Token = await TokenAPI();
     const response = await fetch(`${url}/Ticket/?range=0-200`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
         'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-        'Session-Token': 'dndv6a2f4nc1mlune2dcle32s7',
+        'Session-Token': `${Token}`,
       },
     });
 
