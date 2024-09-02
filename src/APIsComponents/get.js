@@ -25,11 +25,6 @@ export const useApiService = () => {
         'Session-Token': `${Token}`,
       },
     });
-
-    if (!response.ok) {
-      throw new Error('Erro em acessar a API');
-    }
-
     const result = await response.json();
     const filteredResult = result.filter(ticket => 
       !ticket.is_deleted && 

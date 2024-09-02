@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Pressable, TextInput, Modal } from 'react-native';
 import { useApiService } from '../../APIsComponents/get'; 
-import { useApiServicePost } from '../../APIsComponents/post';
+import useApiServicePost from '../../APIsComponents/post';
 import Accordion from './accordion';
 
 const Ti = () => {
   const { data, error } = useApiService();
-  const { addTicket, error: errorPOST } = useApiServicePost();
+  const { addTicket, newTicket, setNewTicket } = useApiServicePost(); // Certifique-se de que está chamando o hook corretamente
   const [modalVisible, setModalVisible] = useState(false);
-  const [newTicket, setNewTicket] = useState({ name: "", content: "", urgency: "" });
 
   const renderItem = ({ item }) => (
     <Pressable style={styles.itemContainer}>
@@ -20,9 +19,8 @@ const Ti = () => {
 
   const handleCreateTicket = async () => {
     try {
-      await addTicket(newTicket); // Chama a função para adicionar o ticket
-      setNewTicket({ name: "", content: "", urgency: "" }); // Limpa os campos
-      setModalVisible(false); // Fecha o modal
+      await addTicket(); // Chama a função para adicionar o ticket
+     setModalVisible(false); // Fecha o modal
     } catch (error) {
       console.error('Erro ao adicionar o ticket:', error);
     }
@@ -58,19 +56,19 @@ const Ti = () => {
             <Text style={styles.modalTitle}>Adicionar Novo Ticket</Text>
             <TextInput
               style={styles.input}
-              placeholder="Nome"
+              placeholder="Nome - Insira o seu nome e local"
               value={newTicket.name}
               onChangeText={(text) => setNewTicket({ ...newTicket, name: text })}
             />
             <TextInput
               style={styles.input}
-              placeholder="Conteúdo"
+              placeholder="Comentário - Insira o conteúdo"
               value={newTicket.content}
               onChangeText={(text) => setNewTicket({ ...newTicket, content: text })}
             />
             <TextInput
               style={styles.input}
-              placeholder="Urgência"
+              placeholder="Urgência - 1 - 2 - 3 -"
               value={newTicket.urgency}
               onChangeText={(text) => setNewTicket({ ...newTicket, urgency: text })}
             />
@@ -78,9 +76,7 @@ const Ti = () => {
             <Pressable style={styles.button} onPress={handleCreateTicket}>
               <Text style={styles.buttonText}>Adicionar Ticket</Text>
             </Pressable>
-            <Pressable style={[styles.button, styles.cancelButton]} onPress={() => setModalVisible(false)}>
-              <Text style={styles.buttonTextCancel}>Cancelar</Text>
-            </Pressable>
+            
           </View>
         </View>
       </Modal>
@@ -120,7 +116,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: 300,
+    width: "80%",
     padding: 20,
     backgroundColor: 'white',
     borderRadius: 10,
@@ -142,7 +138,7 @@ const styles = StyleSheet.create({
   button: {
     padding: 10,
     marginHorizontal:"8%",
-    marginVertical: "20%",
+    marginVertical: "10%",
     backgroundColor: '#498DF3',
     borderRadius: 5,
     alignItems: 'center',
@@ -150,16 +146,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
-  },
-  buttonTextCancel: {
-    color: 'white',
-    fontWeight: 'bold',
-    color: "#000"
-  },
-  cancelButton: {
-    backgroundColor: '#FFE382',
-    
-  },
+  }, 
 });
 
 export default Ti;

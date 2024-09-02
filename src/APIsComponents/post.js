@@ -1,10 +1,12 @@
 import servers from '../pages/Components/servers';
 import { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useApiService } from './get';
 
-export const useApiServicePost = () => {
-  const [data, setData] = useState(null);
+const useApiServicePost = () => {
+  
   const [error, setError] = useState(null);
+  const [newTicket, setNewTicket] = useState({name: "", content:"", urgency:""});
 
   const TokenAPI = async () => {
     const storedSessionToken = await AsyncStorage.getItem('sessionToken');
@@ -12,7 +14,7 @@ export const useApiServicePost = () => {
     return JSON.parse(tokenPart);
   };
 
-  const addTicket = async (newTicket) => {
+  const addTicket = async () => {
     try {
       const url = await servers();
       const Token = await TokenAPI();
@@ -24,19 +26,26 @@ export const useApiServicePost = () => {
           'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
           'Session-Token': `${Token}`,
         },
-        body: JSON.stringify(newTicket),
+        body: JSON.stringify({
+          input: {
+            name: newTicket.name,
+            urgency: newTicket.urgency,
+            content: newTicket.content,
+          },
+        }),
       });
 
-      if (!res.ok) {
-        throw new Error('Falha em acessar a API');
+      if (res.ok) {
+        setNewTicket({ name: "", content: "", urgency: "" });
+      } else {
+        console.error("Falha no AddTicket:", error);
       }
-
-      const response = await res.json();
-      setData(response);
-    } catch (err) {
-      setError(err.message);
+    } catch (error) {
+      console.error("Erro em carregar API ADD:", error);
     }
   };
 
-  return { data, error, addTicket };
+  return { addTicket, newTicket, setNewTicket };
 };
+
+export default useApiServicePost;
