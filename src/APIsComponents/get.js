@@ -1,7 +1,7 @@
 
 import servers from '../pages/Components/servers';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useState, useEffect, } from 'react';
+import { useState, useEffect,useCallback } from 'react';
 export const useApiService = () => {
   const [data, setData] = useState([]);
   const [error, setError] = useState(null);
@@ -12,8 +12,8 @@ export const useApiService = () => {
     return JSON.parse(tokenPart);
   };
  
-  useEffect(() => {
-    const fetchData = async () => {
+  
+    const fetchData = useCallback (async () => {
   try {
     const url = await servers();
     const Token = await TokenAPI();
@@ -36,11 +36,15 @@ export const useApiService = () => {
     setError(error);
     console.error("Erro na requisição:", error);
   }
-};
+  
+}, []);
+useEffect(()=>{
+  fetchData();
+}, [fetchData]);
 
-fetchData();
+const refetch = async ()=>{
+  await fetchData();
+}
 
-  }, []);
-
-  return { data, error };
+  return { data, error, refetch };
 };

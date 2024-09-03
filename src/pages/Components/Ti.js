@@ -2,29 +2,65 @@ import React, { useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Pressable, TextInput, Modal } from 'react-native';
 import { useApiService } from '../../APIsComponents/get'; 
 import useApiServicePost from '../../APIsComponents/post';
+import useApiServiceDelete from '../../APIsComponents/delete';
 import Accordion from './accordion';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Ti = () => {
-  const { data, error } = useApiService();
-  const { addTicket, newTicket, setNewTicket } = useApiServicePost(); // Certifique-se de que está chamando o hook corretamente
+  const { data, error, refetch } = useApiService();
+  const { addTicket, newTicket, setNewTicket } = useApiServicePost(); 
+  const {deleteTicket}=useApiServiceDelete();
   const [modalVisible, setModalVisible] = useState(false);
+  const [expandedItem, setExpandedItem]=useState();
+  
 
   const renderItem = ({ item }) => (
-    <Pressable style={styles.itemContainer}>
+    <Pressable style={styles.itemContainer} 
+      >
       <Text style={styles.itemName}>{item.id}-{item.name}</Text>
       <Text style={styles.itemContent}>{item.content}</Text>
       <Text style={styles.itemContent}>{item.date_creation}</Text>
+      <Pressable
+        style={({ pressed }) => [
+          styles.buttonDelete,
+          pressed ? styles.buttonPressed : null, 
+        ]}
+        onPress={() => PressDeleteTicket(item.id)&&refetch&&saveId(item.id)} 
+      >
+        <Text style={styles.textDelete}>-Excluir-</Text>
+      </Pressable>
     </Pressable>
   );
 
-  const handleCreateTicket = async () => {
+  const createTicket = async () => {
     try {
-      await addTicket(); // Chama a função para adicionar o ticket
-     setModalVisible(false); // Fecha o modal
+      await addTicket(); 
+     setModalVisible(false); 
     } catch (error) {
       console.error('Erro ao adicionar o ticket:', error);
     }
   };
+  const PressDeleteTicket = async(id)=>{
+    try{await deleteTicket(id);
+    refetch();}
+    catch(error){
+    console.error("Erro ao deletar ticket", error)
+    }
+  }
+
+  const saveId = async(id)=>{
+    const NewExpanded = expandedItem ===id?null:id;
+    setExpandedItem(NewExpanded);
+    if (NewExpanded!==null){
+      try{
+        await AsyncStorage.setItem("TicketID",NewExpanded.toString());
+        console.log("ID:", NewExpanded.toString())
+      }catch(error){
+        console.log("Erro em armazenar o ID", error);
+      }
+    }
+  }
+
 
   if (error) {
     return <Text style={styles.error}>Erro ao carregar dados - Reinicie o aplicativo -</Text>;
@@ -73,7 +109,7 @@ const Ti = () => {
               onChangeText={(text) => setNewTicket({ ...newTicket, urgency: text })}
             />
 
-            <Pressable style={styles.button} onPress={handleCreateTicket}>
+            <Pressable style={styles.button} onPress={createTicket}>
               <Text style={styles.buttonText}>Adicionar Ticket</Text>
             </Pressable>
             
@@ -146,7 +182,19 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
-  }, 
+  },
+  buttonPressed:{
+      backgroundColor: "#FF7F7F",
+  },
+  buttonDelete:{
+    alignSelf: 'flex-end',
+    padding: 2,
+    borderRadius: 6,
+  },
+  textDelete:{
+    
+    color: "#000"
+  },
 });
 
 export default Ti;

@@ -1,7 +1,6 @@
 import servers from '../pages/Components/servers';
 import { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useApiService } from './get';
 
 const useApiServicePost = () => {
   

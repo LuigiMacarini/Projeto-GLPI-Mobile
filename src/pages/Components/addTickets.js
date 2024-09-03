@@ -105,9 +105,12 @@ const TicketCrud = () => {
       } else {
         console.error('Falha em acessar a API Lista');
       }
+      
     } catch (error) {
       console.error('Erro ao carregar a API Lista:', error);
+     
     }
+    
   };
 
   const addTicket = async () => {
@@ -196,10 +199,10 @@ const TicketCrud = () => {
 
   const cleanID = () => {
     setSearchId("");
-    
+
   };
   
-
+  
   return (
     <View style={styles.container}>
       {buttonVisible && (
