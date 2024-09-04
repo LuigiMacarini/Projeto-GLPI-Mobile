@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const useApiServicePost = () => {
   
-  const [error, setError] = useState(null);
+  const [error, ] = useState(null);
   const [newTicket, setNewTicket] = useState({name: "", content:"", urgency:""});
 
   const TokenAPI = async () => {

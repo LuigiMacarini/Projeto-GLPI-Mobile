@@ -52,15 +52,15 @@ const Login = () => {
         option(selectedOption);
     }, [selectedOption]);
 
-    const handleLogin = async () => {
+    const pressLogin = async () => {
         if (!username || !password || !selectedOption) { // o user tem que preencher os três campos
             Alert.alert('Erro','Preencha todos os campos e selecione uma opção');
             return;
         }
         //Codifica as credenciais em base64
         const text = `${username}:${password}`; 
-        const encoded = base64.encode(text);
-        await AsyncStorage.setItem('encoded', encoded); 
+        const Authorization = base64.encode(text);
+        await AsyncStorage.setItem('encoded', Authorization); 
 
         try {
             const url = await servers();
@@ -68,10 +68,10 @@ const Login = () => {
                 method: "GET",
                 headers: {
                     'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-                    'Authorization': 'Basic ' + encoded
+                    'Authorization': 'Basic ' + Authorization
                 },
             });
-
+           
             const json = await res.json(); //resposta em JSON
 
             if (json && json[0] === 'ERROR_GLPI_LOGIN') {
@@ -147,7 +147,7 @@ const Login = () => {
                         </Pressable>
                     </View>
 
-                    <Pressable style={styles.button} onPress={handleLogin}>
+                    <Pressable style={styles.button} onPress={pressLogin}>
                         <Text>Entrar</Text>
                     </Pressable>
                     

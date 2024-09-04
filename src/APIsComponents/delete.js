@@ -1,5 +1,4 @@
 import servers from '../pages/Components/servers';
-import { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const useApiServiceDelete = () => {
@@ -8,31 +7,29 @@ const useApiServiceDelete = () => {
     const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
     return JSON.parse(tokenPart);
   };
-  const idTicket = async()=>{
+
+  const idTicket = async () => {
     const storedId = await AsyncStorage.getItem("TicketID");
     return storedId;
-  }
-
-  const deleteTicket = async () => {
+  };
+const deleteTicket = async (id) => {
     try {
-      const id = await idTicket();
-      const url = await servers();
-      const Token = await TokenAPI();
+      const id = await idTicket(); 
+      const url = await servers(); 
+      const tokenPart = await TokenAPI(); // tem que rosolver o caminho do token
       const res = await fetch(`${url}/Ticket/${id}`, {
         method: 'DELETE',
         headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
           'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-          'Session-Token': `${Token}`,
+          'Session-Token': `3qguf0elpjc5jpltq03ji2t6js`,
         },
-        
       });
-      if(res.ok){
-        console.log("delete feito!");
+      if (!res.ok) {
+        console.log("Erro em deletar ticket!", res.status);
       }
+      else {console.log("Delete bem sucedido!")}
     } catch (error) {
-      console.error("Erro em carregar API DELETE:", error);
+      console.error("Erro ao carregar API DELETE:", error);
     }
   };
 

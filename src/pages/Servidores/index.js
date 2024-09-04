@@ -7,14 +7,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function Servidores() {
     const [config, setConfig] = useState();
     const navigation = useNavigation();
-    const handlePress = async (server) => { //function de seleção de servidor - adicione conforme nescessario
+    /*const handlePress = async (server) => { //function de seleção de servidor - adicione conforme nescessario
         try {
             await AsyncStorage.setItem('selectedServer', server);
             navigation.navigate('Login');
         } catch (error) {
             Alert.alert('Erro', 'Não foi possível salvar a seleção do servidor.');
         }
-    };
+    };*/
     const saveURL = async () => {       //essa função salva a url e manda lá pro servers.js
         if (config.trim()) {            //variavel que é pra manipular é "config"
             try {

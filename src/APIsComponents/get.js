@@ -42,9 +42,9 @@ useEffect(()=>{
   fetchData();
 }, [fetchData]);
 
-const refetch = async ()=>{
+const reloadApiGet = async ()=>{
   await fetchData();
 }
 
-  return { data, error, refetch };
+  return { data, error, reloadApiGet };
 };

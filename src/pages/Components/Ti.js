@@ -7,9 +7,9 @@ import Accordion from './accordion';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Ti = () => {
-  const { data, error, refetch } = useApiService();
+  const { data, error, reloadApiGet } = useApiService();
   const { addTicket, newTicket, setNewTicket } = useApiServicePost(); 
-  const {deleteTicket}=useApiServiceDelete();
+  const {deleteTicket} = useApiServiceDelete();
   const [modalVisible, setModalVisible] = useState(false);
   const [expandedItem, setExpandedItem]=useState();
   
@@ -25,7 +25,7 @@ const Ti = () => {
           styles.buttonDelete,
           pressed ? styles.buttonPressed : null, 
         ]}
-        onPress={() => PressDeleteTicket(item.id)&&refetch&&saveId(item.id)} 
+        onPress={() => PressDeleteTicket(item.id)&&reloadApiGet&&saveId(item.id)} 
       >
         <Text style={styles.textDelete}>-Excluir-</Text>
       </Pressable>
@@ -41,8 +41,9 @@ const Ti = () => {
     }
   };
   const PressDeleteTicket = async(id)=>{
-    try{await deleteTicket(id);
-    refetch();}
+    try{await saveId(id);
+    deleteTicket()
+    reloadApiGet();}
     catch(error){
     console.error("Erro ao deletar ticket", error)
     }
