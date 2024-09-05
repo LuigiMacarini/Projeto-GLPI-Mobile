@@ -38,9 +38,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: "#fff",
   },
   toggle: {
     fontSize: 16,
+    
   },
   content: {
     padding: 10,

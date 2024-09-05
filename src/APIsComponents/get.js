@@ -22,8 +22,8 @@ export const useApiService = () => {
       headers: {
         'Accept': 'application/json',
         'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-        'Session-Token': `${Token}`,
-      },
+        'Session-Token' :`${Token}`
+        },
     });
     const result = await response.json();
     const filteredResult = result.filter(ticket => 

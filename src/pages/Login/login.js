@@ -77,7 +77,7 @@ const Login = () => {
             if (json && json[0] === 'ERROR_GLPI_LOGIN') {
                 Alert.alert('Erro', 'Nome de usuário ou senha inválidos');
             } else {
-                await AsyncStorage.setItem('sessionToken', JSON.stringify(json)); // Salva as o token
+                await AsyncStorage.setItem('sessionToken', JSON.stringify(json)); // Salva o token
                 await AsyncStorage.setItem('Credenciais', JSON.stringify({ username, password })); // Salva as credenciais
             }
             if (res.ok){
