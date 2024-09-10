@@ -10,7 +10,7 @@ const Accordion = ({ title, children }) => {
     <View style={styles.container}>
       <Pressable style={styles.header} onPress={() => setIsExpanded(!isExpanded)}>
         <Text style={styles.title}>{title}</Text>
-        <Text style={styles.alt}>{isExpanded ? '-' : '+'}</Text>
+        <Text style={styles.toggle}>{isExpanded ? '-' : '+'}</Text>
       </Pressable>
       {isExpanded && <Animatable.View 
        animation={"fadeInUp"}
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: "#fff",
   },
-  alt: {
+  toggle: {
     fontSize: 16,
     
   },

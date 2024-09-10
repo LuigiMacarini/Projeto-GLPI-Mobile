@@ -77,7 +77,14 @@ const Ti = () => {
           contentContainerStyle={styles.listContainer}
         />
       </Accordion>
-      
+      <Accordion title="Printers" style={styles.text}>
+        <FlatList
+          data={data}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={styles.listContainer}
+        />
+      </Accordion>
 
       <Pressable style={styles.button} onPress={() => setModalVisible(true)}>
         <Text style={styles.buttonText}>Adicionar Ticket</Text>
