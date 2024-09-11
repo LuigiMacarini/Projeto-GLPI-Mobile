@@ -86,6 +86,8 @@ const Ti = () => {
         />
       </Accordion>
 
+      
+
       <Pressable style={styles.button} onPress={() => setModalVisible(true)}>
         <Text style={styles.buttonText}>Adicionar Ticket</Text>
       </Pressable>
