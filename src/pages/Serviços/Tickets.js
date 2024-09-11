@@ -1,3 +1,4 @@
+// esse arquivo é a parte estatica da pagina Tickets o CRUD está em addTickets
 import React, { useState, useEffect } from "react";
 import { Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import logo from '../assets/logo.png';
@@ -13,16 +14,16 @@ const AddTicket = () => {
 
 
     const textHeaderRoutes = async () => {
-        const routes = await autoPages();
-        switch (routes) {
+        const routes = await autoPages();       //muda o textHeader conforme a rota
+        switch (routes) {                       //pega a option de routes em forma de string e verifica com switch
             case 'Ticket': return 'Tickets';
             case 'Computer': return 'Ativos -> Computadores';
             case 'Printer': return 'Ativos -> Impressoras';
             default: return 'vazio';
         }
     };
-    const textServicesRoutes = async () => {
-        const routes = await autoPages();
+    const textServicesRoutes = async () => {    //aqui muda a aba azul de navegação conforme a rota selecionada
+        const routes = await autoPages();       //mesmo esquema da ultima função
         switch (routes) {
             case 'Ticket': return 'Tickets';
             case 'Computer': return 'Computadores';

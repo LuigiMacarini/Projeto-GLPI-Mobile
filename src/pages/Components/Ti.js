@@ -14,7 +14,7 @@ const Ti = () => {
   const [expandedItem, setExpandedItem] = useState();
 
   const showAlert = (message) => {
-    Alert.alert("Sucesso", message, [{ text: "OK" }]);
+    Alert.alert("Sucesso", message, [{ text: "OK" }]);  //alerta mostrando que excluiu o ticket
   };
 
   const renderItem = ({ item }) => (
@@ -23,7 +23,7 @@ const Ti = () => {
       <Text style={styles.itemContent}>{item.content}</Text>
       <Text style={styles.itemContent}>{item.date_creation}</Text>
       <Pressable
-        style={({ pressed }) => [
+        style={({ pressed }) => [ //mostra que o botao foi pressionado
           styles.buttonDelete,
           pressed ? styles.buttonPressed : null,
         ]}
@@ -34,7 +34,7 @@ const Ti = () => {
     </Pressable>
   );
 
-  const createTicket = async () => {
+  const createTicket = async () => {   
     try {
       await addTicket(); 
       setModalVisible(false); 
@@ -43,7 +43,7 @@ const Ti = () => {
     }
   };
 
-  const PressDeleteTicket = async (id) => {
+  const PressDeleteTicket = async (id) => {   //salva o id selecionado - chama a função de delete - chama o get pra atualizar - chama o alerta
     try {
       await saveId(id);
       await deleteTicket();
@@ -68,7 +68,7 @@ const Ti = () => {
   };
 
   if (error) {
-    return <Text style={styles.error}>Erro ao carregar dados - Reinicie o aplicativo -</Text>;
+    return <Text style={styles.error}>Erro ao carregar dados - Reinicie o aplicativo -</Text>; //caso de erro na API mostra esse text
   }
 
   return (

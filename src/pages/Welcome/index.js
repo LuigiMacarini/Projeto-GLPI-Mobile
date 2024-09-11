@@ -19,9 +19,10 @@ export default function Welcome() {
         </View>
         <Animatable.View delay={400} animation={"fadeInUp"}>
             <Pressable 
-            onPress ={ () => navigation.navigate('teste')} 
+            onPress ={ () => navigation.navigate('Login')} 
             style={style.button}><Text>Fazer Login</Text></Pressable>
         </Animatable.View>
+        <View><Text style={style.text}>© Desenvolvido por -  </Text></View>
     
         </>
 }

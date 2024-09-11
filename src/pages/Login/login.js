@@ -38,7 +38,7 @@ const Login = () => {
     };
 
     useEffect(() => {
-        clearSavedPages();
+        clearSavedPages(); //atualiza e limpa as paginas para evitar conflitos
     }, []);
     useEffect(() => {
         const fetchServerUrl = async () => {

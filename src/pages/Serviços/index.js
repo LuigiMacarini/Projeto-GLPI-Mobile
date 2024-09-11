@@ -19,7 +19,7 @@ export default function Serviços() {
                 const storedUser = await AsyncStorage.getItem('User');
                 setUser(storedUser);
             } catch (error) {
-                console.error('Erro ao pegar usuário:', error);
+                console.error('Erro ao pegar usuário', error);
             }
         };
         fetchUser();
@@ -32,7 +32,7 @@ export default function Serviços() {
                     await AsyncStorage.setItem('option', JSON.stringify(selectedOption));
                 }
             } catch (error) {
-                console.error('Erro ao armazenar a opção:', error);
+                console.error('Erro ao armazenar a opção', error);
             }
         };
         storeOption();

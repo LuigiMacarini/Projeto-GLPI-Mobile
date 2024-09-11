@@ -4,7 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const servers = async () => {
     try {
-        const customServer = await AsyncStorage.getItem('setURL')
+        const customServer = await AsyncStorage.getItem('setURL') //funçao onde pega a url da aba servidores
             return customServer;
         
     } catch (error) {
