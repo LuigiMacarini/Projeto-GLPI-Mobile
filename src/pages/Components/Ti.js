@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Pressable, TextInput, Modal } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Pressable, TextInput, Modal, Alert } from 'react-native';
 import { useApiService } from '../../APIsComponents/get'; 
 import useApiServicePost from '../../APIsComponents/post';
 import useApiServiceDelete from '../../APIsComponents/delete';
@@ -9,25 +9,27 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const Ti = () => {
   const { data, error, reloadApiGet } = useApiService();
   const { addTicket, newTicket, setNewTicket } = useApiServicePost(); 
-  const {deleteTicket} = useApiServiceDelete();
+  const { deleteTicket } = useApiServiceDelete();
   const [modalVisible, setModalVisible] = useState(false);
-  const [expandedItem, setExpandedItem]=useState();
-  
+  const [expandedItem, setExpandedItem] = useState();
+
+  const showAlert = (message) => {
+    Alert.alert("Sucesso", message, [{ text: "OK" }]);
+  };
 
   const renderItem = ({ item }) => (
-    <Pressable style={styles.itemContainer} 
-      >
-      <Text style={styles.itemName}>{item.id}-{item.name}</Text>
+    <Pressable style={styles.itemContainer}>
+      <Text style={styles.itemName}>{item.id} - {item.name}</Text>
       <Text style={styles.itemContent}>{item.content}</Text>
       <Text style={styles.itemContent}>{item.date_creation}</Text>
       <Pressable
         style={({ pressed }) => [
           styles.buttonDelete,
-          pressed ? styles.buttonPressed : null, 
+          pressed ? styles.buttonPressed : null,
         ]}
-        onPress={() => PressDeleteTicket(item.id)&&reloadApiGet&&saveId(item.id)} 
+        onPress={() => PressDeleteTicket(item.id)}
       >
-        <Text style={styles.textDelete}>-Excluir-</Text>
+        <Text style={styles.textDelete}>- Excluir -</Text>
       </Pressable>
     </Pressable>
   );
@@ -35,33 +37,35 @@ const Ti = () => {
   const createTicket = async () => {
     try {
       await addTicket(); 
-     setModalVisible(false); 
+      setModalVisible(false); 
     } catch (error) {
-      console.error('Erro ao adicionar o ticket:', error);
+      console.error('Erro ao adicionar o ticket', error);
     }
   };
-  const PressDeleteTicket = async(id)=>{
-    try{await saveId(id);
-    deleteTicket()
-    reloadApiGet();}
-    catch(error){
-    console.error("Erro ao deletar ticket", error)
-    }
-  }
 
-  const saveId = async(id)=>{
-    const NewExpanded = expandedItem ===id?null:id;
+  const PressDeleteTicket = async (id) => {
+    try {
+      await saveId(id);
+      await deleteTicket();
+      await reloadApiGet();
+      showAlert("Ticket excluído!");
+    } catch (error) {
+      console.error("Erro ao deletar ticket", error);
+    }
+  };
+
+  const saveId = async (id) => {
+    const NewExpanded = expandedItem === id ? null : id;
     setExpandedItem(NewExpanded);
-    if (NewExpanded!==null){
-      try{
-        await AsyncStorage.setItem("TicketID",NewExpanded.toString());
-        console.log("ID:", NewExpanded.toString())
-      }catch(error){
-        console.log("Erro em armazenar o ID", error);
+    if (NewExpanded !== null) {
+      try {
+        await AsyncStorage.setItem("TicketID", NewExpanded.toString());
+        //console.log("ID armazenado:", NewExpanded.toString());
+      } catch (error) {
+        console.log("Erro ao armazenar o ID", error);
       }
     }
-  }
-
+  };
 
   if (error) {
     return <Text style={styles.error}>Erro ao carregar dados - Reinicie o aplicativo -</Text>;
@@ -77,9 +81,6 @@ const Ti = () => {
           contentContainerStyle={styles.listContainer}
         />
       </Accordion>
-     
-
-      
 
       <Pressable style={styles.button} onPress={() => setModalVisible(true)}>
         <Text style={styles.buttonText}>Adicionar Ticket</Text>
@@ -112,11 +113,9 @@ const Ti = () => {
               value={newTicket.urgency}
               onChangeText={(text) => setNewTicket({ ...newTicket, urgency: text })}
             />
-
             <Pressable style={styles.button} onPress={createTicket}>
               <Text style={styles.buttonText}>Adicionar Ticket</Text>
             </Pressable>
-            
           </View>
         </View>
       </Modal>
@@ -178,7 +177,7 @@ const styles = StyleSheet.create({
   },
   button: {
     padding: 10,
-    marginHorizontal:"8%",
+    marginHorizontal: "8%",
     marginVertical: "10%",
     backgroundColor: '#498DF3',
     borderRadius: 5,
@@ -187,20 +186,18 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
-    
   },
-  buttonPressed:{
-      backgroundColor: "#FF7F7F",
+  buttonPressed: {
+    backgroundColor: "#FF7F7F",
   },
-  buttonDelete:{
+  buttonDelete: {
     alignSelf: 'flex-end',
     padding: 2,
     bottom: 12,
     borderRadius: 6,
   },
-  textDelete:{
-    
-    color: "#000"
+  textDelete: {
+    color: "#000",
   },
 });
 
