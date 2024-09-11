@@ -77,14 +77,7 @@ const Ti = () => {
           contentContainerStyle={styles.listContainer}
         />
       </Accordion>
-      <Accordion title="Printers" style={styles.text}>
-        <FlatList
-          data={data}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderItem}
-          contentContainerStyle={styles.listContainer}
-        />
-      </Accordion>
+     
 
       
 
@@ -148,6 +141,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: 20,
+    bottom: 30
   },
   error: {
     margin: "30%",
@@ -193,6 +187,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
+    
   },
   buttonPressed:{
       backgroundColor: "#FF7F7F",
@@ -200,6 +195,7 @@ const styles = StyleSheet.create({
   buttonDelete:{
     alignSelf: 'flex-end',
     padding: 2,
+    bottom: 12,
     borderRadius: 6,
   },
   textDelete:{
