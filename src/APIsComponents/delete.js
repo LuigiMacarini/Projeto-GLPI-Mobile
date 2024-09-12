@@ -8,9 +8,9 @@ const useApiServiceDelete = () => {
   };
   const TokenAPI = async () => {
     const storedSessionToken = await AsyncStorage.getItem('sessionToken');
-    const [, cleanedToken] = storedSessionToken.replace(/[{""}]/g, '').split(':');
-    console.log(cleanedToken)
-    return(cleanedToken);
+    const [, tokenPart] = storedSessionToken.replace(/[{""}]/g, '').split(':');
+    console.log(tokenPart)
+    return(tokenPart);
    
     
   };
@@ -27,7 +27,7 @@ const useApiServiceDelete = () => {
         headers: {
         'Content-Type': 'application/json',
         'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-        'Session-Token' : `7pblilnmcskukvp1uuiscbfuhu`      //${token}     // por algum motivo o AsyncStoraged não ta passando o token para a header 
+        'Session-Token' : "747vafdqjja6g1cn3u5up22dkq"      //${token}     // por algum motivo o AsyncStoraged não ta passando o token para a header 
         },                                                   //por enquanto vai ficar com o token fixo do proprio Postman 
       });                                               //7pblilnmcskukvp1uuiscbfuhu
       if (!res.ok) {
