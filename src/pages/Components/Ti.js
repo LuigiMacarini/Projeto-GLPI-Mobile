@@ -1,40 +1,64 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Pressable, TextInput, Modal, Alert } from 'react-native';
 import { useApiService } from '../../APIsComponents/get'; 
 import useApiServicePost from '../../APIsComponents/post';
 import useApiServiceDelete from '../../APIsComponents/delete';
+import { useGetLocal } from '../../APIsComponents/getLocal';
 import Accordion from './accordion';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Ti = () => {
-  const { data, error, reloadApiGet } = useApiService();
+  const { data, error } = useApiService();
   const { addTicket, newTicket, setNewTicket } = useApiServicePost(); 
-  const { deleteTicket } = useApiServiceDelete();
+  const { dataLocal, errorLocal } = useGetLocal();  
   const [modalVisible, setModalVisible] = useState(false);
-  const [expandedItem, setExpandedItem] = useState();
 
   const showAlert = (message) => {
-    Alert.alert("Sucesso", message, [{ text: "OK" }]);  //alerta mostrando que excluiu o ticket
+    Alert.alert("Sucesso", message, [{ text: "OK" }]);
+  };
+
+ 
+  const renderLocal = ({ item }) => (
+    <View style={styles.itemContainer}>
+      <Text style={styles.itemName}>{item.id}</Text>
+    </View>
+  );
+
+  useEffect(() => {
+    const getSelectedTicketId = async () => {
+      try {
+        const storedId = await AsyncStorage.getItem('selectedId');
+        if (storedId) {
+          console.log("ID:", storedId);
+        }
+      } catch (error) {
+        console.log("Erro", error);
+      }
+    };
+    getSelectedTicketId();
+  }, []);
+
+  const pressTicket = async (ticketId) => {
+    try {
+      await AsyncStorage.setItem('selectedId', ticketId);
+    } catch (error) {
+      console.log("Erro ao armazenar o ID do ticket", error);
+    }
   };
 
   const renderItem = ({ item }) => (
-    <Pressable style={styles.itemContainer}>
+    <Pressable 
+      style={styles.itemContainer}
+      onPress={() => pressTicket(item.id.toString())}
+    >
       <Text style={styles.itemName}>{item.id} - {item.name}</Text>
       <Text style={styles.itemContent}>{item.content}</Text>
+      <Text style={styles.itemContent}>{item.completename}</Text>
       <Text style={styles.itemContent}>{item.date_creation}</Text>
-      <Pressable
-        style={({ pressed }) => [ //mostra que o botao foi pressionado
-          styles.buttonDelete,
-          pressed ? styles.buttonPressed : null,
-        ]}
-        onPress={() => PressDeleteTicket(item.id)}
-      >
-        <Text style={styles.textDelete}>- Excluir -</Text>
-      </Pressable>
     </Pressable>
   );
 
-  const createTicket = async () => {   
+  const createTicket = async () => {
     try {
       await addTicket(); 
       setModalVisible(false); 
@@ -43,32 +67,8 @@ const Ti = () => {
     }
   };
 
-  const PressDeleteTicket = async (id) => {   //salva o id selecionado - chama a função de delete - chama o get pra atualizar - chama o alerta
-    try {
-      await saveId(id);
-      await deleteTicket();
-      await reloadApiGet();
-      showAlert("Ticket excluído!");
-    } catch (error) {
-      console.error("Erro ao deletar ticket", error);
-    }
-  };
-
-  const saveId = async (id) => {
-    const NewExpanded = expandedItem === id ? null : id;
-    setExpandedItem(NewExpanded);
-    if (NewExpanded !== null) {
-      try {
-        await AsyncStorage.setItem("TicketID", NewExpanded.toString());
-        //console.log("ID armazenado:", NewExpanded.toString());
-      } catch (error) {
-        console.log("Erro ao armazenar o ID", error);
-      }
-    }
-  };
-
-  if (error) {
-    return <Text style={styles.error}>Erro ao carregar dados - Reinicie o aplicativo -</Text>; //caso de erro na API mostra esse text
+  if (error || errorLocal) {
+    return <Text style={styles.error}>Erro ao carregar dados - Reinicie o aplicativo -</Text>;
   }
 
   return (
@@ -80,8 +80,15 @@ const Ti = () => {
           renderItem={renderItem}
           contentContainerStyle={styles.listContainer}
         />
+        
       </Accordion>
-
+      <FlatList
+          data={dataLocal}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderLocal}
+          contentContainerStyle={styles.listContainer}
+        />
+      
       <Pressable style={styles.button} onPress={() => setModalVisible(true)}>
         <Text style={styles.buttonText}>Adicionar Ticket</Text>
       </Pressable>
@@ -122,11 +129,11 @@ const Ti = () => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   itemContainer: {
     padding: 10,
-    marginBottom: 10,
+    marginBottom: 20,
+   
     borderColor: '#ddd',
     borderWidth: 1,
   },

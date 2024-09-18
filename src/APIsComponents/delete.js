@@ -1,4 +1,4 @@
-import servers from '../pages/Components/servers';
+/*import servers from '../pages/Components/servers';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const useApiServiceDelete = () => {
@@ -14,6 +14,40 @@ const useApiServiceDelete = () => {
    
     
   };
+render do button excluir 
+  <Pressable
+        style={({ pressed }) => [
+          styles.buttonDelete,
+          pressed ? styles.buttonPressed : null,
+        ]}
+        onPress={() => PressDeleteTicket(item.id)}
+      >
+        <Text style={styles.textDelete}>- Excluir -</Text>
+      </Pressable>
+
+   const PressDeleteTicket = async (id) => {
+    try {
+      await saveId(id);
+      await deleteTicket();
+      await reloadApiGet();
+      showAlert("Ticket excluído!");
+    } catch (error) {
+      console.error("Erro ao deletar ticket", error);
+    }
+  };
+
+  const saveId = async (id) => {
+    const NewExpanded = expandedItem === id ? null : id;
+    setExpandedItem(NewExpanded);
+    if (NewExpanded !== null) {
+      try {
+        await AsyncStorage.setItem("TicketID", NewExpanded.toString());
+        //console.log("ID armazenado:", NewExpanded.toString());
+      } catch (error) {
+        console.log("Erro ao armazenar o ID", error);
+      }
+    }
+
 
   const deleteTicket = async () => {
     try {
@@ -43,3 +77,4 @@ const useApiServiceDelete = () => {
 };
 
 export default useApiServiceDelete;
+*/
