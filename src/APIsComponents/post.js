@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const useApiServicePost = () => {
   
   const [error, ] = useState(null);
-  const [newTicket, setNewTicket] = useState({name: "", content:"", urgency:""});
+  const [newTicket, setNewTicket] = useState({name: "", content:"", urgency:"", locations_id:""});
 
   const TokenAPI = async () => {
     const storedSessionToken = await AsyncStorage.getItem('sessionToken');
@@ -30,12 +30,13 @@ const useApiServicePost = () => {
             name: newTicket.name,
             urgency: newTicket.urgency,
             content: newTicket.content,
+            location: newTicket.locations_id
           },
         }),
       });
 
       if (res.ok) {
-        setNewTicket({ name: "", content: "", urgency: "" });
+        setNewTicket({ name: "", content: "", urgency: "", locations_id:""});
       } else {
         console.error("Falha no AddTicket:", error);
       }

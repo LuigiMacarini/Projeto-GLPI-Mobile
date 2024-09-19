@@ -64,7 +64,7 @@ export default function Serviços() {
 
             <Animatable.View delay={400} animation={"fadeInUp"}>
                 <View style={styles.header}>
-                    <Text style={styles.textUser}>User-{user}</Text>
+                    <Text style={styles.textUser}></Text>
                     <Text style={styles.textServices}>Serviços</Text>
                     <Pressable
                         onPress={() => navigation.navigate('Login')}
@@ -127,7 +127,6 @@ const styles = StyleSheet.create({
     header: {
         backgroundColor: "#498DF3",
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
         padding: 10,
     },
@@ -136,10 +135,10 @@ const styles = StyleSheet.create({
         color: "#fff",
     },
     textServices: {
+        justifyContent: "center",
         fontSize: 20,
         color: "#fff",
         backgroundColor: "#498DF3",
-        textAlign: 'center',
         flex: 1,
     },
     button: {

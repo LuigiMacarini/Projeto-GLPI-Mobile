@@ -12,51 +12,50 @@ const Ti = () => {
   const { addTicket, newTicket, setNewTicket } = useApiServicePost(); 
   const { dataLocal, errorLocal } = useGetLocal();  
   const [modalVisible, setModalVisible] = useState(false);
-
+  const [expandedItem, setExpandedItem] = useState(null);
+  const [, setSelectedTicketId] = useState(null);
+  
   const showAlert = (message) => {
     Alert.alert("Sucesso", message, [{ text: "OK" }]);
   };
 
+ const getLocal = (locations_id)=>{
+  const local = dataLocal.find((localItem)=>localItem.id ===locations_id);
+  return local ? local.completename: "local não encontrado"
+ }
  
-  const renderLocal = ({ item }) => (
-    <View style={styles.itemContainer}>
-      <Text style={styles.itemName}>{item.id}</Text>
-    </View>
-  );
+  
+  const toggleItem = async (id) => {
+    const newExpandedItem = expandedItem === id ? null : id; 
+    setExpandedItem(newExpandedItem);
 
-  useEffect(() => {
-    const getSelectedTicketId = async () => {
+    if (newExpandedItem !== null) {
       try {
-        const storedId = await AsyncStorage.getItem('selectedId');
-        if (storedId) {
-          console.log("ID:", storedId);
-        }
+        await AsyncStorage.setItem('selectedTicketId', newExpandedItem.toString()); 
+        setSelectedTicketId(newExpandedItem); 
       } catch (error) {
-        console.log("Erro", error);
+        console.error('Erro ao armazenar o ID do ticket selecionado:', error);
       }
-    };
-    getSelectedTicketId();
-  }, []);
-
-  const pressTicket = async (ticketId) => {
-    try {
-      await AsyncStorage.setItem('selectedId', ticketId);
-    } catch (error) {
-      console.log("Erro ao armazenar o ID do ticket", error);
     }
   };
 
-  const renderItem = ({ item }) => (
-    <Pressable 
-      style={styles.itemContainer}
-      onPress={() => pressTicket(item.id.toString())}
-    >
-      <Text style={styles.itemName}>{item.id} - {item.name}</Text>
-      <Text style={styles.itemContent}>{item.content}</Text>
-      <Text style={styles.itemContent}>{item.completename}</Text>
-      <Text style={styles.itemContent}>{item.date_creation}</Text>
-    </Pressable>
-  );
+  const renderItem = ({ item }) => {  //função que renderiza os chamados  
+    const location = getLocal(item.locations_id); //passa o return da função GetLocal
+    return (
+      <Pressable 
+        style={styles.itemContainer}
+        onPress={() => toggleItem(item.id)}>
+        <Text style={styles.itemName}>{item.id} - {item.name}</Text>
+        {expandedItem === item.id && (
+          <View style={styles.ticketDetails}>
+            <Text style={styles.itemContent}>Conteúdo: {item.content}</Text>
+            <Text style={styles.itemContent}>Localização: {location}</Text> 
+            <Text style={styles.itemContent}>Data de Criação: {item.date_creation}</Text>
+          </View>
+        )}
+      </Pressable> 
+    );
+  };
 
   const createTicket = async () => {
     try {
@@ -82,12 +81,7 @@ const Ti = () => {
         />
         
       </Accordion>
-      <FlatList
-          data={dataLocal}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderLocal}
-          contentContainerStyle={styles.listContainer}
-        />
+      
       
       <Pressable style={styles.button} onPress={() => setModalVisible(true)}>
         <Text style={styles.buttonText}>Adicionar Ticket</Text>
@@ -104,7 +98,7 @@ const Ti = () => {
             <Text style={styles.modalTitle}>Adicionar Novo Ticket</Text>
             <TextInput
               style={styles.input}
-              placeholder="Nome - Insira o seu nome e local"
+              placeholder="Nome - Insira o seu nome"
               value={newTicket.name}
               onChangeText={(text) => setNewTicket({ ...newTicket, name: text })}
             />
@@ -119,6 +113,12 @@ const Ti = () => {
               placeholder="Urgência - 1 - 2 - 3 -"
               value={newTicket.urgency}
               onChangeText={(text) => setNewTicket({ ...newTicket, urgency: text })}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Local"
+              value={newTicket.locations_id}
+              onChangeText={(text) => setNewTicket({ ...newTicket, locations_id: text })}
             />
             <Pressable style={styles.button} onPress={createTicket}>
               <Text style={styles.buttonText}>Adicionar Ticket</Text>

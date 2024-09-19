@@ -23,7 +23,7 @@ const Login = () => {
         if (selected === 'TI') {
             await AsyncStorage.setItem('User', 'TI');
         } else if (selected === 'Banco Interno') {
-            await AsyncStorage.setItem('User', 'BC');
+            await AsyncStorage.setItem('User', 'Banco Interno');
         }
     };
 
