@@ -67,7 +67,7 @@ export default function Serviços() {
                     <Text style={styles.textUser}></Text>
                     <Text style={styles.textServices}>Serviços</Text>
                     <Pressable
-                        onPress={() => navigation.navigate('Login')}
+                        onPress={() => navigation.navigate('TicketCrudTeste')}
                         style={styles.button}
                     >
                         <Text style={styles.textButton}>Voltar</Text>

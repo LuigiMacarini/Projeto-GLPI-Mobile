@@ -6,6 +6,7 @@ import Serviços from '../pages/Serviços'
 import Tickets from '../pages/Serviços/Tickets'
 import Chat from "../pages/Components/Chat";
 import Ti from "../pages/Components/Ti";
+import TicketCrudTeste from "../pages/Components/addTickets copy";
 
 
 
@@ -54,6 +55,11 @@ export default function Routes() {
             <Stack.Screen
                 name="Ti"
                 component={Ti}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="TicketCrudTeste"
+                component={TicketCrudTeste}
                 options={{ headerShown: false }}
             />
             

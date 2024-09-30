@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const useApiServicePost = () => {
   
-  const [error, ] = useState(null);
+  const [error,setError ] = useState(null);
   const [newTicket, setNewTicket] = useState({name: "", content:"", urgency:"", locations_id:""});
 
   const TokenAPI = async () => {
@@ -13,7 +13,7 @@ const useApiServicePost = () => {
     return JSON.parse(tokenPart);
   };
 
-  const addTicket = async () => {
+  const addTicket = async (locationId) => {
     try {
       const url = await servers();
       const Token = await TokenAPI();
@@ -30,21 +30,20 @@ const useApiServicePost = () => {
             name: newTicket.name,
             urgency: newTicket.urgency,
             content: newTicket.content,
-            location: newTicket.locations_id
-          },
+            locations_id: locationId //location ID não pode ser setado como um inteiro null ou vazio 
+          },                         //tem que passar os parametros do input TI pra cá 
         }),
       });
 
       if (res.ok) {
-        setNewTicket({ name: "", content: "", urgency: "", locations_id:""});
+        setNewTicket({ name: "", content: "", urgency: "", locations_id:"" });
       } else {
-        console.error("Falha no AddTicket:", error);
+        console.error("Falha AddTicket:", await res.json()); 
       }
     } catch (error) {
       console.error("Erro em carregar API ADD:", error);
     }
   };
-
   return { addTicket, newTicket, setNewTicket };
 };
 

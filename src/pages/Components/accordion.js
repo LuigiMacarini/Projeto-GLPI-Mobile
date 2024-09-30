@@ -42,6 +42,7 @@ const styles = StyleSheet.create({
   },
   alt: {
     fontSize: 16,
+    color: "#fff"
     
   },
   content: {

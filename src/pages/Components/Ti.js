@@ -10,18 +10,26 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const Ti = () => {
   const { data, error } = useApiService();
   const { addTicket, newTicket, setNewTicket } = useApiServicePost(); 
-  const { dataLocal, errorLocal } = useGetLocal();  
+  const { dataLocal, errorLocal } = useGetLocal(); 
+  const { postdataLocal, posterrorLocal } = useGetLocal(); 
   const [modalVisible, setModalVisible] = useState(false);
   const [expandedItem, setExpandedItem] = useState(null);
+  const [locationModalVisible, setLocationModalVisible]=useState(false)
   const [, setSelectedTicketId] = useState(null);
+  const [locations, setLocations]= useState([])
+  const [selectedLocal, setSelecetedLocal]= useState();
   
-  const showAlert = (message) => {
-    Alert.alert("Sucesso", message, [{ text: "OK" }]);
-  };
+  //const showAlert = (message) => {
+    //Alert.alert("Sucesso", message, [{ text: "OK" }]);
+  //};
 
  const getLocal = (locations_id)=>{
+
+  if (!locations_id){
+    return '0';
+  }
   const local = dataLocal.find((localItem)=>localItem.id ===locations_id);
-  return local ? local.completename: "local não encontrado"
+  return local ? local.name: "Sem local"
  }
  
   
@@ -58,15 +66,35 @@ const Ti = () => {
   };
 
   const createTicket = async () => {
+    if (!selectedLocal) { 
+      Alert.alert("Erro","Selecione uma localização antes de adicionar o ticket");
+      return;
+    }
+    const locationId = selectedLocal.toString();
     try {
-      await addTicket(); 
+      await addTicket(locationId); 
       setModalVisible(false); 
+      setNewTicket({...newTicket, locations_id:locationId});
+      console.log(locationId);
     } catch (error) {
       console.error('Erro ao adicionar o ticket', error);
     }
   };
+  const renderLocationItem = (location) => {
+    return (
+      <Pressable 
+        style={styles.locationItem}
+        onPress={() => {
+          setSelecetedLocal(location.id); 
+          setLocationModalVisible(false);  
+        }}>
+        <Text style={styles.modalLocation}>{location.name}</Text>
+      </Pressable>
+    );
+  };
 
-  if (error || errorLocal) {
+
+  if (error || posterrorLocal) {
     return <Text style={styles.error}>Erro ao carregar dados - Reinicie o aplicativo -</Text>;
   }
 
@@ -87,20 +115,20 @@ const Ti = () => {
         <Text style={styles.buttonText}>Adicionar Ticket</Text>
       </Pressable>
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+      <Modal //Modal dos Chamados TI 
+        animationType="slide" //estilo de movimentação do Modal 
+        transparent={true}    //tranparência
+        visible={modalVisible} 
+        onRequestClose={() => setModalVisible(false)}   //false = fecha / true = abre
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Adicionar Novo Ticket</Text>
-            <TextInput
+            <TextInput              //esses são os inputs do Modal - nome - conteudo do chamado - urgencia para o Banco Interno - Local
               style={styles.input}
               placeholder="Nome - Insira o seu nome"
               value={newTicket.name}
-              onChangeText={(text) => setNewTicket({ ...newTicket, name: text })}
+              onChangeText={(text) => setNewTicket({ ...newTicket, name: text })} 
             />
             <TextInput
               style={styles.input}
@@ -114,14 +142,31 @@ const Ti = () => {
               value={newTicket.urgency}
               onChangeText={(text) => setNewTicket({ ...newTicket, urgency: text })}
             />
-            <TextInput
-              style={styles.input}
-              placeholder="Local"
-              value={newTicket.locations_id}
-              onChangeText={(text) => setNewTicket({ ...newTicket, locations_id: text })}
-            />
+             <Pressable style={styles.input} onPress={() => setLocationModalVisible(true)}> 
+              <Text>{selectedLocal ? `Local: ${getLocal(selectedLocal)}` : "Selecione uma Localização"}</Text> 
+            </Pressable> 
+            
             <Pressable style={styles.button} onPress={createTicket}>
               <Text style={styles.buttonText}>Adicionar Ticket</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal><Modal
+        animationType="slide"
+        transparent={true}
+        visible={locationModalVisible}
+        onRequestClose={() => setLocationModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Escolha uma Localização</Text>
+            <FlatList
+              data={dataLocal} //renderiza o chamados do getLocal
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => renderLocationItem(item)} //aqui é a view do flatlist
+            />
+            <Pressable style={styles.button} onPress={() => setLocationModalVisible(false)}>
+              <Text style={styles.buttonText}>Fechar</Text>
             </Pressable>
           </View>
         </View>
@@ -168,6 +213,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 10,
     alignItems: 'center',
+  },
+  modalLocation: {
+    borderRadius: 12,
+    padding: 8,
+    margin: 2,
+    backgroundColor: '#498DF3',
+    borderRadius: 6,
+    alignItems: 'center',
+    color: "#fff"
   },
   modalTitle: {
     fontSize: 18,

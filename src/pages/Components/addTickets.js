@@ -4,6 +4,8 @@ import Modal from 'react-native-modal';
 import AsyncStorage from "@react-native-async-storage/async-storage"; 
 import { useNavigation } from "@react-navigation/native"; 
 import servers from "./servers";
+import { useGetLocal } from '../../APIsComponents/getLocal';
+
 
 const TicketCrud = () => {
   const [tickets, setTickets] = useState([]); 
@@ -17,6 +19,7 @@ const TicketCrud = () => {
   const [range, setRange] = useState("0-200"); // paginação
   const navigation = useNavigation(); //navegação entre pages
   const [, setServerUrl] = useState(''); //seta o servidor do login 
+  const { dataLocal, errorLocal } = useGetLocal();
 
   const TokenAPI = async () => {
     const storedSessionToken = await AsyncStorage.getItem('sessionToken'); //pega o session token e passa como string 
@@ -39,6 +42,10 @@ const TicketCrud = () => {
     }
   };
 
+  const getLocal = (locations_id) => {
+    const location = dataLocal.find(item => item.id === locations_id);
+    return location ? location.name : 'Local não encontrado';
+  };
   const openChat = () => {
     navigation.navigate('Chat',{ range: '0-200' }); //paginação até 200 mensagem para o chat de cada chamado 
   };
@@ -202,6 +209,24 @@ const TicketCrud = () => {
 
   };
   
+  const renderItem = ({ item }) => {
+    const location = getLocal(item.locations_id); 
+
+    return (
+      <Pressable 
+        style={styles.itemContainer}
+        onPress={() => toggleItem(item.id)}>
+        <Text style={styles.itemName}>{item.id} - {item.name}</Text>
+        {expandedItem === item.id && (
+          <View style={styles.ticketDetails}>
+            <Text style={styles.itemContent}>Conteúdo: {item.content}</Text>
+            <Text style={styles.itemContent}>Localização: {location}</Text> 
+            <Text style={styles.itemContent}>Data de Criação: {item.date_creation}</Text>
+          </View>
+        )}
+      </Pressable> 
+    );
+  };
   
   return (
     <View style={styles.container}>
@@ -249,7 +274,7 @@ const TicketCrud = () => {
             <Pressable onPress={() => toggleItem(item.id)}>
               <View style={styles.ticketContent}>
                 <Text>{item.name} ({item.id}) </Text>
-               
+            
                 <View style={[styles.urgencyIndicator, getUrgencyColor(item.urgency)]}>
                   <Text style={styles.urgencyNumber}>{item.urgency}</Text>
                 </View>

@@ -5,7 +5,7 @@ import { useState, useEffect,useCallback } from 'react';
 export const useApiService = () => {
   const [data, setData] = useState([]);
   const [error, setError] = useState(null);
-
+  
   const TokenAPI = async () => {
     const storedSessionToken = await AsyncStorage.getItem('sessionToken');
     const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
@@ -34,17 +34,20 @@ export const useApiService = () => {
     setData(filteredResult);
   } catch (error) {
     setError(error);
-    console.error("Erro na requisição:", error);
+    console.error("Erro na requisição TI:", error);
   }
-  
+
 }, []);
 useEffect(()=>{
   fetchData();
 }, [fetchData]);
 
+  
+  
+
 const reloadApiGet = async ()=>{
   await fetchData();
 }
 
-  return { data, error, reloadApiGet };
+  return { data, error, reloadApiGet};
 };
