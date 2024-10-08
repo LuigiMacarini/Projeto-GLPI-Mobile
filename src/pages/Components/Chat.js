@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Text, StyleSheet, Pressable, View, TextInput, FlatList, Dimensions } from "react-native";
+import { Text, StyleSheet, Pressable, View, TextInput, FlatList, Dimensions, Modal } from "react-native";
 import logo from '../assets/logo.png';
+import menu from '../assets/menu.png'
 import * as Animatable from 'react-native-animatable';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import RenderHtml from 'react-native-render-html';
 import servers from "./servers";
 import { useRoute } from '@react-navigation/native';
+import { useGetLocal } from "../../APIsComponents/getLocal";
+import useApiServicePut from "../../APIsComponents/updateApi";
 
 
 const Chat = () => {
@@ -14,12 +17,25 @@ const Chat = () => {
     const route = useRoute();
     const [chatData, setChatData] = useState([]);
     const [chatMessageData, setMessageData] = useState([]);
+    const {putStatus,status}=useApiServicePut();
     const [newMessage, setNewMessage] = useState("");
     const [headerText, setHeaderText] = useState("Chat"); //muda o header conforme a page que está 
     const [chatVisible, setChatVisible] = useState(true);
-    const { range } = route.params||{}; //armazena 
+    const { range } = route.params||{};  
     const [textServices, setTextServicesRoutes] = useState("");
+    const {dataLocal} =useGetLocal();
 
+    const renderItem = ({ item }) => {
+        const location = getLocal(item.locations_id);
+    }
+    const getLocal = (locations_id)=>{
+
+        if (!locations_id){
+          return 'Sem local';
+        }
+        const local = dataLocal.find((localItem)=>localItem.id ===locations_id);
+        return local ? local.name: "Sem local"
+       }
     const tokenApi = async () => {
         const storedSessionToken = await AsyncStorage.getItem('sessionToken'); //converte a string e arruma para objeto para usasr na API
         const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
@@ -29,6 +45,9 @@ const Chat = () => {
     const saveId = async () => {
         return await AsyncStorage.getItem('selectedTicketId');
     };
+    const closeTicket = async (saveId) => {
+        await putStatus(saveId);
+      }
 
     const autoPages = async () => {
         try {
@@ -193,6 +212,7 @@ const Chat = () => {
     const renderChatHeader = () => {
         if (chatData.length > 0) { //mostra ou esconde o chat se a mensagen estiver vazia 
             const item = chatData[0];
+            const location = getLocal(item.locations_id);
             return (
                 <View style={styles.chatItem}>
                     <Text style={styles.headerTextChat}>Chat com {item.name}</Text>
@@ -200,6 +220,7 @@ const Chat = () => {
                     <Text>Nome: {item.name}</Text>
                     <Text>Problema: {item.content}</Text>
                     <Text>Data de criação: {item.date}</Text>
+                    <Text>Localização: {location}</Text>
                     <Text>{item.contact}</Text>
                     <Text>{item.serial}</Text>
                     <Text>{item.otherserial}</Text>
@@ -226,15 +247,20 @@ const Chat = () => {
                     animation="flipInY"
                     source={logo}
                     style={styles.image}
+                /><Pressable onPress={async()=>{
+                    const id = await saveId();
+                    await closeTicket(id);
+                    navigation.navigate("Serviços");
+                }}>
+                 <Animatable.Image
+                    animation="flipInY"
+                    source={menu}
+                    style={styles.imageMenu}
                 />
-            </View>
-            <View style={styles.header}>
-                <Pressable onPress={() => navigation.navigate('Serviços')}>
-                    <Text style={styles.textHeader}>Serviços</Text>
                 </Pressable>
-                <Text style={styles.textHeader}> /</Text>
-                <Text style={styles.textHeader}>{textServices}</Text>
             </View>
+           
+            
             <FlatList
                 ListHeaderComponent={renderChatHeader}
                 data={chatMessageData}
@@ -256,6 +282,9 @@ const Chat = () => {
     );
 };
 const styles = StyleSheet.create({
+    imageMenu:{width:30,
+        height:30
+    },
      container: {
         flex: 1,
         backgroundColor: "#fff",
@@ -338,7 +367,12 @@ const styles = StyleSheet.create({
     logoContainer: {
         alignItems: 'center',
         marginVertical: 10,
+        justifyContent:'space-between',
+        flexDirection:'row',
+        marginRight:12
     },
+    
+    
 });
 
 export default Chat;

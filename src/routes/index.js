@@ -3,10 +3,9 @@ import Login from '../pages/Login/login'
 import Welcome from '../pages/Welcome'
 import Servidores from '../pages/Servidores'
 import Serviços from '../pages/Serviços'
-import Tickets from '../pages/Serviços/Tickets'
 import Chat from "../pages/Components/Chat";
 import Ti from "../pages/Components/Ti";
-import TicketCrudTeste from "../pages/Components/addTickets copy";
+import TicketCrud from "../pages/Components/addTickets";
 
 
 
@@ -21,11 +20,7 @@ export default function Routes() {
                 options={{ headerShown: false }}
             />
             
-            <Stack.Screen
-                name="AddTicket"
-                component={Tickets}
-                options={{ headerShown: false }}
-            />
+           
             <Stack.Screen
                 name="Serviços"
                 component={Serviços}
@@ -42,12 +37,6 @@ export default function Routes() {
                 options={{ headerShown: false }}
             />
             <Stack.Screen
-                name="Tickets"
-                component={Tickets}
-                options={{ headerShown: false }}
-            />
-            
-            <Stack.Screen
                 name="Login"
                 component={Login}
                 options={{ headerShown: false }}
@@ -58,8 +47,8 @@ export default function Routes() {
                 options={{ headerShown: false }}
             />
             <Stack.Screen
-                name="TicketCrudTeste"
-                component={TicketCrudTeste}
+                name="TicketCrud"
+                component={TicketCrud}
                 options={{ headerShown: false }}
             />
             

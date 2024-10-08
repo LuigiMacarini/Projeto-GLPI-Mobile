@@ -45,7 +45,7 @@ export default function Serviços() {
     const toggleExpand2 = () => setCollapsed2(!collapsed2);
     const handleOptionSelect = (option) => {
         setSelectedOption(option);
-        navigation.navigate(option === 'Ticket' ? 'AddTicket' : 'Tickets');
+        navigation.navigate("TicketCrud");
     };
     // Função para exibir um alerta quando uma aba não estiver disponível
     const handleAlert = (message) => {
@@ -64,10 +64,9 @@ export default function Serviços() {
 
             <Animatable.View delay={400} animation={"fadeInUp"}>
                 <View style={styles.header}>
-                    <Text style={styles.textUser}></Text>
                     <Text style={styles.textServices}>Serviços</Text>
                     <Pressable
-                        onPress={() => navigation.navigate('TicketCrudTeste')}
+                        onPress={() => navigation.navigate('Login')}
                         style={styles.button}
                     >
                         <Text style={styles.textButton}>Voltar</Text>
@@ -128,14 +127,10 @@ const styles = StyleSheet.create({
         backgroundColor: "#498DF3",
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 10,
-    },
-    textUser: {
-        fontSize: 16,
-        color: "#fff",
     },
     textServices: {
         justifyContent: "center",
+        marginLeft: 16,
         fontSize: 20,
         color: "#fff",
         backgroundColor: "#498DF3",
@@ -145,6 +140,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#FFE382",
         borderRadius: 6,
         padding: 10,
+        marginRight: 16,
         
     },
     textButton: {

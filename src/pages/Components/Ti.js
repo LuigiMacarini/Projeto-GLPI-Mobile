@@ -1,80 +1,93 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Pressable, TextInput, Modal, Alert } from 'react-native';
-import { useApiService } from '../../APIsComponents/get'; 
+import { View, Text, FlatList, StyleSheet, Pressable, TextInput, Modal, Alert, Button } from 'react-native';
+import { useApiService } from '../../APIsComponents/get';
 import useApiServicePost from '../../APIsComponents/post';
 import useApiServiceDelete from '../../APIsComponents/delete';
 import { useGetLocal } from '../../APIsComponents/getLocal';
 import Accordion from './accordion';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import useApiServicePut from "../../APIsComponents/updateApi"
 
 const Ti = () => {
-  const { data, error } = useApiService();
-  const { addTicket, newTicket, setNewTicket } = useApiServicePost(); 
-  const { dataLocal, errorLocal } = useGetLocal(); 
-  const { postdataLocal, posterrorLocal } = useGetLocal(); 
+  const { data, error, reloadApiGet } = useApiService();
+  const { addTicket, newTicket, setNewTicket } = useApiServicePost();
+  const { dataLocal, errorLocal } = useGetLocal();
+  const { putStatus, status } = useApiServicePut();
+  const { postdataLocal, posterrorLocal } = useGetLocal();
   const [modalVisible, setModalVisible] = useState(false);
   const [expandedItem, setExpandedItem] = useState(null);
-  const [locationModalVisible, setLocationModalVisible]=useState(false)
+  const [locationModalVisible, setLocationModalVisible] = useState(false)
   const [, setSelectedTicketId] = useState(null);
-  const [locations, setLocations]= useState([])
-  const [selectedLocal, setSelecetedLocal]= useState();
-  
-  //const showAlert = (message) => {
-    //Alert.alert("Sucesso", message, [{ text: "OK" }]);
-  //};
+  const [locations, setLocations] = useState([])
+  const [selectedLocal, setSelecetedLocal] = useState();
 
- const getLocal = (locations_id)=>{
 
-  if (!locations_id){
-    return '0';
+
+  const getLocal = (locations_id) => {
+
+    if (!locations_id) {
+      return '0';
+    }
+    const local = dataLocal.find((localItem) => localItem.id === locations_id);
+    return local ? local.name : "Sem local"
   }
-  const local = dataLocal.find((localItem)=>localItem.id ===locations_id);
-  return local ? local.name: "Sem local"
- }
- 
-  
+
+
   const toggleItem = async (id) => {
-    const newExpandedItem = expandedItem === id ? null : id; 
+    const newExpandedItem = expandedItem === id ? null : id;
     setExpandedItem(newExpandedItem);
 
     if (newExpandedItem !== null) {
       try {
-        await AsyncStorage.setItem('selectedTicketId', newExpandedItem.toString()); 
-        setSelectedTicketId(newExpandedItem); 
+        await AsyncStorage.setItem('selectedTicketId', newExpandedItem.toString());
+        setSelectedTicketId(newExpandedItem);
       } catch (error) {
         console.error('Erro ao armazenar o ID do ticket selecionado:', error);
       }
     }
   };
 
+  closeTicket = async (tickeId) => {
+    await putStatus(tickeId);
+    reloadApiGet();
+  }
+
   const renderItem = ({ item }) => {  //função que renderiza os chamados  
     const location = getLocal(item.locations_id); //passa o return da função GetLocal
     return (
-      <Pressable 
+      <Pressable
         style={styles.itemContainer}
         onPress={() => toggleItem(item.id)}>
         <Text style={styles.itemName}>{item.id} - {item.name}</Text>
         {expandedItem === item.id && (
           <View style={styles.ticketDetails}>
             <Text style={styles.itemContent}>Conteúdo: {item.content}</Text>
-            <Text style={styles.itemContent}>Localização: {location}</Text> 
+            <Text style={styles.itemContent}>Localização: {location}</Text>
             <Text style={styles.itemContent}>Data de Criação: {item.date_creation}</Text>
+            <Pressable
+              onPress={() => closeTicket(item.id)}
+              style={styles.buttonCloseTicket}><Text style={styles.textCloseTicket} >Fechar chamado</Text></Pressable>
           </View>
+          
         )}
-      </Pressable> 
+        
+      </Pressable>
+
+
     );
   };
 
   const createTicket = async () => {
-    if (!selectedLocal) { 
-      Alert.alert("Erro","Selecione uma localização antes de adicionar o ticket");
+    if (!selectedLocal) {
+      Alert.alert("Erro", "Selecione uma localização antes de adicionar o ticket");
       return;
     }
     const locationId = selectedLocal.toString();
     try {
-      await addTicket(locationId); 
-      setModalVisible(false); 
-      setNewTicket({...newTicket, locations_id:locationId});
+      await addTicket(locationId);
+      setModalVisible(false);
+      setNewTicket({ ...newTicket, locations_id: locationId });
+      reloadApiGet();
       console.log(locationId);
     } catch (error) {
       console.error('Erro ao adicionar o ticket', error);
@@ -82,11 +95,11 @@ const Ti = () => {
   };
   const renderLocationItem = (location) => {
     return (
-      <Pressable 
+      <Pressable
         style={styles.locationItem}
         onPress={() => {
-          setSelecetedLocal(location.id); 
-          setLocationModalVisible(false);  
+          setSelecetedLocal(location.id);
+          setLocationModalVisible(false);
         }}>
         <Text style={styles.modalLocation}>{location.name}</Text>
       </Pressable>
@@ -107,28 +120,28 @@ const Ti = () => {
           renderItem={renderItem}
           contentContainerStyle={styles.listContainer}
         />
-        
+
       </Accordion>
-      
-      
+
+
       <Pressable style={styles.button} onPress={() => setModalVisible(true)}>
         <Text style={styles.buttonText}>Adicionar Ticket</Text>
       </Pressable>
 
       <Modal //Modal dos Chamados TI 
         animationType="slide" //estilo de movimentação do Modal 
-        transparent={true}    //tranparência
-        visible={modalVisible} 
+        transparent={true}
+        visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}   //false = fecha / true = abre
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Adicionar Novo Ticket</Text>
-            <TextInput              //esses são os inputs do Modal - nome - conteudo do chamado - urgencia para o Banco Interno - Local
+            <TextInput     //esses são os inputs do Modal - nome - conteudo do chamado - urgencia para o Banco Interno - Local
               style={styles.input}
               placeholder="Nome - Insira o seu nome"
               value={newTicket.name}
-              onChangeText={(text) => setNewTicket({ ...newTicket, name: text })} 
+              onChangeText={(text) => setNewTicket({ ...newTicket, name: text })}
             />
             <TextInput
               style={styles.input}
@@ -142,31 +155,35 @@ const Ti = () => {
               value={newTicket.urgency}
               onChangeText={(text) => setNewTicket({ ...newTicket, urgency: text })}
             />
-             <Pressable style={styles.input} onPress={() => setLocationModalVisible(true)}> 
-              <Text>{selectedLocal ? `Local: ${getLocal(selectedLocal)}` : "Selecione uma Localização"}</Text> 
-            </Pressable> 
-            
+            <Pressable style={styles.input} onPress={() => setLocationModalVisible(true)}>
+              <Text>{selectedLocal ? `${getLocal(selectedLocal)}` : "Selecione uma Localização"}</Text>
+            </Pressable>
+
             <Pressable style={styles.button} onPress={createTicket}>
               <Text style={styles.buttonText}>Adicionar Ticket</Text>
             </Pressable>
+            <Pressable style={styles.buttonCloseModal} onPress={() => setModalVisible(false)}>
+              <Text>Fechar</Text>
+            </Pressable>
           </View>
         </View>
-      </Modal><Modal
+      </Modal>
+      <Modal
         animationType="slide"
         transparent={true}
         visible={locationModalVisible}
         onRequestClose={() => setLocationModalVisible(false)}
       >
-        <View style={styles.modalContainer}>
+        <View style={styles.modalContainerLocal}>
           <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Escolha uma Localização</Text>
+            <Text style={styles.modalTitle}>Escolha uma Localização</Text>
             <FlatList
               data={dataLocal} //renderiza o chamados do getLocal
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => renderLocationItem(item)} //aqui é a view do flatlist
             />
-            <Pressable style={styles.button} onPress={() => setLocationModalVisible(false)}>
-              <Text style={styles.buttonText}>Fechar</Text>
+            <Pressable style={styles.buttonCloseModal} onPress={() => setLocationModalVisible(false)}>
+              <Text>Fechar</Text>
             </Pressable>
           </View>
         </View>
@@ -178,7 +195,7 @@ const styles = StyleSheet.create({
   itemContainer: {
     padding: 10,
     marginBottom: 20,
-   
+
     borderColor: '#ddd',
     borderWidth: 1,
   },
@@ -205,18 +222,27 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: "grey"
+  },
+  modalContainerLocal: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+
   },
   modalContent: {
     width: "80%",
+    maxHeight: "80%",
     padding: 20,
     backgroundColor: 'white',
     borderRadius: 10,
     alignItems: 'center',
+
+
   },
   modalLocation: {
     borderRadius: 12,
-    padding: 8,
+    padding: 6,
     margin: 2,
     backgroundColor: '#498DF3',
     borderRadius: 6,
@@ -248,18 +274,27 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
-  buttonPressed: {
-    backgroundColor: "#FF7F7F",
+  buttonCloseModal: {
+    backgroundColor: "#FFE382",
+    padding: 10,
+    marginTop: 12,
+    width: "47%",
+    borderRadius: 5,
+    alignItems: 'center',
+
   },
-  buttonDelete: {
-    alignSelf: 'flex-end',
-    padding: 2,
-    bottom: 12,
+  buttonCloseTicket: {
+    backgroundColor: "#C1232e",
     borderRadius: 6,
+    textAlign: "center",
+    alignSelf:'flex-end',
+    width:"40%"
   },
-  textDelete: {
-    color: "#000",
+  textCloseTicket: {
+    color: "#fff",
+    
   },
+
 });
 
 export default Ti;

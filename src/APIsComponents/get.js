@@ -17,7 +17,7 @@ export const useApiService = () => {
   try {
     const url = await servers();
     const Token = await TokenAPI();
-    const response = await fetch(`${url}/Ticket/?range=0-200`, {
+    const response = await fetch(`${url}/Ticket/?range=0-200&order=DESC`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',

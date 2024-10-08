@@ -3,8 +3,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState, useEffect, useCallback } from 'react';
 
 export const useApiServiceprinter = () => {
-  const [dataprinter, setDataprinter] = useState([]); // Corrigido de errorprinter para setDataprinter
-  const [error, setError] = useState(null);
+  const [dataPrinter, setData] = useState([]); 
+  const [errorPrinter, setError] = useState(null);
   
   const TokenAPI = async () => {
     const storedSessionToken = await AsyncStorage.getItem('sessionToken');
@@ -12,9 +12,9 @@ export const useApiServiceprinter = () => {
       const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
       return JSON.parse(tokenPart);
     }
-    return null; // Retorna null se o token não estiver disponível
+    return null;
   };
-
+//terminar isso amanhã
   const fetchData = useCallback(async () => {
     try {
       const url = await servers();
@@ -28,7 +28,7 @@ export const useApiServiceprinter = () => {
         },
       });
       
-      if (!response.ok) { // Verifica se a resposta foi bem-sucedida
+      if (!response.ok) { 
         throw new Error(`Erro HTTP: ${response.status}`);
       }
 
@@ -36,23 +36,23 @@ export const useApiServiceprinter = () => {
       const filteredResult = result.filter(printer => 
         !printer.is_deleted && 
         printer.close_delay_stat !== true && 
-        !computer.solve_delay_stat
+        !printer.solve_delay_stat
       );
 
-      setDataprinter(filteredResult); // Atualiza o estado com os dados filtrados
+      setData(filteredResult);
     } catch (error) {
-      setError(error); // Atualiza o estado de erro
+      setError(error); 
       console.error("Erro na requisição TI:", error);
     }
   }, []);
 
   useEffect(() => {
-    fetchData(); // Chama a função fetchData quando o componente é montado
+    fetchData(); 
   }, [fetchData]);
 
   const reloadApiGetprinter = async () => {
-    await fetchData(); // Recarrega os dados
+    await fetchData(); 
   };
 
-  return { dataprinter, error, reloadApiGetprinter }; // Retorna o estado dos dados e erros
+  return { dataPrinter, errorPrinter, reloadApiGetprinter }; 
 };

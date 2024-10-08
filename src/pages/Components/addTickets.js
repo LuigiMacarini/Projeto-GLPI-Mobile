@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Pressable, FlatList, StyleSheet } from "react-native";
+import { View, Text, TextInput, Pressable, FlatList, StyleSheet, Alert } from "react-native";
 import Modal from 'react-native-modal';
-import AsyncStorage from "@react-native-async-storage/async-storage"; 
-import { useNavigation } from "@react-navigation/native"; 
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 import servers from "./servers";
 import { useGetLocal } from '../../APIsComponents/getLocal';
 
 
 const TicketCrud = () => {
-  const [tickets, setTickets] = useState([]); 
-  const [newTicket, setNewTicket] = useState({ name: "", content: "", urgency: "" }); //input para os chamados - tickets 
+  const [tickets, setTickets] = useState([]);
+  const [newTicket, setNewTicket] = useState({ name: "", content: "", urgency: "", locations_id: "" }); //input para os chamados - tickets 
   const [isModalVisible, setModalVisible] = useState(false); //modal visivel apenas nos tickets 
   const [expandedItem, setExpandedItem] = useState(null); //accordion
   const [sortOrder, setSortOrder] = useState("default"); // ordenação de chamados
@@ -20,6 +20,8 @@ const TicketCrud = () => {
   const navigation = useNavigation(); //navegação entre pages
   const [, setServerUrl] = useState(''); //seta o servidor do login 
   const { dataLocal, errorLocal } = useGetLocal();
+  const [selectedLocal, setSelecetedLocal] = useState();
+  const [locationModalVisible, setLocationModalVisible] = useState(false)
 
   const TokenAPI = async () => {
     const storedSessionToken = await AsyncStorage.getItem('sessionToken'); //pega o session token e passa como string 
@@ -47,7 +49,7 @@ const TicketCrud = () => {
     return location ? location.name : 'Local não encontrado';
   };
   const openChat = () => {
-    navigation.navigate('Chat',{ range: '0-200' }); //paginação até 200 mensagem para o chat de cada chamado 
+    navigation.navigate('Chat', { range: '0-200' }); //paginação até 200 mensagem para o chat de cada chamado 
   };
 
   const autoPages = async () => { //automatiza as pages reduzindo o codigo 
@@ -66,14 +68,14 @@ const TicketCrud = () => {
 
   useEffect(() => {
     const fetchServerUrl = async () => { //atualiza o servidor 
-        const url = await servers();
-        setServerUrl(url);
+      const url = await servers();
+      setServerUrl(url);
     };
     fetchServerUrl();
   }, []);
- 
+
   useEffect(() => {
-    const checkPage = async () => { 
+    const checkPage = async () => {
       const routes = await autoPages();
       setButtonVisible(!(routes === 'Computer' || routes === 'Printer')); //desabilita o Pressable caso esteja nessas pages
     };
@@ -82,12 +84,11 @@ const TicketCrud = () => {
 
   const loadTickets = async (range) => {
     try {
-      
+
       const url = await servers();
-      const [start, end] = range.split('-').map(Number); // map para paginação
       const TokenObjetc = await TokenAPI();
       const routes = await autoPages();
-      const response = await fetch(`${url}/${routes}/?range=${start}-${end}`, {
+      const response = await fetch(`${url}/${routes}/?range=0-200&order=DESC`, {
         method: "GET",
         headers: {
           'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
@@ -98,8 +99,8 @@ const TicketCrud = () => {
       if (response.ok) {
         let data = await response.json();
         data = data.filter(ticket => //filtra o crud para caso o chamado esteja fechado ou deletado
-          !ticket.is_deleted && 
-          ticket.close_delay_stat !== true && 
+          !ticket.is_deleted &&
+          ticket.close_delay_stat !== true &&
           !ticket.solve_delay_stat
         );
         data = data.filter(ticket => !ticket.is_deleted && ticket.status !== 'closed');
@@ -112,15 +113,15 @@ const TicketCrud = () => {
       } else {
         console.error('Falha em acessar a API Lista');
       }
-      
+
     } catch (error) {
       console.error('Erro ao carregar a API Lista:', error);
-     
+
     }
-    
+
   };
 
-  const addTicket = async () => {
+  const addTicket = async (locationId) => {
     try {
       const TokenObjetc = await TokenAPI();
       const routes = await autoPages();
@@ -137,12 +138,13 @@ const TicketCrud = () => {
             name: newTicket.name,
             urgency: newTicket.urgency,
             content: newTicket.content,
+            locations_id: locationId
           },
         }),
       });
 
       if (response.ok) {
-        setNewTicket({ name: "", content: "", urgency: "" });
+        setNewTicket({ name: "", content: "", urgency: "", locations_id: locationId });
         loadTickets(range);
         closeModal();
       } else {
@@ -176,8 +178,11 @@ const TicketCrud = () => {
   };
 
   const saveModal = async () => {//salva o que foi digitado no modal para a API
+    if (!selectedLocal) { Alert.alert("Erro, Selecione uma localização antes de adicionar o ticket"); }
+
+    const locationId = selectedLocal.toString(); // Converte o local selecionado em string
     setModalVisible(false);
-    addTicket(newTicket);
+    addTicket(locationId); // Passa o ID da localização para a função addTicket
   };
 
   const toggleItem = async (id) => {
@@ -208,26 +213,45 @@ const TicketCrud = () => {
     setSearchId("");
 
   };
-  
-  const renderItem = ({ item }) => {
-    const location = getLocal(item.locations_id); 
-
+  const renderLocationItem = (location) => {
     return (
-      <Pressable 
-        style={styles.itemContainer}
-        onPress={() => toggleItem(item.id)}>
-        <Text style={styles.itemName}>{item.id} - {item.name}</Text>
-        {expandedItem === item.id && (
-          <View style={styles.ticketDetails}>
-            <Text style={styles.itemContent}>Conteúdo: {item.content}</Text>
-            <Text style={styles.itemContent}>Localização: {location}</Text> 
-            <Text style={styles.itemContent}>Data de Criação: {item.date_creation}</Text>
-          </View>
-        )}
-      </Pressable> 
+      <Pressable
+        style={styles.locationItem}
+        onPress={() => {
+          setSelecetedLocal(location.id);
+          setLocationModalVisible(false);
+        }}>
+        <Text style={styles.modalLocation}>{location.name}</Text>
+      </Pressable>
     );
   };
-  
+  const renderItem = ({ item }) => {
+    const location = getLocal(item.locations_id);
+
+    return (
+      <View style={styles.ticketItem}>
+        <Pressable onPress={() => toggleItem(item.id)}>
+          <View style={styles.ticketContent}>
+            <Text>{item.name} ({item.id})</Text>
+            <View style={[styles.urgencyIndicator, getUrgencyColor(item.urgency)]}>
+              <Text style={styles.urgencyNumber}>{item.urgency}</Text>
+            </View>
+          </View>
+        </Pressable>
+        {expandedItem === item.id && (
+          <View style={styles.expandedContent}>
+            <Pressable onPress={openChat}>
+              <Text>{item.content}</Text>
+              <Text>{location}</Text>
+              <Text>Criação - {item.date_creation}</Text>
+            </Pressable>
+          </View>
+        )}
+      </View>
+    );
+  };
+
+
   return (
     <View style={styles.container}>
       {buttonVisible && (
@@ -269,49 +293,57 @@ const TicketCrud = () => {
       <FlatList
         data={tickets}
         keyExtractor={item => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.ticketItem}>
-            <Pressable onPress={() => toggleItem(item.id)}>
-              <View style={styles.ticketContent}>
-                <Text>{item.name} ({item.id}) </Text>
-            
-                <View style={[styles.urgencyIndicator, getUrgencyColor(item.urgency)]}>
-                  <Text style={styles.urgencyNumber}>{item.urgency}</Text>
-                </View>
-              </View>
-            </Pressable>
-            {expandedItem === item.id && (
-              <View style={styles.expandedContent}>
-                <Pressable onPress={openChat}>
-                  <Text>{item.content}</Text>
-                  <Text>Criação - {item.date_creation}</Text>
-                </Pressable>
-              </View>
-            )}
-          </View>
-        )}
+        renderItem={renderItem}
+
       />
       <Modal isVisible={isModalVisible} onBackdropPress={closeModal}>
         <View style={styles.modalContainer}>
-          <Text style={styles.modalHeader}>Adicione as informações</Text>
+          <Text style={styles.modalTitle}>Adicione as informações</Text>
           <TextInput
             style={styles.modalInput}
-            placeholder="Nome"
+            placeholder="Nome - Insira o seu nome"
             value={newTicket.name}
             onChangeText={(text) => setNewTicket({ ...newTicket, name: text })} />
           <TextInput
             style={styles.modalInput}
-            placeholder="Comentário"
+            placeholder="Comentário - Insira o conteúdo"
             value={newTicket.content}
             onChangeText={(text) => setNewTicket({ ...newTicket, content: text })} />
           <TextInput
             style={styles.modalInput}
-            placeholder="Urgência"
+            placeholder="Urgência - 1 - 2 - 3 -"
             value={newTicket.urgency}
             onChangeText={(text) => setNewTicket({ ...newTicket, urgency: text })} />
-          <Pressable style={styles.modalButton} onPress={saveModal}>
-            <Text style={styles.idText}>Salvar</Text>
+
+          <Pressable onPress={() => setLocationModalVisible(true)}>
+            <Text style={styles.modalTextLocal}>{selectedLocal ? `${getLocal(selectedLocal)}` : "Selecione uma Localização"}</Text>
           </Pressable>
+          <Pressable style={styles.modalButton} onPress={saveModal}>
+            <Text style={styles.idText}>Adicionar Ticket</Text>
+          </Pressable>
+          <Pressable style={styles.buttonCloseModal} onPress={() => closeModal(false)}>
+            <Text style={styles.buttonTextCloseModal}>Fechar</Text>
+          </Pressable>
+        </View>
+      </Modal>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={locationModalVisible}
+        onRequestClose={() => setLocationModalVisible(false)}
+      >
+        <View style={styles.modalContainerLocal}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Escolha uma Localização</Text>
+            <FlatList
+              data={dataLocal} //renderiza o chamados do getLocal
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => renderLocationItem(item)} //aqui é a view do flatlist
+            />
+            <Pressable style={styles.buttonCloseModal} onPress={() => setLocationModalVisible(false)}>
+              <Text style={styles.buttonTextCloseModal}>Fechar</Text>
+            </Pressable>
+          </View>
         </View>
       </Modal>
     </View>
@@ -329,6 +361,14 @@ const styles = StyleSheet.create({
     padding: 10,
     alignItems: "center",
     marginBottom: 20,
+  },
+  buttonCloseModal: {
+    backgroundColor: "#FFE382",
+    borderRadius: 6,
+    padding: 10,
+    marginTop: 12,
+    alignItems: "center",
+
   },
   ticketItem: {
     flexDirection: "column",
@@ -391,6 +431,28 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
+  modalTextLocal: {
+    width: '100%',
+    padding: 10,
+    marginVertical: 5,
+    borderWidth: 1,
+    borderColor: 'grey',
+  },
+  modalContent: {
+    width: "80%",
+    maxHeight:"80%",
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: "#fff",
+  },
+  buttonTextCloseModal: 
+  { 
+    color: "#000" 
+  },
   urgencyIndicator: {
     width: 25,
     height: 25,
@@ -442,15 +504,35 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 10,
     backgroundColor: "#f0f0f0",
-  }, 
+  },
+  modalContainerLocal: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    
+  },
   modalContainer: {
     backgroundColor: "#fff",
     padding: 20,
+    width: "80%",
+    justifyContent: "center",
     borderRadius: 10,
+    alignSelf: "center", 
+    position: "absolute",  
+
   },
-  modalHeader: {
+  modalLocation: {
+    borderRadius: 12,
+    padding: 6,
+    margin: 2,
+    backgroundColor: '#498DF3',
+    borderRadius: 6,
+    alignItems: 'center',
+    color: "#fff"
+  },
+  modalTitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 10,
   },
   modalInput: {
@@ -462,6 +544,7 @@ const styles = StyleSheet.create({
   },
   modalButton: {
     backgroundColor: "#3273D4",
+    marginTop:8,
     borderRadius: 6,
     padding: 10,
     alignItems: "center",
