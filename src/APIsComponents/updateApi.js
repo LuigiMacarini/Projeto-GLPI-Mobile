@@ -37,7 +37,7 @@ const useApiServicePut = () => {
       });
 
       if (res.ok) {
-        setStatus({ status: 'success' });
+        setStatus({ status: 'Sucesso' });
       } else {
         const errorData = await res.json();
         console.error("Falha em fechar o ticket:", errorData);

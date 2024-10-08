@@ -64,8 +64,17 @@ const TicketCrud = () => {
 
   useEffect(() => { // atualiza os tickets
     loadTickets(range);
+    const timer = setInterval(() => {
+      loadTickets();
+  }, 3000);
+  return ()=>{
+      clearInterval(timer);
+  }
   }, [sortOrder, range]);
 
+  useEffect(()=>{
+    
+})
   useEffect(() => {
     const fetchServerUrl = async () => { //atualiza o servidor 
       const url = await servers();

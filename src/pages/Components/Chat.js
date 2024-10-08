@@ -17,25 +17,21 @@ const Chat = () => {
     const route = useRoute();
     const [chatData, setChatData] = useState([]);
     const [chatMessageData, setMessageData] = useState([]);
-    const {putStatus,status}=useApiServicePut();
+    const { putStatus, status } = useApiServicePut();
     const [newMessage, setNewMessage] = useState("");
     const [headerText, setHeaderText] = useState("Chat"); //muda o header conforme a page que está 
     const [chatVisible, setChatVisible] = useState(true);
-    const { range } = route.params||{};  
+    const { range } = route.params || {};
     const [textServices, setTextServicesRoutes] = useState("");
-    const {dataLocal} =useGetLocal();
+    const { dataLocal } = useGetLocal();
+    const getLocal = (locations_id) => {
 
-    const renderItem = ({ item }) => {
-        const location = getLocal(item.locations_id);
-    }
-    const getLocal = (locations_id)=>{
-
-        if (!locations_id){
-          return 'Sem local';
+        if (!locations_id) {
+            return 'Sem local';
         }
-        const local = dataLocal.find((localItem)=>localItem.id ===locations_id);
-        return local ? local.name: "Sem local"
-       }
+        const local = dataLocal.find((localItem) => localItem.id === locations_id);
+        return local ? local.name : "Sem local"
+    }
     const tokenApi = async () => {
         const storedSessionToken = await AsyncStorage.getItem('sessionToken'); //converte a string e arruma para objeto para usasr na API
         const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
@@ -47,7 +43,7 @@ const Chat = () => {
     };
     const closeTicket = async (saveId) => {
         await putStatus(saveId);
-      }
+    }
 
     const autoPages = async () => {
         try {
@@ -58,6 +54,7 @@ const Chat = () => {
             return null;
         }
     };
+    
 
     const fetchServerUrl = async () => {
         const url = await servers();
@@ -184,7 +181,7 @@ const Chat = () => {
         };
         fetchData();
     }, []);
-    
+
     useEffect(() => {
         loadMessages();
     }, []);
@@ -197,6 +194,14 @@ const Chat = () => {
         };
         fetchData();
     }, []);
+    useEffect(()=>{
+        const timer = setInterval(() => {
+            loadMessages();
+        }, 8000);
+        return ()=>{
+            clearInterval(timer);
+        }
+    })
 
     useEffect(() => {
         const updateHeaderText = async () => {
@@ -224,7 +229,7 @@ const Chat = () => {
                     <Text>{item.contact}</Text>
                     <Text>{item.serial}</Text>
                     <Text>{item.otherserial}</Text>
-                   
+
                 </View>
             );
         }
@@ -235,37 +240,46 @@ const Chat = () => {
         const isSentByCurrentUser = item.users_id === 9;
         return (
             <View style={[styles.chatbox, isSentByCurrentUser ? styles.receivedMessage : styles.sentMessage]}>
-                <RenderHtml contentWidth={Dimensions.get('window').width - 40} source={{ html: item.content }} /> 
+                <Animatable.Text animation="fadeIn">
+                <RenderHtml contentWidth={Dimensions.get('window').width - 40} source={{ html: item.content }} />
+                </Animatable.Text>
             </View> //alterna as caixas de chat - por enquanto ainda não fuciona tão bem 
         );
     };
 
     return (
         <View style={styles.container}>
+
             <View style={styles.logoContainer}>
                 <Animatable.Image
                     animation="flipInY"
                     source={logo}
                     style={styles.image}
-                /><Pressable onPress={async()=>{
-                    const id = await saveId();
-                    await closeTicket(id);
-                    navigation.navigate("Serviços");
-                }}>
-                 <Animatable.Image
-                    animation="flipInY"
-                    source={menu}
-                    style={styles.imageMenu}
                 />
-                </Pressable>
+                
+                
+                    <View style={styles.bodyContainer}>
+                        <Pressable 
+                            onPress={async () => {
+                                const id = await saveId();
+                                await closeTicket(id);
+                                navigation.navigate("TicketCrud");
+                            }}>
+                            <Animatable.Text animation="fadeIn" style={styles.putStatus}>
+                                <Text style={styles.closeText}>Fechar Chamado</Text>
+                            </Animatable.Text>
+                        </Pressable>
+                    </View>
+                
             </View>
-           
-            
+
+
             <FlatList
                 ListHeaderComponent={renderChatHeader}
                 data={chatMessageData}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={renderMessageItem}
+                
             />
             <View style={styles.inputContainer}>
                 <TextInput
@@ -280,25 +294,18 @@ const Chat = () => {
             </View>
         </View>
     );
-};
-const styles = StyleSheet.create({
-    imageMenu:{width:30,
-        height:30
-    },
-     container: {
+};const styles = StyleSheet.create({
+    container: {
         flex: 1,
         backgroundColor: "#fff",
         marginTop: 12,
     },
-    header: {
-        marginVertical: 12,
+    headerContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-around',
         alignItems: 'center',
-        backgroundColor: '#498DF3',
-    },
-    textHeader:{
-        color: '#fff',
+        justifyContent: 'space-between',
+        paddingHorizontal: 12,
+        marginBottom: 10,
     },
     headerTextChat: {
         fontSize: 18,
@@ -367,12 +374,28 @@ const styles = StyleSheet.create({
     logoContainer: {
         alignItems: 'center',
         marginVertical: 10,
-        justifyContent:'space-between',
-        flexDirection:'row',
-        marginRight:12
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        marginRight: 12
     },
-    
-    
+    closeText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
+    putStatus: {
+        backgroundColor: '#C70039',
+        borderRadius: 8,
+        padding: 6,
+    },
+    bodyContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+       
+    },
+    imageMenu: {
+        width: 30,
+        height: 30
+    },
 });
-
 export default Chat;
