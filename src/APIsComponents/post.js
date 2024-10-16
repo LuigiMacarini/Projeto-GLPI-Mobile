@@ -41,7 +41,7 @@ const useApiServicePost = () => {
         console.error("Falha AddTicket:", await res.json()); 
       }
     } catch (error) {
-      console.error("Erro em carregar API ADD:", error);
+      console.error("Erro em carregar API POST:", error);
     }
   };
   return { addTicket, newTicket, setNewTicket };

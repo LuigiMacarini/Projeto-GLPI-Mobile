@@ -64,6 +64,7 @@ const Login = () => {
 
         try {
             const url = await servers();
+ 
             const res = await fetch(`${url}/initSession`, {
                 method: "GET",
                 headers: {
@@ -73,7 +74,6 @@ const Login = () => {
             });
            
             const json = await res.json(); //resposta em JSON
-
             if (json && json[0] === 'ERROR_GLPI_LOGIN') {
                 Alert.alert('Erro', 'Nome de usuário ou senha inválidos');
             } else {

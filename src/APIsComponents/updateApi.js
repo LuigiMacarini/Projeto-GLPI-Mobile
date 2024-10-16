@@ -19,8 +19,7 @@ const useApiServicePut = () => {
     try {
       const putStatus = 6;
       const url = await servers();
-      const Token = await TokenAPI();
-      
+      const Token = await TokenAPI(); //Token esta sendo passado corretamente - não mexer
       const res = await fetch(`${url}/Ticket/${tickeId}`, {
         method: 'PUT',
         headers: {
