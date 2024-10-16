@@ -21,10 +21,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/GLPI_LOGO.png",
         "backgroundColor": "#000"
-      }
+      },
+      "package": "com.GLPIAPP"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "5e5cf596-f389-4ea8-9517-772a7f64213e"
+      }
     }
   }
 }
