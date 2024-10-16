@@ -1,6 +1,7 @@
 import servers from '../pages/Components/servers';
 import { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import TokenAPI2 from './token';
 
 const useApiServicePut = () => {
   const [errorPut, setError] = useState(null);
@@ -15,7 +16,7 @@ const useApiServicePut = () => {
     return JSON.parse(tokenPart);
   };
 
-  const putStatus = async (tickeId) => {
+  const putStatus = async (tickeId) => {   //esse PUT serve apenas para mudar o status dos items para 6 = fechado
     try {
       const putStatus = 6;
       const url = await servers();
@@ -49,8 +50,7 @@ const useApiServicePut = () => {
     console.log(tickeId)
   };
 
-  return { putStatus, status
-   };
+  return { putStatus, status}; //return da função pra usar em outros lugares
 };
 
 export default useApiServicePut;

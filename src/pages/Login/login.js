@@ -54,17 +54,17 @@ const Login = () => {
 
     const pressLogin = async () => {
         if (!username || !password || !selectedOption) { // o user tem que preencher os três campos
-            Alert.alert('Erro','Preencha todos os campos e selecione uma opção');
+            Alert.alert('Erro', 'Preencha todos os campos e selecione uma opção');
             return;
         }
         //Codifica as credenciais em base64
-        const text = `${username}:${password}`; 
+        const text = `${username}:${password}`;
         const Authorization = base64.encode(text);
-        await AsyncStorage.setItem('encoded', Authorization); 
+        await AsyncStorage.setItem('encoded', Authorization);
 
         try {
             const url = await servers();
- 
+
             const res = await fetch(`${url}/initSession`, {
                 method: "GET",
                 headers: {
@@ -72,7 +72,7 @@ const Login = () => {
                     'Authorization': 'Basic ' + Authorization
                 },
             });
-           
+
             const json = await res.json(); //resposta em JSON
             if (json && json[0] === 'ERROR_GLPI_LOGIN') {
                 Alert.alert('Erro', 'Nome de usuário ou senha inválidos');
@@ -80,22 +80,22 @@ const Login = () => {
                 await AsyncStorage.setItem('sessionToken', JSON.stringify(json)); // Salva o token
                 await AsyncStorage.setItem('Credenciais', JSON.stringify({ username, password })); // Salva as credenciais
             }
-            if (res.ok){
-               if (selectedOption==="Ti"){
-                navigation.navigate('Ti')
-               }
-               else{
-                navigation.navigate('Serviços')
-               }
+            if (res.ok) {
+                if (selectedOption === "Ti") {
+                    navigation.navigate('Ti')
+                }
+                else {
+                    navigation.navigate('Serviços')
+                }
             }
-        
+
         } catch (error) {
             console.error(error);
             Alert.alert('Erro', 'Falha ao autenticar. Verifique suas credenciais e tente novamente.');
         }
     };
 
-    
+
 
     return (
         <>
@@ -122,7 +122,7 @@ const Login = () => {
                     <Text style={styles.text}>
                         Senha:
                     </Text>
-                    
+
                     <TextInput
                         placeholder="Senha..."
                         style={styles.input}
@@ -133,15 +133,15 @@ const Login = () => {
                     <Text style={styles.bar}></Text>
 
                     <View style={styles.optionsContainer}>
-                        <Pressable 
-                            style={[styles.optionButton, selectedOption === 'Ti' && styles.selectedOption]} 
+                        <Pressable
+                            style={[styles.optionButton, selectedOption === 'Ti' && styles.selectedOption]}
                             onPress={() => setSelectedOption('Ti')}>
                             <Text style={styles.optionText}>TI</Text>
-                            
+
                         </Pressable>
-                        
-                        <Pressable 
-                            style={[styles.optionButton, selectedOption === 'Banco Interno' && styles.selectedOption]} 
+
+                        <Pressable
+                            style={[styles.optionButton, selectedOption === 'Banco Interno' && styles.selectedOption]}
                             onPress={() => setSelectedOption('Banco Interno')}>
                             <Text style={styles.optionText}>Banco Interno</Text>
                         </Pressable>
@@ -150,12 +150,12 @@ const Login = () => {
                     <Pressable style={styles.button} onPress={pressLogin}>
                         <Text>Entrar</Text>
                     </Pressable>
-                    
+
                 </View>
-                
+
                 <View>
                     <Pressable style={styles.gear} onPress={() => navigation.navigate('Servidores')}>
-                        <Image source={gear} style={styles.gear} />
+                        <Image source={gear} style={styles.gearImage} />
                     </Pressable>
                 </View>
             </View>
@@ -213,11 +213,15 @@ const styles = StyleSheet.create({
             height: 2,
         },
     },
+    gearImage: {
+        width: 100,
+        height: 100,
+    },
     gear: {
-        width: 90,
-        height: 90,
         alignSelf: "flex-end",
-        bottom: "75%"
+        alignItems:"center",
+        margin: 16,
+        bottom:"100%"
     },
     optionsContainer: {
         flexDirection: 'row',

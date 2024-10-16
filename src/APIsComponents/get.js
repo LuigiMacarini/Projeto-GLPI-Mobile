@@ -2,6 +2,7 @@
 import servers from '../pages/Components/servers';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState, useEffect,useCallback } from 'react';
+
 export const useApiService = () => {
   const [data, setData] = useState([]);
   const [error, setError] = useState(null);
@@ -11,8 +12,7 @@ export const useApiService = () => {
     const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
     return JSON.parse(tokenPart);
   };
- 
-  
+
     const fetchData = useCallback (async () => {
   try {
     const url = await servers();
@@ -25,8 +25,8 @@ export const useApiService = () => {
         'Session-Token' :`${Token}`
         },
     });
-    const result = await response.json();
-    const filteredResult = result.filter(ticket => 
+    const result = await response.json();// resposta do fetch
+    const filteredResult = result.filter(ticket => //aqui filtra todos os Tickets e pega apenas os abertos
       !ticket.is_deleted && 
       ticket.close_delay_stat !== true && 
       !ticket.solve_delay_stat
@@ -42,12 +42,8 @@ useEffect(()=>{
   fetchData();
 }, [fetchData]);
 
-  
-  
-
-const reloadApiGet = async ()=>{
+const reloadApiGet = async ()=>{  //usado para dar reload para quando precisar como a abertura de um novo Ticket
   await fetchData();
 }
-
-  return { data, error, reloadApiGet};
+  return { data, error, reloadApiGet}; //return da função
 };

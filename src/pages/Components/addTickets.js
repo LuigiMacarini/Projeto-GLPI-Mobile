@@ -49,10 +49,10 @@ const TicketCrud = () => {
     return location ? location.name : 'Local não encontrado';
   };
   const openChat = () => {
-    navigation.navigate('Chat', { range: '0-200' }); //paginação até 200 mensagem para o chat de cada chamado 
+    navigation.navigate('Chat', { range: '0-200' }); //paginação até 200 mensagens para o chat de cada chamado 
   };
 
-  const autoPages = async () => { //automatiza as pages reduzindo o codigo 
+  const autoPages = async () => { //automatiza as pages reduzindo 
     try {
       const routes = await AsyncStorage.getItem('option');
       return routes ? JSON.parse(routes) : null;
@@ -76,7 +76,7 @@ const TicketCrud = () => {
     
 })
   useEffect(() => {
-    const fetchServerUrl = async () => { //atualiza o servidor 
+    const fetchServerUrl = async () => { //atualiza a url da aba servidores 
       const url = await servers();
       setServerUrl(url);
     };

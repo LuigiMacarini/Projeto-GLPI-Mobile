@@ -66,7 +66,7 @@ const Ti = () => {
             <Text style={styles.itemContent}>Data de Criação: {item.date_creation}</Text>
             <Pressable
               onPress={() => closeTicket(item.id)}
-              style={styles.buttonCloseTicket}><Text style={styles.textCloseTicket} >Fechar chamado</Text></Pressable>
+              style={styles.buttonCloseTicket}><Text style={[styles.textCloseTicket, shadow]} >Fechar chamado</Text></Pressable>
           </View>
           
         )}
@@ -110,7 +110,17 @@ const Ti = () => {
   if (error || posterrorLocal) {
     return <Text style={styles.error}>Erro ao carregar dados - Reinicie o aplicativo -</Text>;
   }
-
+  const shadow = {
+    borderRadius:6,
+    shadowColor: "#000",
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 10,
+    shadowOffset: {
+        width: 0,
+        height: 4,
+    },
+  };
   return (
     <View style={styles.accordionGET}>
       <Accordion title="Tickets" style={styles.text}>
@@ -162,7 +172,7 @@ const Ti = () => {
             <Pressable style={styles.button} onPress={createTicket}>
               <Text style={styles.buttonText}>Adicionar Ticket</Text>
             </Pressable>
-            <Pressable style={styles.buttonCloseModal} onPress={() => setModalVisible(false)}>
+            <Pressable style={[styles.buttonCloseModal, shadow]} onPress={() => setModalVisible(false)}>
               <Text>Fechar</Text>
             </Pressable>
           </View>
@@ -182,7 +192,7 @@ const Ti = () => {
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => renderLocationItem(item)} //aqui é a view do flatlist
             />
-            <Pressable style={styles.buttonCloseModal} onPress={() => setLocationModalVisible(false)}>
+            <Pressable style={[styles.buttonCloseModal, shadow]} onPress={() => setLocationModalVisible(false)}>
               <Text>Fechar</Text>
             </Pressable>
           </View>
@@ -191,6 +201,7 @@ const Ti = () => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   itemContainer: {
     padding: 10,
@@ -286,13 +297,14 @@ const styles = StyleSheet.create({
   buttonCloseTicket: {
     backgroundColor: "#C1232e",
     borderRadius: 6,
-    textAlign: "center",
-    alignSelf:'flex-end',
-    width:"40%"
+    alignItems: "center",
+    alignSelf:'center',
+    marginVertical:"8%",
+    width:"40%",
+  
   },
   textCloseTicket: {
     color: "#fff",
-    
   },
 
 });
