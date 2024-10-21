@@ -94,9 +94,12 @@ const Login = () => {
             Alert.alert('Erro', 'Falha ao autenticar. Verifique suas credenciais e tente novamente.');
         }
     };
-
-
-
+    const textAlert = () =>{
+        Alert.alert(
+            "Instruções do APP",
+            "Primeiro você deve colocar o seu servidor. Clique na engrenagem para acessar o servidor."
+        );
+    };
     return (
         <>
             <Animatable.View style={styles.containerHeader}>
@@ -150,6 +153,9 @@ const Login = () => {
                     <Pressable style={styles.button} onPress={pressLogin}>
                         <Text>Entrar</Text>
                     </Pressable>
+                    <Pressable onPress={textAlert}>
+                        <Text style={styles.alertText}>Primeira vez no Aplicativo?</Text>
+                    </Pressable>
 
                 </View>
 
@@ -181,6 +187,13 @@ const styles = StyleSheet.create({
         marginLeft: 16,
         padding: 16,
         fontWeight: "bold",
+    },
+    alertText:{
+        textDecorationLine:"underline",
+        fontStyle: "italic",
+        fontWeight: "bold",
+        marginLeft: 16,
+        padding:16
     },
     bar: {
         borderBottomWidth: 1,

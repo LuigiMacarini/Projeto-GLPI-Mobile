@@ -28,7 +28,7 @@ export const useApiServiceComputer = () => {
         },
       });
       
-      if (!response.ok) { // Verifica se a resposta foi bem-sucedida
+      if (!response.ok) { 
         throw new Error(`Erro HTTP: ${response.status}`);
       }
 
@@ -39,15 +39,15 @@ export const useApiServiceComputer = () => {
         !computer.solve_delay_stat
       );
 
-      setDataComputer(filteredResult); // Atualiza o estado com os dados filtrados
+      setDataComputer(filteredResult);
     } catch (error) {
-      setError(error); // Atualiza o estado de erro
+      setError(error); 
       console.error("Erro na requisição TI:", error);
     }
   }, []);
 
   useEffect(() => {
-    fetchData(); // Chama a função fetchData quando o componente é montado
+    fetchData(); 
   }, [fetchData]);
 
   const reloadApiGetComputer = async () => {

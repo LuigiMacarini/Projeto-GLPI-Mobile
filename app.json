@@ -15,9 +15,11 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.GLPIAPP"
     },
     "android": {
+      "permissions": ["android.permission.INTERNET"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/GLPI_LOGO.png",
         "backgroundColor": "#000"

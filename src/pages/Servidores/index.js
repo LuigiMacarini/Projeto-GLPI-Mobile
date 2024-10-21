@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Pressable, Alert, TextInput, KeyboardAvoidingView, Platform, ScrollView  } from "react-native";
+import { View, Text, StyleSheet, Pressable, Alert, TextInput, KeyboardAvoidingView, Platform} from "react-native";
 import logo from '../assets/logo.png'
 import * as Animatable from 'react-native-animatable'
 import { useNavigation } from '@react-navigation/native'
@@ -19,7 +19,10 @@ export default function Servidores() {
         if (config.trim()) {            //variavel que é pra manipular é "config"
             try {
                 await AsyncStorage.setItem('setURL', config);
-                Alert.alert('Sucesso!');
+                Alert.alert('Sucesso!', 'URL salva');
+                if (config.toLowerCase() === 'ditto') {
+                    navigation.navigate("Teste");
+                }
 
             } catch (error) {
                 Alert.alert("Erro", "Falha ao salvar URL")
@@ -34,10 +37,11 @@ export default function Servidores() {
                 const savedURL = await AsyncStorage.getItem('setURL');
                 if (savedURL) {
                     setConfig(savedURL)
-                }}
-            catch (error) {console.error('Erro em pegar a URL', error);}
+                }
+            }
+            catch (error) { console.error('Erro em pegar a URL', error); }
         }
-            urlView();
+        urlView();
     }, [])
     return (
         <>
@@ -77,7 +81,6 @@ export default function Servidores() {
                     <Text>Voltar para Login</Text>
                 </Pressable>
             </View>
-           
         </>
     );
 }
@@ -90,8 +93,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     buttonContainer: {
-        flex: 1,
-        justifyContent: "flex-end",
+        height:"60%",
         alignItems: "center",
     },
     buttonURL: {
@@ -111,7 +113,7 @@ const styles = StyleSheet.create({
             width: 0,
             height: 2,
         },
-        marginVertical:"5%"
+        marginVertical: "5%"
     },
     button: {
         backgroundColor: "#FFE382",
@@ -138,7 +140,7 @@ const styles = StyleSheet.create({
         height: "60%",
         marginTop: 26,
         padding: 16,
-        justifyContent: "space-between", 
+        justifyContent: "space-between",
     },
     lserv: {
         fontSize: 16,
