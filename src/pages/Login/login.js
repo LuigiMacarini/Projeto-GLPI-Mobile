@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, StyleSheet, Pressable, TextInput, Alert } from "react-native";
+import { View, Text, Image, StyleSheet, Pressable, TextInput, Alert, ScrollView} from "react-native";
 import * as Animatable from 'react-native-animatable';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -9,15 +9,14 @@ import gear from '../assets/gear.png';
 import servers from "../Components/servers";
 
 //MELHORAR LOGIN COM OUTROS METODOS
-
-
-
 const Login = () => {
     const navigation = useNavigation(); // Hook para navegação
     const [username, setUsername] = useState(''); // Estado para armazenar o nome de usuário
     const [password, setPassword] = useState(''); // Estado para armazenar o nome de senha
     const [selectedOption, setSelectedOption] = useState('');  // Estado para armazenar a opção selecionada (TI ou Banco Interno)
     const [, setServerUrl] = useState(''); //Estado para armazenar a URL do servidor
+    const [errorStatus, setErrorStatus] =useState(null);
+
 
     const option = async (selected) => {  //seleção entre o banco de dados internos ou ou ti - ainda não está funcional 
         if (selected === 'TI') {
@@ -64,7 +63,6 @@ const Login = () => {
 
         try {
             const url = await servers();
-
             const res = await fetch(`${url}/initSession`, {
                 method: "GET",
                 headers: {
@@ -75,25 +73,27 @@ const Login = () => {
 
             const json = await res.json(); //resposta em JSON
             if (json && json[0] === 'ERROR_GLPI_LOGIN') {
-                Alert.alert('Erro', 'Nome de usuário ou senha inválidos');
+                // Alert.alert('Erro', 'Nome de usuário ou senha inválidos');
+                if(!res.ok){
+                    setErrorStatus(json);
+                    console.log(json)
+                }
             } else {
                 await AsyncStorage.setItem('sessionToken', JSON.stringify(json)); // Salva o token
                 await AsyncStorage.setItem('Credenciais', JSON.stringify({ username, password })); // Salva as credenciais
             }
             if (res.ok) {
                 if (selectedOption === "Ti") {
-                    navigation.navigate('Ti')
-                }
-                else {
-                    navigation.navigate('Serviços')
+                    navigation.navigate('Ti');
+                } else {
+                    navigation.navigate('Serviços');
                 }
             }
 
         } catch (error) {
-            console.error(error);
-            Alert.alert('Erro', 'Falha ao autenticar. Verifique suas credenciais e tente novamente.');
-        }
-    };
+            setErrorStatus(error.message)
+          }
+        };
     const textAlert = () =>{
         Alert.alert(
             "Instruções do APP",
@@ -156,15 +156,22 @@ const Login = () => {
                     <Pressable onPress={textAlert}>
                         <Text style={styles.alertText}>Primeira vez no Aplicativo?</Text>
                     </Pressable>
-
+                    {errorStatus && ( 
+                        <Text style={styles.errorText}>{errorStatus}</Text>
+                        
+                    )}
                 </View>
+                
 
                 <View>
                     <Pressable style={styles.gear} onPress={() => navigation.navigate('Servidores')}>
                         <Image source={gear} style={styles.gearImage} />
                     </Pressable>
                 </View>
+                
+                
             </View>
+            
         </>
     );
 };

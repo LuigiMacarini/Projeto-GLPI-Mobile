@@ -5,7 +5,6 @@ import * as Animatable from 'react-native-animatable'
 import {useNavigation} from '@react-navigation/native'
 export default function Welcome() {
 
-//<View><Text style={style.text}>© Prefeitura de Araraguá </Text></View>
 
     const navigation = useNavigation();
     
@@ -22,8 +21,8 @@ export default function Welcome() {
             onPress ={ () => navigation.navigate('Login')} 
             style={style.button}><Text>Fazer Login</Text></Pressable>
         </Animatable.View>
-        <View><Text style={style.text}>© Desenvolvido por -  </Text></View>
-    
+        <View><Text style={style.text}>© Prefeitura de Araranguá - Setor de TI </Text></View>
+        
         </>
 }
 const style = StyleSheet.create({

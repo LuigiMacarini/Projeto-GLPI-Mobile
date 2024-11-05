@@ -6,7 +6,10 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+          "EXPO_PUBLIC_API_URL": "http://ti.ararangua.sc.gov.br:10000/glpi/apirest.php"
+        }
     },
     "preview": {
       "android": {

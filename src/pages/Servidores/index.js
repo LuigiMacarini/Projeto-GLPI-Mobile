@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Pressable, Alert, TextInput, KeyboardAvoidingView, Platform} from "react-native";
+import { View, Text, StyleSheet, Pressable, Alert, TextInput, KeyboardAvoidingView, Platform } from "react-native";
 import logo from '../assets/logo.png'
 import * as Animatable from 'react-native-animatable'
 import { useNavigation } from '@react-navigation/native'
@@ -22,6 +22,8 @@ export default function Servidores() {
                 Alert.alert('Sucesso!', 'URL salva');
                 if (config.toLowerCase() === 'ditto') {
                     navigation.navigate("Teste");
+                }else{
+                    navigation.navigate("Login")
                 }
 
             } catch (error) {
@@ -93,7 +95,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     buttonContainer: {
-        height:"60%",
+        height: "60%",
         alignItems: "center",
     },
     buttonURL: {

@@ -20,6 +20,7 @@
     },
     "android": {
       "permissions": ["android.permission.INTERNET"],
+      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/GLPI_LOGO.png",
         "backgroundColor": "#000"
@@ -33,6 +34,16 @@
       "eas": {
         "projectId": "5e5cf596-f389-4ea8-9517-772a7f64213e"
       }
-    }
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
+    ]
   }
 }

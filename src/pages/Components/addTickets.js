@@ -7,6 +7,7 @@ import servers from "./servers";
 import { useGetLocal } from '../../APIsComponents/getLocal';
 
 
+
 const TicketCrud = () => {
   const [tickets, setTickets] = useState([]);
   const [newTicket, setNewTicket] = useState({ name: "", content: "", urgency: "", locations_id: "" }); //input para os chamados - tickets 
@@ -52,7 +53,7 @@ const TicketCrud = () => {
     navigation.navigate('Chat', { range: '0-200' }); //paginação até 200 mensagens para o chat de cada chamado 
   };
 
-  const autoPages = async () => { //automatiza as pages reduzindo 
+  const autoPages = async () => { //automatiza as pages  
     try {
       const routes = await AsyncStorage.getItem('option');
       return routes ? JSON.parse(routes) : null;
@@ -91,7 +92,7 @@ const TicketCrud = () => {
     checkPage();
   }, []);
 
-  const loadTickets = async (range) => {
+  const loadTickets = async () => {
     try {
 
       const url = await servers();
@@ -102,6 +103,7 @@ const TicketCrud = () => {
         headers: {
           'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
           'Session-Token': TokenObjetc,
+          'Accept-Range': '990'
         },
       });
 
@@ -141,6 +143,7 @@ const TicketCrud = () => {
           'Content-Type': 'application/json',
           'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
           'Session-Token': TokenObjetc,
+          
         },
         body: JSON.stringify({
           input: {
@@ -259,6 +262,7 @@ const TicketCrud = () => {
       </View>
     );
   };
+  
 
 
   return (
@@ -288,7 +292,7 @@ const TicketCrud = () => {
         </View>
       </View>
       <View style={styles.urgencyText}>
-        <Text>Urgência:</Text>
+        <Text>Urgência </Text>
         <Text style={styles.descUrgency1}> Baixa </Text>
         <Text style={styles.descUrgency2}> Média </Text>
         <Text style={styles.descUrgency3}>Alta</Text>
@@ -298,13 +302,14 @@ const TicketCrud = () => {
           <Text style={styles.cleanButtonText}>Limpar Id</Text>
         </Pressable>
       </View>
-
+    
+      <View style={styles.flatListContainer}>
       <FlatList
         data={tickets}
-        keyExtractor={item => item.id.toString()}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
-
       />
+    </View>
       <Modal isVisible={isModalVisible} onBackdropPress={closeModal}>
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>Adicione as informações</Text>
@@ -335,6 +340,7 @@ const TicketCrud = () => {
           </Pressable>
         </View>
       </Modal>
+      <View>
       <Modal
         animationType="slide"
         transparent={true}
@@ -355,12 +361,14 @@ const TicketCrud = () => {
           </View>
         </View>
       </Modal>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    flex:1,
     padding: 20,
     backgroundColor: "#fff",
   },
@@ -378,6 +386,9 @@ const styles = StyleSheet.create({
     marginTop: 12,
     alignItems: "center",
 
+  },
+  flatListContainer: {
+    flex: 1, 
   },
   ticketItem: {
     flexDirection: "column",
