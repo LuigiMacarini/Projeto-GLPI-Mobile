@@ -1,21 +1,12 @@
 import servers from '../pages/Components/servers';
 import { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import TokenAPI2 from './token';
+import TokenAPI from './token';
+
 
 const useApiServicePut = () => {
   const [errorPut, setError] = useState(null);
   const [status, setStatus] = useState({ status: "" });
-
-  const TokenAPI = async () => {
-    const storedSessionToken = await AsyncStorage.getItem('sessionToken');
-    if (!storedSessionToken) {
-      throw new Error("Token não encontrado");
-    }
-    const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
-    return JSON.parse(tokenPart);
-  };
-
   const putStatus = async (tickeId) => {   //esse PUT serve apenas para mudar o status dos items para 6 = fechado
     try {
       const putStatus = 6;
@@ -27,7 +18,7 @@ const useApiServicePut = () => {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
           'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-          'Session-Token': `${Token}`,
+          'Session-Token': Token,
         },
         body: JSON.stringify({
           input: {

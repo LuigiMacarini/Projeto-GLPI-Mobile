@@ -5,8 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import servers from "./servers";
 import { useGetLocal } from '../../APIsComponents/getLocal';
-
-
+import TokenAPI from "../../APIsComponents/token";
 
 const TicketCrud = () => {
   const [tickets, setTickets] = useState([]);
@@ -24,14 +23,7 @@ const TicketCrud = () => {
   const [selectedLocal, setSelecetedLocal] = useState();
   const [locationModalVisible, setLocationModalVisible] = useState(false)
 
-  const TokenAPI = async () => {
-    const storedSessionToken = await AsyncStorage.getItem('sessionToken'); //pega o session token e passa como string 
-    setSessionToken(storedSessionToken);
-
-    const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':'); // transforma o token em object para usar na API
-    return JSON.parse(tokenPart);
-  };
-
+ 
   const getUrgencyColor = (urgency) => { //estilo para prioridade
     switch (urgency) {
       case 1:

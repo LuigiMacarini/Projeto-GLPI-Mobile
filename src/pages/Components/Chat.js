@@ -10,7 +10,7 @@ import servers from "./servers";
 import { useRoute } from '@react-navigation/native';
 import { useGetLocal } from "../../APIsComponents/getLocal";
 import useApiServicePut from "../../APIsComponents/updateApi";
-
+import TokenAPI from "../../APIsComponents/token";
 
 const Chat = () => {
     const navigation = useNavigation();
@@ -32,12 +32,7 @@ const Chat = () => {
         const local = dataLocal.find((localItem) => localItem.id === locations_id);
         return local ? local.name : "Sem local"
     }
-    const tokenApi = async () => {
-        const storedSessionToken = await AsyncStorage.getItem('sessionToken'); //converte a string e arruma para objeto para usasr na API
-        const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
-        return JSON.parse(tokenPart);
-    };
-
+    
     const saveId = async () => {
         return await AsyncStorage.getItem('selectedTicketId');
     };
@@ -64,7 +59,7 @@ const Chat = () => {
     const chatScream = async () => {
         try {
             const storedId = await saveId();
-            const tokenObject = await tokenApi();
+            const tokenObject = await TokenAPI();
             const routes = await autoPages();
             const url = await fetchServerUrl();
 
@@ -91,7 +86,7 @@ const Chat = () => {
     const chatMessageScream = async () => {
         try {
             const storedId = await saveId();
-            const tokenObject = await tokenApi();
+            const tokenObject = await TokenAPI();
             const routes = await autoPages();
             const url = await fetchServerUrl();
             const res = await fetch(`${url}/${routes}/${storedId}/ITILFollowup/?range=${range}`, {
@@ -122,7 +117,7 @@ const Chat = () => {
             }
 
             const storedId = await saveId();
-            const tokenObject = await tokenApi();
+            const tokenObject = await TokenAPI();
             const routes = await autoPages();
             const url = await fetchServerUrl();
 

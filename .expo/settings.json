@@ -3,8 +3,8 @@
   "lanType": "ip",
   "dev": true,
   "minify": false,
-  "urlRandomness": null,
+  "urlRandomness": "CAdHhcI",
   "https": false,
-  "scheme": null,
+  "scheme": "com.GLPIAPP",
   "devClient": false
 }

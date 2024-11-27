@@ -1,18 +1,13 @@
 
 import servers from '../pages/Components/servers';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState, useEffect,useCallback } from 'react';
+import TokenAPI from './token';
 
 export const useApiService = () => {
   const [data, setData] = useState([]);
   const [error, setError] = useState(null);
   
-  const TokenAPI = async () => {
-    const storedSessionToken = await AsyncStorage.getItem('sessionToken');
-    const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
-    return JSON.parse(tokenPart);
-  };
-
+ 
     const fetchData = useCallback (async () => {
   try {
     const url = await servers();
@@ -47,3 +42,4 @@ const reloadApiGet = async ()=>{  //usado para dar reload para quando precisar c
 }
   return { data, error, reloadApiGet}; //return da função
 };
+

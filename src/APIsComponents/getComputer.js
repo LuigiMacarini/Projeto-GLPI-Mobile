@@ -1,19 +1,12 @@
 import servers from '../pages/Components/servers';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState, useEffect, useCallback } from 'react';
+import TokenAPI from './token';
 
 export const useApiServiceComputer = () => {
-  const [dataComputer, setDataComputer] = useState([]); // Corrigido de errorComputer para setDataComputer
+  const [dataComputer, setDataComputer] = useState([]); 
   const [error, setError] = useState(null);
   
-  const TokenAPI = async () => {
-    const storedSessionToken = await AsyncStorage.getItem('sessionToken');
-    if (storedSessionToken) {
-      const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
-      return JSON.parse(tokenPart);
-    }
-    return null; // Retorna null se o token não estiver disponível
-  };
+ 
 
   const fetchData = useCallback(async () => {
     try {

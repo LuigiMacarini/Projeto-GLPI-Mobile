@@ -1,18 +1,11 @@
 import servers from '../pages/Components/servers';
 import { useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import TokenAPI from './token';
 
 const useApiServicePost = () => {
   
   const [error,setError ] = useState(null);
   const [newTicket, setNewTicket] = useState({name: "", content:"", urgency:"", locations_id:""});
-
-  const TokenAPI = async () => {
-    const storedSessionToken = await AsyncStorage.getItem('sessionToken');
-    const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
-    return JSON.parse(tokenPart);
-  };
-
   const addTicket = async (locationId) => {
     try {
       const url = await servers();

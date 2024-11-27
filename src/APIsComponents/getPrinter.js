@@ -1,19 +1,11 @@
 import servers from '../pages/Components/servers';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState, useEffect, useCallback } from 'react';
+import TokenAPI from './token';
 
 export const useApiServiceprinter = () => {
   const [dataPrinter, setData] = useState([]); 
   const [errorPrinter, setError] = useState(null);
   
-  const TokenAPI = async () => {
-    const storedSessionToken = await AsyncStorage.getItem('sessionToken');
-    if (storedSessionToken) {
-      const [, tokenPart] = storedSessionToken.replace(/[{}]/g, '').split(':');
-      return JSON.parse(tokenPart);
-    }
-    return null;
-  };
 //terminar isso amanhã
   const fetchData = useCallback(async () => {
     try {

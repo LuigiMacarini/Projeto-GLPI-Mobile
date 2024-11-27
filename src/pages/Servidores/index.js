@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native'
 import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function Servidores() {
     const [config, setConfig] = useState();
+    const [env, setEnv]=useState();
     const navigation = useNavigation();
     /*const handlePress = async (server) => { //function de seleção de servidor - adicione conforme nescessario
         try {
@@ -68,7 +69,8 @@ export default function Servidores() {
                         value={config}
                         onChangeText={setConfig}
                     >
-                    </TextInput>
+                    </TextInput> 
+                    {/* colocar a env para que o usuario posso mexer  */}
 
                     <View style={styles.buttonContainer}>
                         <Pressable onPress={saveURL} style={styles.buttonURL}>

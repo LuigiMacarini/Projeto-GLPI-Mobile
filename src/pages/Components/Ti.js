@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Pressable, TextInput, Modal, Alert, Button } from 'react-native';
 import { useApiService } from '../../APIsComponents/get';
 import useApiServicePost from '../../APIsComponents/post';
-import useApiServiceDelete from '../../APIsComponents/delete';
+// import useApiServiceDelete from '../../APIsComponents/delete';
 import { useGetLocal } from '../../APIsComponents/getLocal';
 import Accordion from './accordion';
 import AsyncStorage from '@react-native-async-storage/async-storage';
