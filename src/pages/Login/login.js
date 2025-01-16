@@ -50,7 +50,6 @@ const Login = () => {
     useEffect(() => {
         option(selectedOption);
     }, [selectedOption]);
-
     const pressLogin = async () => {
         if (!username || !password || !selectedOption) { // o user tem que preencher os três campos
             Alert.alert('Erro', 'Preencha todos os campos e selecione uma opção');
@@ -60,13 +59,14 @@ const Login = () => {
         const text = `${username}:${password}`;
         const Authorization = base64.encode(text);
         await AsyncStorage.setItem('encoded', Authorization);
-
+        const appToken = await AsyncStorage.getItem('appToken');
+        console.log(appToken)
         try {
-            const url = await servers();
+            const url = await servers();console.log(url)
             const res = await fetch(`${url}/initSession`, {
                 method: "GET",
                 headers: {
-                    'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
+                    'App-Token': appToken,
                     'Authorization': 'Basic ' + Authorization
                 },
             });
@@ -125,6 +125,7 @@ const Login = () => {
                     <Text style={styles.text}>
                         Senha:
                     </Text>
+                    
 
                     <TextInput
                         placeholder="Senha..."

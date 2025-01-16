@@ -1,6 +1,7 @@
 import servers from '../pages/Components/servers';
 import { useState, useEffect, useCallback } from 'react';
 import TokenAPI from './token'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const useGetLocal = () => {
   const [dataLocal, setDataLocal] = useState([]);
@@ -8,30 +9,30 @@ export const useGetLocal = () => {
 
   const fetchDataLocal = useCallback(async () => {
     try {
+      const appToken = await AsyncStorage.getItem('appToken');
+      
       const url = await servers();
       const Token = await TokenAPI(); 
-      console.log(Token);
 
-      if (Token && url) {
         const response = await fetch(`${url}/location?range=0-200`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
-            'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-            'Session-Token': `${Token}` 
-          },
+            'App-Token': appToken,
+            'Session-Token': Token, 
+          },                  
         });
 
         if (!response.ok) {
-          throw new Error("Erro em pegar a API");
+          throw new Error("Erro em pegar a API-LOCAL-GET");
         }
 
         const data = await response.json();
         setDataLocal(data);
-      }
+      
     } catch (error) {
       setErrorLocal(error);
-      console.error("Erro na requisição Local:", error);
+      console.error("Erro em pegar a API-LOCAL-GET:", error);
     }
   }, []);
 

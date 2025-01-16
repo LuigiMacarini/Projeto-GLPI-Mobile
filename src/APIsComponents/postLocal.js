@@ -9,6 +9,8 @@ export const useGetLocal = () => {
   const [posterrorLocal, postsetErrorLocal] = useState(null);
   const postDataLocal = useCallback(async () => {
     try {
+      const appToken = await AsyncStorage.getItem('appToken');
+      
       const url = await servers();
       const Token = await TokenAPI();
       if (Token && url) {
@@ -16,19 +18,19 @@ export const useGetLocal = () => {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
-            'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-            'Session-Token': Token
+            'App-Token': appToken,
+            'Session-Token': 'h2p19t2ouct7shtq84t1gvqlr1'
           },
         });
         if (!response.ok) {
-          throw new Error("Erro em pegar a API");
+          throw new Error("Erro em pegar a API-Local-POST");
         }
         const data = await response.json();
         postDataLocal(data);
       }
     } catch (error) {
       postDataLocalsetErrorLocal(error);
-      console.error("Erro na requisição Local:", error);
+      console.error("Erro na requisição Local-POST:", error);
     }
   }, []);
 

@@ -1,51 +1,56 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Pressable, Alert, TextInput, KeyboardAvoidingView, Platform } from "react-native";
-import logo from '../assets/logo.png'
-import * as Animatable from 'react-native-animatable'
-import { useNavigation } from '@react-navigation/native'
+import { View, Text, StyleSheet, Pressable, Alert, TextInput, Button, Image } from "react-native";
+import logo from '../assets/logo.png';
+import * as Animatable from 'react-native-animatable';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import camera from '../assets/camera.png';
+
 export default function Servidores() {
     const [config, setConfig] = useState();
-    const [env, setEnv]=useState();
     const navigation = useNavigation();
-    /*const handlePress = async (server) => { //function de seleção de servidor - adicione conforme nescessario
-        try {
-            await AsyncStorage.setItem('selectedServer', server);
-            navigation.navigate('Login');
-        } catch (error) {
-            Alert.alert('Erro', 'Não foi possível salvar a seleção do servidor.');
-        }
-    };*/
-    const saveURL = async () => {       //essa função salva a url e manda lá pro servers.js
-        if (config.trim()) {            //variavel que é pra manipular é "config"
+    const [appToken, setAppToken] = useState(null);
+    
+    useEffect(() => {
+        const urlView = async () => {
+            try {
+                const savedURL = await AsyncStorage.getItem('setURL');
+                if (savedURL) {
+                    setConfig(savedURL);
+                }
+            } catch (error) {
+                console.error('Erro ao pegar a URL', error);
+            }
+        };
+        urlView();
+    }, []);
+
+    const showAppToken = async()=>{
+        const token = await AsyncStorage.getItem("appToken");
+        setAppToken(token);
+    };
+    useEffect(() => {
+        showAppToken();
+      }, []);
+    const saveURL = async () => {
+      
+        if (config.trim()) {
             try {
                 await AsyncStorage.setItem('setURL', config);
                 Alert.alert('Sucesso!', 'URL salva');
                 if (config.toLowerCase() === 'ditto') {
                     navigation.navigate("Teste");
-                }else{
-                    navigation.navigate("Login")
+                } else {
+                    navigation.navigate("Login");
                 }
-
             } catch (error) {
-                Alert.alert("Erro", "Falha ao salvar URL")
+                Alert.alert("Erro", "Falha ao salvar URL");
             }
         } else {
-            Alert.alert("Erro", "Insira uma URL")
+            Alert.alert("Erro", "Insira uma URL");
         }
-    }
-    useEffect(() => {                           //salva o estado da URL para que fique aparecendo caso feche o APP
-        const urlView = async () => {
-            try {
-                const savedURL = await AsyncStorage.getItem('setURL');
-                if (savedURL) {
-                    setConfig(savedURL)
-                }
-            }
-            catch (error) { console.error('Erro em pegar a URL', error); }
-        }
-        urlView();
-    }, [])
+    };
+
     return (
         <>
             <View style={styles.container}>
@@ -55,42 +60,52 @@ export default function Servidores() {
                     style={styles.image}
                 />
             </View>
-            <View>
-                <View style={styles.box}>
-                    <Text style={styles.lserv}>
-                        Servidor em uso
-                    </Text>
-                    <Text style={styles.lserv}>
-                        {config}
-                    </Text>
-                    <TextInput style={styles.textInput}
-                        autoCapitalize="none"
-                        placeholder="Insira a URL do seu Município"
-                        value={config}
-                        onChangeText={setConfig}
-                    >
-                    </TextInput> 
-                    {/* colocar a env para que o usuario posso mexer  */}
+            
 
-                    <View style={styles.buttonContainer}>
-                        <Pressable onPress={saveURL} style={styles.buttonURL}>
-                            <Text style={styles.text}>Salvar</Text>
-                        </Pressable>
-                    </View>
-
+            <View style={styles.box}>
+                <Text style={styles.lserv}>Servidor em uso</Text>
+                <Text style={styles.lserv}>{config}</Text>
+                <TextInput
+                    style={styles.textInput}
+                    autoCapitalize="none"
+                    placeholder="Insira a URL do seu Município"
+                    value={config}
+                    onChangeText={setConfig}
+                />
+                <View style={styles.buttonContainer}>
+                    <Pressable onPress={saveURL} style={styles.buttonURL}>
+                        <Text style={styles.text}>Salvar</Text>
+                    </Pressable>
                 </View>
-                <Pressable
-                    onPress={() => navigation.navigate('Login')}
-                    style={styles.button}>
-                    <Text>Voltar para Login</Text>
-                </Pressable>
             </View>
+            <View style={styles.containerFooter}>
+            <Pressable onPress={() => navigation.navigate('QrCode')}><Image source={camera} //aqui faz uma outra page pra ler o APP Token e salva via asyncStorage
+                style={styles.cameraImage} />
+                </Pressable>
+                <Text>Scaneie o seu AppToken via QrCode</Text>
+                <Text>AppToken:</Text>
+                <Text style={styles.containerText}> {appToken ? ` ${appToken}` : "Nenhum token armazenado"}</Text>
+                </View>
+            
+                
+            
         </>
     );
 }
 const styles = StyleSheet.create({
     container: {
         backgroundColor: "#fff",
+    },
+    containerText:{
+        backgroundColor:"#fff",
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    containerFooter:{
+        marginTop:8,
+        width:'100%',
+        alignItems: 'center',
+        justifyContent: 'center' 
     },
     image: {
         margin: 8,
@@ -118,6 +133,14 @@ const styles = StyleSheet.create({
             height: 2,
         },
         marginVertical: "5%"
+    },
+    cameraImage: {
+        backgroundColor: "#fff",
+        borderRadius: 12,
+        margin:8,
+        marginLeft:8,
+        height: 50,
+        width: 50
     },
     button: {
         backgroundColor: "#FFE382",

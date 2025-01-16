@@ -10,13 +10,15 @@ export const useApiServiceComputer = () => {
 
   const fetchData = useCallback(async () => {
     try {
+      const appToken = await AsyncStorage.getItem('appToken');
+      
       const url = await servers();
       const token = await TokenAPI();
       const response = await fetch(`${url}/Computer/?range=0-200`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
-          'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
+          'App-Token': appToken,
           'Session-Token': `${token}`,
         },
       });

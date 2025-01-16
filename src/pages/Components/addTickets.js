@@ -8,6 +8,7 @@ import { useGetLocal } from '../../APIsComponents/getLocal';
 import TokenAPI from "../../APIsComponents/token";
 
 const TicketCrud = () => {
+  
   const [tickets, setTickets] = useState([]);
   const [newTicket, setNewTicket] = useState({ name: "", content: "", urgency: "", locations_id: "" }); //input para os chamados - tickets 
   const [isModalVisible, setModalVisible] = useState(false); //modal visivel apenas nos tickets 
@@ -86,14 +87,14 @@ const TicketCrud = () => {
 
   const loadTickets = async () => {
     try {
-
+      const appToken = await AsyncStorage.getItem('appToken');
       const url = await servers();
       const TokenObjetc = await TokenAPI();
       const routes = await autoPages();
       const response = await fetch(`${url}/${routes}/?range=0-200&order=DESC`, {
         method: "GET",
         headers: {
-          'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
+          'App-Token': appToken,
           'Session-Token': TokenObjetc,
           'Accept-Range': '990'
         },
@@ -126,6 +127,7 @@ const TicketCrud = () => {
 
   const addTicket = async (locationId) => {
     try {
+      const appToken = await AsyncStorage.getItem('appToken');
       const TokenObjetc = await TokenAPI();
       const routes = await autoPages();
       const url = await servers();
@@ -133,7 +135,7 @@ const TicketCrud = () => {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
-          'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
+          'App-Token': appToken,
           'Session-Token': TokenObjetc,
           
         },

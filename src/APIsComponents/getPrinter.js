@@ -1,7 +1,7 @@
 import servers from '../pages/Components/servers';
 import { useState, useEffect, useCallback } from 'react';
 import TokenAPI from './token';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 export const useApiServiceprinter = () => {
   const [dataPrinter, setData] = useState([]); 
   const [errorPrinter, setError] = useState(null);
@@ -9,13 +9,15 @@ export const useApiServiceprinter = () => {
 //terminar isso amanhã
   const fetchData = useCallback(async () => {
     try {
+      const appToken = await AsyncStorage.getItem('appToken');
+      
       const url = await servers();
       const token = await TokenAPI();
       const response = await fetch(`${url}/Printer/?range=0-200`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
-          'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
+          'App-Token': appToken,
           'Session-Token': `${token}`,
         },
       });

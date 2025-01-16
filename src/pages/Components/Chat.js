@@ -32,7 +32,7 @@ const Chat = () => {
         const local = dataLocal.find((localItem) => localItem.id === locations_id);
         return local ? local.name : "Sem local"
     }
-    
+
     const saveId = async () => {
         return await AsyncStorage.getItem('selectedTicketId');
     };
@@ -49,7 +49,7 @@ const Chat = () => {
             return null;
         }
     };
-    
+
 
     const fetchServerUrl = async () => {
         const url = await servers();
@@ -58,6 +58,8 @@ const Chat = () => {
 
     const chatScream = async () => {
         try {
+            const appToken = await AsyncStorage.getItem('appToken');
+            
             const storedId = await saveId();
             const tokenObject = await TokenAPI();
             const routes = await autoPages();
@@ -66,7 +68,7 @@ const Chat = () => {
             const res = await fetch(`${url}/${routes}/${storedId}`, {
                 method: "GET",
                 headers: {
-                    'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
+                    'App-Token': appToken,
                     'Session-Token': tokenObject,
                 },
             });
@@ -85,6 +87,8 @@ const Chat = () => {
 
     const chatMessageScream = async () => {
         try {
+            const appToken = await AsyncStorage.getItem('appToken');
+        
             const storedId = await saveId();
             const tokenObject = await TokenAPI();
             const routes = await autoPages();
@@ -92,7 +96,7 @@ const Chat = () => {
             const res = await fetch(`${url}/${routes}/${storedId}/ITILFollowup/?range=${range}`, {
                 method: "GET",
                 headers: {
-                    'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
+                    'App-Token': appToken,
                     'Session-Token': tokenObject,
                 },
             });
@@ -111,6 +115,8 @@ const Chat = () => {
 
     const sendMessage = async () => {
         try {
+            const appToken = await AsyncStorage.getItem('appToken');
+        
             if (!newMessage.trim()) {
                 console.error("Mensagem está vazia");
                 return;
@@ -125,7 +131,7 @@ const Chat = () => {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
-                    'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
+                    'App-Token': appToken,
                     'Session-Token': tokenObject,
                 },
                 body: JSON.stringify({
@@ -189,11 +195,11 @@ const Chat = () => {
         };
         fetchData();
     }, []);
-    useEffect(()=>{
+    useEffect(() => {
         const timer = setInterval(() => {
             loadMessages();
         }, 8000);
-        return ()=>{
+        return () => {
             clearInterval(timer);
         }
     })
@@ -236,7 +242,7 @@ const Chat = () => {
         return (
             <View style={[styles.chatbox, isSentByCurrentUser ? styles.receivedMessage : styles.sentMessage]}>
                 <Animatable.Text animation="fadeIn">
-                <RenderHtml contentWidth={Dimensions.get('window').width - 40} source={{ html: item.content }} />
+                    <RenderHtml contentWidth={Dimensions.get('window').width - 40} source={{ html: item.content }} />
                 </Animatable.Text>
             </View> //alterna as caixas de chat - por enquanto ainda não fuciona tão bem 
         );
@@ -251,21 +257,21 @@ const Chat = () => {
                     source={logo}
                     style={styles.image}
                 />
-                
-                
-                    <View style={styles.bodyContainer}>
-                        <Pressable 
-                            onPress={async () => {
-                                const id = await saveId();
-                                await closeTicket(id);
-                                navigation.navigate("TicketCrud");
-                            }}>
-                            <Animatable.Text animation="fadeIn" style={styles.putStatus}>
-                                <Text style={styles.closeText}>Fechar Chamado</Text>
-                            </Animatable.Text>
-                        </Pressable>
-                    </View>
-                
+
+
+                <View style={styles.bodyContainer}>
+                    <Pressable
+                        onPress={async () => {
+                            const id = await saveId();
+                            await closeTicket(id);
+                            navigation.navigate("TicketCrud");
+                        }}>
+                        <Animatable.Text animation="fadeIn" style={styles.putStatus}>
+                            <Text style={styles.closeText}>Fechar Chamado</Text>
+                        </Animatable.Text>
+                    </Pressable>
+                </View>
+
             </View>
 
 
@@ -274,7 +280,7 @@ const Chat = () => {
                 data={chatMessageData}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={renderMessageItem}
-                
+
             />
             <View style={styles.inputContainer}>
                 <TextInput
@@ -289,7 +295,7 @@ const Chat = () => {
             </View>
         </View>
     );
-};const styles = StyleSheet.create({
+}; const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#fff",
@@ -386,7 +392,7 @@ const Chat = () => {
     bodyContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-       
+
     },
     imageMenu: {
         width: 30,

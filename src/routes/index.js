@@ -7,6 +7,7 @@ import Chat from "../pages/Components/Chat";
 import Ti from "../pages/Components/Ti";
 import TicketCrud from "../pages/Components/addTickets";
 import Teste from "../pages/Teste";
+import QrCode from "../pages/Components/qrCode";
 
 
 
@@ -57,7 +58,11 @@ export default function Routes() {
                 component={Teste}
                 options={{ headerShown: false }}
             />
-            
+            <Stack.Screen
+                name="QrCode"
+                component={QrCode}
+                options={{ headerShown: false }}
+            />
             
         </Stack.Navigator>
     </>

@@ -9,6 +9,8 @@ const useApiServicePut = () => {
   const [status, setStatus] = useState({ status: "" });
   const putStatus = async (tickeId) => {   //esse PUT serve apenas para mudar o status dos items para 6 = fechado
     try {
+      const appToken = await AsyncStorage.getItem('appToken');
+      
       const putStatus = 6;
       const url = await servers();
       const Token = await TokenAPI(); //Token esta sendo passado corretamente - não mexer
@@ -17,7 +19,7 @@ const useApiServicePut = () => {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
+          'App-Token': appToken,
           'Session-Token': Token,
         },
         body: JSON.stringify({

@@ -1,13 +1,15 @@
 import servers from '../pages/Components/servers';
 import { useState } from 'react';
 import TokenAPI from './token';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const useApiServicePost = () => {
   
   const [error,setError ] = useState(null);
   const [newTicket, setNewTicket] = useState({name: "", content:"", urgency:"", locations_id:""});
   const addTicket = async (locationId) => {
     try {
+      const appToken = await AsyncStorage.getItem('appToken');
+      
       const url = await servers();
       const Token = await TokenAPI();
       const res = await fetch(`${url}/Ticket/?range=0-200`, {
@@ -15,7 +17,7 @@ const useApiServicePost = () => {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
+          'App-Token': appToken,
           'Session-Token': `${Token}`,
         },
         body: JSON.stringify({
