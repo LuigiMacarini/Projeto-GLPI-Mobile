@@ -8,7 +8,7 @@ import logo from '../assets/logo.png';
 import gear from '../assets/gear.png';
 import servers from "../Components/servers";
 
-//MELHORAR LOGIN COM OUTROS METODOS
+
 const Login = () => {
     const navigation = useNavigation(); // Hook para navegação
     const [username, setUsername] = useState(''); // Estado para armazenar o nome de usuário
@@ -60,9 +60,8 @@ const Login = () => {
         const Authorization = base64.encode(text);
         await AsyncStorage.setItem('encoded', Authorization);
         const appToken = await AsyncStorage.getItem('appToken');
-        console.log(appToken)
         try {
-            const url = await servers();console.log(url)
+            const url = await servers();
             const res = await fetch(`${url}/initSession`, {
                 method: "GET",
                 headers: {

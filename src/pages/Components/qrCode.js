@@ -16,12 +16,11 @@ export default function QrCode() {
     })();
   }, []);
 
-  const handleBarCodeScanned = ({ type, data }) => {
+  const handleBarCodeScanned = ({ type, data }) => { //funcção para setar o AppToke scaneado
     setScanned(true);
     
     Alert.alert("Código escaneado!", `Dados: ${data}`);
-    console.log(`AppToken: ${data}`)
-     AsyncStorage.setItem("appToken",data);
+    AsyncStorage.setItem("appToken",data);
     navigation.navigate("Login", { sessionToken: data });
   };
 

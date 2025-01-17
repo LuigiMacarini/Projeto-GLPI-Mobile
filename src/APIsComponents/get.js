@@ -24,6 +24,9 @@ export const useApiService = () => {
         },
       });
       const result = await response.json();// resposta do fetch
+      if (!response.ok) {
+        throw new Error(result.status);
+      }
       const filteredResult = result.filter(ticket => //aqui filtra todos os Tickets e pega apenas os abertos
         !ticket.is_deleted &&
         ticket.close_delay_stat !== true &&

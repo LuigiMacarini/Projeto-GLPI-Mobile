@@ -10,10 +10,8 @@ export const useGetLocal = () => {
   const fetchDataLocal = useCallback(async () => {
     try {
       const appToken = await AsyncStorage.getItem('appToken');
-      
       const url = await servers();
       const Token = await TokenAPI(); 
-
         const response = await fetch(`${url}/location?range=0-200`, {
           method: 'GET',
           headers: {
@@ -24,7 +22,7 @@ export const useGetLocal = () => {
         });
 
         if (!response.ok) {
-          throw new Error("Erro em pegar a API-LOCAL-GET");
+         throw new Error(response.status);
         }
 
         const data = await response.json();
