@@ -79,12 +79,15 @@ export default function Servidores() {
                 </View>
             </View>
             <View style={styles.containerFooter}>
-            <Pressable onPress={() => navigation.navigate('QrCode')}><Image source={camera} //aqui faz uma outra page pra ler o APP Token e salva via asyncStorage
+            <Pressable onPress={() => navigation.navigate('QrCode')}>
+                <Image source={camera} //aqui faz uma outra page pra ler o APP Token e salva via asyncStorage
                 style={styles.cameraImage} />
                 </Pressable>
-                <Text>Scaneie o seu AppToken via QrCode</Text>
+                <View style={styles.boxCamera}>
+                <Text>Scaneie o seu Token via QrCode</Text>
                 <Text>AppToken:</Text>
-                <Text style={styles.containerText}> {appToken ? ` ${appToken}` : "Nenhum token armazenado"}</Text>
+                <Text style={styles.containerText}>{appToken ?`${appToken}` :"Nenhum token armazenado"}</Text>
+                </View>
                 </View>
             
                 
@@ -100,6 +103,12 @@ const styles = StyleSheet.create({
         backgroundColor:"#fff",
         justifyContent: 'center',
         alignItems: 'center'
+    },
+    boxCamera:{
+        backgroundColor: "#fff",
+        width:'90%',
+        padding: 16,
+        borderRadius: 8,
     },
     containerFooter:{
         marginTop:8,

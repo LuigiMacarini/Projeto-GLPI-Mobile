@@ -19,7 +19,7 @@ export const useGetLocal = () => {
           headers: {
             'Accept': 'application/json',
             'App-Token': appToken,
-            'Session-Token': 'h2p19t2ouct7shtq84t1gvqlr1'
+            'Session-Token': Token
           },
         });
         if (!response.ok) {

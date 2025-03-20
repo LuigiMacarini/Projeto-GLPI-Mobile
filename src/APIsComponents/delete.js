@@ -60,10 +60,10 @@ render do button excluir
         method: 'DELETE',
         headers: {
         'Content-Type': 'application/json',
-        'App-Token': 'D8lhQKHjvcfLNrqluCoeZXFvZptmDDAGhWl17V2R',
-        'Session-Token' : "747vafdqjja6g1cn3u5up22dkq"      //${token}     // por algum motivo o AsyncStoraged não ta passando o token para a header 
+        'App-Token': 
+        'Session-Token' :     //${token}     // por algum motivo o AsyncStoraged não ta passando o token para a header 
         },                                                   //por enquanto vai ficar com o token fixo do proprio Postman 
-      });                                               //7pblilnmcskukvp1uuiscbfuhu
+      });                                               
       if (!res.ok) {
         console.log("Erro em deletar ticket!", res.status);
       }

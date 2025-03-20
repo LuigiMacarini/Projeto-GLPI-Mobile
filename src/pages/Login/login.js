@@ -96,7 +96,7 @@ const Login = () => {
     const textAlert = () =>{
         Alert.alert(
             "Instruções do APP",
-            "Primeiro você deve colocar o seu servidor. Clique na engrenagem para acessar o servidor."
+            "Primeiro você deve colocar o seu servidor. Clique na engrenagem para acessar o servidor. Depois insira a URL e escaneie o seu Token de acesso."
         );
     };
     return (
